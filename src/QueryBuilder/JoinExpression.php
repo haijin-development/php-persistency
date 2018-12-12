@@ -7,7 +7,8 @@ use Haijin\Tools\OrderedCollection;
 
 class JoinExpression extends Expression
 {
-    protected $collection;
+    protected $from_collection;
+    protected $to_collection;
     protected $from_field;
     protected $to_field;
     protected $proyection;
@@ -15,11 +16,12 @@ class JoinExpression extends Expression
 
     /// Initializing
 
-    public function __construct($macro_expressions, $collection = null)
+    public function __construct($expression_context, $from_collection, $to_collection)
     {
-        parent::__construct( $macro_expressions );
+        parent::__construct( $expression_context );
 
-        $this->collection = $collection;
+        $this->from_collection = $from_collection;
+        $this->to_collection = $to_collection;
         $this->from_field = null;
         $this->to_field = null;
         $this->proyection = $this->new_proyection_expression();
@@ -28,14 +30,19 @@ class JoinExpression extends Expression
 
     /// Accessing
 
-    public function get_collection()
+    public function get_from_collection()
     {
-        return $this->collection;
+        return $this->from_collection;
     }
 
-    public function set_collection($collection)
+    public function get_to_collection()
     {
-        $this->collection = $collection;
+        return $this->to_collection;
+    }
+
+    public function set_to_collection($to_collection)
+    {
+        $this->to_collection = $to_collection;
     }
 
     public function get_from_field()
@@ -80,22 +87,52 @@ class JoinExpression extends Expression
         return $this->joins;
     }
 
+    public function get_nested_joins()
+    {
+        $joins = OrderedCollection::with( $this );
+
+        $this->joins->each_do( function($each_nested_join) use($joins) {
+            $joins->add_all( $each_nested_join->get_nested_joins() );
+        });
+
+        return $joins;
+    }
+
     public function get_collection_name()
     {
-        return $this->collection->get_collection_name();
+        return $this->to_collection->get_collection_name();
     }
 
     public function get_referenced_name()
     {
-        return $this->collection->get_referenced_name();
+        return $this->to_collection->get_referenced_name();
+    }
+
+    /// Iterating
+
+    public function joins_do($closure, $binding = null)
+    {
+        if( $binding === null ) {
+            $binding = $this;
+        }
+
+        return $this->joins->each_do( $closure, $binding );
     }
 
     /// DSL
 
     public function from($from_field)
     {
+        $from_field_expression = $this->new_field_expression( $from_field );
+        $from_field_expression->set_context(
+            $this->new_expression_context(
+                $this->get_macros_dictionary(),
+                $this->from_collection
+            )
+        );
+
         $this->set_from_field(
-            $this->new_field_expression( $from_field )
+            $from_field_expression
         );
 
         return $this;
@@ -116,23 +153,24 @@ class JoinExpression extends Expression
             $binding = $this;
         }
 
-        $join_query_builder = $this->new_query_expression_builder();
+        $join_query_builder = $this->new_query_expression_builder( $this->context );
 
         $build_closure->call( $binding, $join_query_builder );
 
         $this->proyection = $join_query_builder->get_proyection();
-        $this->join = $join_query_builder->get_join();
 
-        $this->macro_expressions->merge_with(
-            $join_query_builder->get_macro_expressions()
+        $this->joins = $join_query_builder->get_joins();
+
+        $this->context->add_to_macro_expressions(
+            $join_query_builder->get_macros_dictionary()
         );
     }
 
     /// Creating instances
 
-    public function new_query_expression_builder()
+    public function new_query_expression_builder($expression_context = null)
     {
-        return new QueryExpressionBuilder();
+        return new QueryExpressionBuilder( $expression_context );
     }
 
     /// Visiting

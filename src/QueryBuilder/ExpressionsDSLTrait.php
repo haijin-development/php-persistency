@@ -64,14 +64,20 @@ trait ExpressionsDSLTrait
     {
         return OrderedCollection::with_all( $values )
             ->collect( function($each_parameter) {
-
-                $is_expression = $each_parameter instanceof \Haijin\Persistency\QueryBuilder\Expression;
-
-                return $is_expression ?
-                    $each_parameter : $this->new_value_expression( $each_parameter );
-
+                return $this->_value_to_expression( $each_parameter );
             }, 
-            $this 
-        )->to_array();
+            $this )->to_array();
+    }
+
+    /**
+     * Converts value to a ValueExpressions if it's not one.
+     */
+    public function _value_to_expression($value)
+    {
+        if( $value instanceof \Haijin\Persistency\QueryBuilder\Expression ) {
+            return $value;
+        } else {
+            return $this->new_value_expression( $value );
+        }
     }
 }

@@ -3,30 +3,14 @@
 namespace Haijin\Persistency\Sql\QueryBuilder;
 
 use Haijin\Persistency\QueryBuilder\Builders\QueryExpressionBuilder;
-use Haijin\Persistency\QueryBuilder\Visitors\QueryExpressionVisitor;
+use Haijin\Persistency\QueryBuilder\Visitors\AbstractQueryExpressionVisitor;
+use Haijin\Persistency\QueryBuilder\Visitors\QueryVisitorTrait;
 use Haijin\Tools\OrderedCollection;
 
-class SqlBuilder extends QueryExpressionVisitor
+class SqlBuilder extends AbstractQueryExpressionVisitor
 {
+    use QueryVisitorTrait;
     use SqlBuilderTrait;
-
-    /**
-     * The current collection whos sql is being built.
-     * May be a CollectionExpression or a JoinExpression.
-     */
-    protected $current_collection;
-
-    /// Accessing
-
-    public function get_collection()
-    {
-        return $this->collection;
-    }
-
-    public function set_collection($collection)
-    {
-        $this->collection = $collection;
-    }
 
     /// Building
 
@@ -57,21 +41,13 @@ class SqlBuilder extends QueryExpressionVisitor
     {
         $sql = "";
 
-        $this->set_collection( $query_expression->get_collection() );
-
         $sql .= $this->nested_proyections_sql_from( $query_expression );
 
         $sql .= " ";
 
         $sql .= $this->visit( $query_expression->get_collection() );
 
-        if( $query_expression->has_joins() ) {
-            $sql .= " ";
-
-            foreach( $query_expression->get_joins()->to_array() as $join ) {
-                $sql .= $this->visit( $join );
-            }
-        }
+        $sql .= $this->join_expressions_sql_from( $query_expression );
 
         if( $query_expression->has_filter() ) {
             $sql .= " ";
@@ -95,20 +71,20 @@ class SqlBuilder extends QueryExpressionVisitor
 
     public function nested_proyections_sql_from($expression)
     {
-        return "select " . $this->collect_nested_proyections_sql_from( $expression );
+        return "select " . $this->get_nested_proyections_sql_from( $expression );
     }
 
-    public function collect_nested_proyections_sql_from($expression)
+    public function get_nested_proyections_sql_from($expression)
     {
         $proyected_fields = new OrderedCollection();
 
         $proyected_fields[] = $this->proyected_fields_from( $expression );
 
-        $expression->get_joins()->each_do( function($join_expression) use($proyected_fields) {
+        $expression->joins_do( function($join_expression) use($proyected_fields) {
             $sql_builder = $this->new_sql_builder( $join_expression );
 
             $proyected_fields[] =
-                $sql_builder->collect_nested_proyections_sql_from( $join_expression );
+                $sql_builder->get_nested_proyections_sql_from( $join_expression );
 
         }, $this);
 
@@ -117,9 +93,7 @@ class SqlBuilder extends QueryExpressionVisitor
 
     public function proyected_fields_from($expression)
     {
-        $proyection_builder = $this->new_sql_proyection_builder(
-                $expression->get_collection()
-            );
+        $proyection_builder = $this->new_sql_proyection_builder();
 
         return $proyection_builder->proyections_from(
             $expression->get_proyection()
@@ -140,8 +114,29 @@ class SqlBuilder extends QueryExpressionVisitor
      */
     public function accept_join_expression($join_expression)
     {
-        return ( new SqlJoinBuilder( $this->collection ) )
+        return ( new SqlJoinBuilder() )
             ->build_sql_from( $join_expression );
+    }
+
+    protected function join_expressions_sql_from($query_expression)
+    {
+        if( ! $query_expression->has_joins() ) {
+            return "";
+        }
+
+        $joins = new OrderedCollection();
+
+        $query_expression->joins_do( function($join_expression) use($joins) {
+
+            $join_expression->get_nested_joins()->each_do( function($join_expression) use($joins) {
+
+                $joins[] = $this->visit( $join_expression );
+
+            }, $this );
+
+        }, $this );
+
+        return " " . $joins->join_with( " " );
     }
 
     /**
@@ -149,7 +144,7 @@ class SqlBuilder extends QueryExpressionVisitor
      */
     public function accept_filter_expression($filter_expression)
     {
-        return ( new SqlFilterBuilder( $this->collection ) )
+        return ( new SqlFilterBuilder() )
             ->build_sql_from( $filter_expression );
     }
 
@@ -158,7 +153,7 @@ class SqlBuilder extends QueryExpressionVisitor
      */
     public function accept_order_by_expression($order_by_expression)
     {
-        return ( new SqlOrderByBuilder( $this->collection ) )
+        return ( new SqlOrderByBuilder() )
             ->build_sql_from( $order_by_expression );
     }
 
@@ -178,7 +173,7 @@ class SqlBuilder extends QueryExpressionVisitor
     {
         $sql = $this->visit( $alias_expression->get_aliased_expression() );
         $sql .= " as ";
-        $sql .= $this->escape( $alias_expression->get_alias() );
+        $sql .= $this->escape_sql( $alias_expression->get_alias() );
 
         return $sql;
     }
@@ -190,8 +185,8 @@ class SqlBuilder extends QueryExpressionVisitor
         return new self();
     }
 
-    public function new_sql_proyection_builder($collection)
+    public function new_sql_proyection_builder()
     {
-        return new SqlProyectionBuilder($collection);
+        return new SqlProyectionBuilder();
     }
 }

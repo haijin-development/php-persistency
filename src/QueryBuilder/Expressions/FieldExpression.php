@@ -15,9 +15,9 @@ class FieldExpression extends Expression
 
     /// Initializing
 
-    public function __construct($macro_expressions, $field_name)
+    public function __construct($expression_context, $field_name)
     {
-        parent::__construct( $macro_expressions );
+        parent::__construct( $expression_context );
 
         $this->field_name = $field_name;
     }

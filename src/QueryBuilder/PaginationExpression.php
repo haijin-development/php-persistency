@@ -10,9 +10,9 @@ class PaginationExpression extends Expression
 
     /// Initializing
 
-    public function __construct($macro_expressions)
+    public function __construct($expression_context)
     {
-        parent::__construct( $macro_expressions );
+        parent::__construct( $expression_context );
 
         $this->offset = null;
         $this->length = null;

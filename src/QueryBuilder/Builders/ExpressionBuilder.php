@@ -16,13 +16,13 @@ class ExpressionBuilder
     /**
      * A dictionary with the macro expressions defined in the query.
      */
-    protected $macro_expressions;
+    protected $expression_context;
 
     /// Initializing
 
-    public function __construct($macro_expressions)
+    public function __construct($expression_context)
     {
-        $this->macro_expressions = $macro_expressions;
+        $this->context = $expression_context;
     }
 
     /// Evaluating

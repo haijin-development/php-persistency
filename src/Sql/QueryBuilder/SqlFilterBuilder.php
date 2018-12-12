@@ -2,23 +2,11 @@
 
 namespace Haijin\Persistency\Sql\QueryBuilder;
 
-use Haijin\Persistency\QueryBuilder\Visitors\QueryExpressionVisitor;
+use Haijin\Persistency\QueryBuilder\Visitors\Expressions\FilterVisitor;
 
-class SqlFilterBuilder extends QueryExpressionVisitor
+class SqlFilterBuilder extends FilterVisitor
 {
     use SqlBuilderTrait;
-
-    protected $collection;
-
-    /// Initializing
-
-    /**
-     * Initializes $this instance.
-     */
-    public function __construct($collection)
-    {
-        $this->collection = $collection;
-    }
 
     /// Visiting
 

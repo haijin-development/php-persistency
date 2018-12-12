@@ -18,9 +18,9 @@ class QueryExpression extends Expression
     /**
      * Initializes $this instance.
      */
-    public function __construct($macro_expressions)
+    public function __construct($expression_context)
     {
-        parent::__construct( $macro_expressions );
+        parent::__construct( $expression_context );
 
         $this->collection = null;
         $this->proyection = $this->new_proyection_expression();
@@ -46,6 +46,7 @@ class QueryExpression extends Expression
     public function set_collection($collection_expression)
     {
         $this->collection = $collection_expression;
+        $this->context->set_current_collection( $collection_expression );
     }
 
     /**
@@ -154,6 +155,17 @@ class QueryExpression extends Expression
     public function has_pagination()
     {
         return $this->pagination !== null;
+    }
+
+    /// Iterating
+
+    public function joins_do($closure, $binding = null)
+    {
+        if( $binding === null ) {
+            $binding = $this;
+        }
+
+        return $this->joins->each_do( $closure, $binding );
     }
 
     /// Visiting

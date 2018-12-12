@@ -16,9 +16,9 @@ class FunctionCallExpression extends Expression
 
     /// Initializing
 
-    public function __construct($macro_expressions, $function_name, $parameters)
+    public function __construct($expression_context, $function_name, $parameters)
     {
-        parent::__construct( $macro_expressions );
+        parent::__construct( $expression_context );
 
         $this->function_name = $function_name;
         $this->parameters = $parameters;

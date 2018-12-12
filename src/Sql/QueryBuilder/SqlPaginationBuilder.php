@@ -2,9 +2,9 @@
 
 namespace Haijin\Persistency\Sql\QueryBuilder;
 
-use Haijin\Persistency\QueryBuilder\Visitors\QueryExpressionVisitor;
+use Haijin\Persistency\QueryBuilder\Visitors\Expressions\PaginationVisitor;
 
-class SqlPaginationBuilder extends QueryExpressionVisitor
+class SqlPaginationBuilder extends PaginationVisitor
 {
     use SqlBuilderTrait;
 
@@ -20,24 +20,33 @@ class SqlPaginationBuilder extends QueryExpressionVisitor
         $page = $pagination_expression->get_page();
 
         if( $page !== null && $length !== null ) {
-            return "limit " . 
-                $this->escape( (string) $length ) . ", " .
-                $this->escape( (string) $length * $page );
+            return $this->page_sql($page, $length);
         }
 
         if( $offset !== null && $length !== null ) {
-            return "limit " .
-                $this->escape( (string) $length ) . ", " . 
-                $this->escape( (string) $offset );
-        } else {
-
-            if( $length !== null ) {
-                return "limit " . $this->escape( (string) $length );
-            }
-
-            if( $offset !== null ) {
-                return "offset " . $this->escape( (string) $offset );
-            }
+            return $this->offset_and_limit_sql( $offset, $length );
         }
+
+        if( $length !== null ) {
+            return "limit " . $this->escape_sql( (string) $length );
+        }
+
+        if( $offset !== null ) {
+            return "offset " . $this->escape_sql( (string) $offset );
+        }
+    }
+
+    protected function page_sql($page_number, $page_size)
+    {
+        return "limit " . 
+                $this->escape_sql( (string) $page_size ) . ", " .
+                $this->escape_sql( (string) $page_size * $page_number );
+    }
+
+    protected function offset_and_limit_sql($offset, $limit)
+    {
+        return "limit " .
+                $this->escape_sql( (string) $limit ) . ", " . 
+                $this->escape_sql( (string) $offset );
     }
 }

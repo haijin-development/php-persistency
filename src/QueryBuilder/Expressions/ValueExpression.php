@@ -15,9 +15,9 @@ class ValueExpression extends Expression
 
     /// Initializing
 
-    public function __construct($macro_expressions, $value)
+    public function __construct($expression_context, $value)
     {
-        parent::__construct( $macro_expressions );
+        parent::__construct( $expression_context );
 
         $this->value = $value;
     }

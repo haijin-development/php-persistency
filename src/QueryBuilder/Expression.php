@@ -9,30 +9,35 @@ abstract class Expression
 {
     use ExpressionsFactoryTrait;
 
-    protected $macro_expressions;
+    protected $context;
 
     /// Initializing
 
-    public function __construct($macro_expressions)
+    public function __construct($expression_context)
     {
-        $this->macro_expressions = $macro_expressions;
+        $this->context = $expression_context;
     }
 
     /// Macro expressions
 
-    public function get_macro_expressions()
+    public function get_context()
     {
-        return $this->macro_expressions;
+        return $this->context;
     }
 
-    /**
-     * Assumes that the attribute is a macro expressions. Searches for a defined macro
-     * expression with that name and returns its evaluation. If none is found raises
-     * an error.
-     */
-    public function __get($attribute_name)
+    public function set_context($expression_context)
     {
-        return $this->macro_expressions->at( $attribute_name, $this );
+        $this->context = $expression_context;
+    }
+
+    public function get_macros_dictionary()
+    {
+        return $this->get_context()->get_macros_dictionary();
+    }
+
+    public function get_context_collection()
+    {
+        return $this->get_context()->get_current_collection();
     }
 
     /// Visiting

@@ -2,9 +2,10 @@
 
 namespace Haijin\Persistency\Sql\QueryBuilder;
 
-use Haijin\Persistency\QueryBuilder\Visitors\QueryExpressionVisitor;
+use Haijin\Persistency\QueryBuilder\Visitors\AbstractQueryExpressionVisitor;
+use Haijin\Persistency\QueryBuilder\Visitors\Expressions\CollectionVisitor;
 
-class SqlCollectionBuilder extends QueryExpressionVisitor
+class SqlCollectionBuilder extends CollectionVisitor
 {
     use SqlBuilderTrait;
 
@@ -15,7 +16,7 @@ class SqlCollectionBuilder extends QueryExpressionVisitor
      */
     public function accept_collection_expression($collection_expression)
     {
-        return "from " . $this->escape(
+        return "from " . $this->escape_sql(
                 $collection_expression->get_collection_name()
             );
     }

@@ -8,9 +8,9 @@ class CollectionExpression extends Expression
 
     /// Initializing
 
-    public function __construct($macro_expressions, $collection_name = null)
+    public function __construct($expression_context, $collection_name = null)
     {
-        parent::__construct( $macro_expressions );
+        parent::__construct( $expression_context );
 
         $this->collection_name = $collection_name;
     }

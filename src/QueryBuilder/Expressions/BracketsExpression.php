@@ -15,9 +15,9 @@ class BracketsExpression extends Expression
 
     /// Initializing
 
-    public function __construct($macro_expressions, $expression = null)
+    public function __construct($expression_context, $expression = null)
     {
-        parent::__construct( $macro_expressions );
+        parent::__construct( $expression_context );
 
         $this->expression = $expression;
     }

@@ -10,9 +10,9 @@ class FilterExpression extends Expression
 
     /// Initializing
 
-    public function __construct($macro_expressions, $filter = null)
+    public function __construct($expression_context, $filter = null)
     {
-        parent::__construct( $macro_expressions );
+        parent::__construct( $expression_context );
 
         $this->filter = $filter;
     }

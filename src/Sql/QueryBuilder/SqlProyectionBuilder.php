@@ -2,45 +2,17 @@
 
 namespace Haijin\Persistency\Sql\QueryBuilder;
 
-use Haijin\Persistency\QueryBuilder\Visitors\QueryExpressionVisitor;
+use Haijin\Persistency\QueryBuilder\Visitors\Expressions\ProyectionVisitor;
 use Haijin\Tools\OrderedCollection;
 
-class SqlProyectionBuilder extends QueryExpressionVisitor
+class SqlProyectionBuilder extends ProyectionVisitor
 {
     use SqlBuilderTrait;
-
-    protected $collection;
-
-    /// Initializing
-
-    /**
-     * Initializes $this instance.
-     */
-    public function __construct($collection)
-    {
-        $this->collection = $collection;
-    }
-
-    /// Visiting
-
-    /**
-     * Accepts a ProyectionExpression.
-     */
-    public function accept_proyection_expression($proyection_expression)
-    {
-        if( $proyection_expression->is_empty() ) {
-            return "select " . $this->collection->get_referenced_name() . ".*";
-        }
-
-        return "select " . $this->expressions_list(
-                $proyection_expression->get_proyected_expressions()
-            );
-    }
 
     public function proyections_from($proyection_expression)
     {
         if( $proyection_expression->is_empty() ) {
-            return $this->collection->get_referenced_name() . ".*";
+            return $this->empty_proyection_sql_from( $proyection_expression );
         }
 
         return $this->expressions_list(
@@ -48,10 +20,16 @@ class SqlProyectionBuilder extends QueryExpressionVisitor
         );
     }
 
+    protected function empty_proyection_sql_from($proyection_expression)
+    {
+        return $proyection_expression->get_context_collection()
+                    ->get_referenced_name() . ".*";
+    }
+
     /// Creating instances
 
-    protected function new_sql_expression_builder($collection_expression)
+    protected function new_sql_expression_builder()
     {
-        return new SqlExpressionBuilder( $collection_expression, false );
+        return new SqlExpressionBuilder( false );
     }
 }

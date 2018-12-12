@@ -70,11 +70,15 @@ $database->query( function($query) {
         );
     });
 
-    $query->filter( $query
-        ->brackets( $query
-            ->brackets( $query ->field( "name" ) ->op( "=" ) ->value( "Lisa" ) )
+    $query->filter(
+        $query->brackets(
+            $query->brackets(
+                $query ->field( "name" ) ->op( "=" ) ->value( "Lisa" )
+            )
             ->and()
-            ->brackets( $query ->field( "last_name" ) ->op( "=" ) ->value( "Simpson" ) )
+            ->brackets(
+                $query ->field( "last_name" ) ->op( "=" ) ->value( "Simpson" )
+            )
         )
         ->or()
         ->brackets(
@@ -109,26 +113,41 @@ $database->query( function($query) {
 
     $query->proyect(
         $query->field( "name" ),
-        $query->field( "last_name" ),
-        $query->concat(
-            $query->field( "street_name" ), " ", $query->field( "street_number" )
-        )->as( "address" )
+        $query->field( "last_name" )
     );
 
-    $query->let( "matches_name", function($query) { return $query
-        ->field( "name" ) ->op( "=" ) ->value( "Lisa" );
+    $query->join( "address" ) ->from( "id" ) ->to( "user_id" ) ->eval( function($query) {
+
+        $query->proyect(
+            $query->concat(
+                $query->field( "street_name" ), " ", $query->field( "street_number" )
+            ) ->as( "address" )
+        );
+
+        $query->let( "matches_address", function($query) { return
+            $query->brackets(
+                $query ->field( "street_name" ) ->op( "like" ) ->value( "%Evergreen%" )
+            );
+        });
+
     });
 
-    $query->let( "matches_last_name", function($query) { return $query
-        ->field( "last_name" ) ->op( "=" ) ->value( "Simpson" );
+    $query->let( "matches_name", function($query) { return
+        $query->brackets(
+            $query ->field( "name" ) ->op( "=" ) ->value( "Lisa" )
+        );
     });
 
-    $query->let( "matches_address", function($query) { return $query 
-        ->field( "street_name" ) ->op( "like" ) ->value( "%Evergreen%" );
+    $query->let( "matches_last_name", function($query) { return
+        $query->brackets(
+            $query ->field( "last_name" ) ->op( "=" ) ->value( "Simpson" )
+        );
     });
 
-    $query->filter( $query
-        ->brackets( $query->matches_name ->and() ->matches_last_name )
+    $query->filter(
+        $query->brackets( $query
+            ->matches_name ->and() ->matches_last_name
+        )
         ->or()
         ->matches_address
     );
@@ -136,14 +155,14 @@ $database->query( function($query) {
     $query->order_by(
         $query->field( "last_name" ),
         $query->field( "name" ),
-        $query->field( "address" )
+        $query->field( "address.address" )
     );
 
-    $query->pagination( function($query) {
+    $query->pagination(
         $query
-            ->page( 0 )
-            ->page_size( 10 );
-    });
+            ->offset( 0 )
+            ->limit( 10 )
+    );
 });
 ```
 

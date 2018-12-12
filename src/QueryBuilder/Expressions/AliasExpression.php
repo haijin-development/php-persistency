@@ -11,9 +11,9 @@ class AliasExpression extends Expression
 
     /// Initializing
 
-    public function __construct($macro_expressions, $alias, $aliased_expression)
+    public function __construct($expression_context, $alias, $aliased_expression)
     {
-        parent::__construct( $macro_expressions );
+        parent::__construct( $expression_context );
 
         $this->alias = $alias;
         $this->aliased_expression = $aliased_expression;

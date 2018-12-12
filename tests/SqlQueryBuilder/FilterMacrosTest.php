@@ -45,8 +45,8 @@ class FilterMacrosTest extends \PHPUnit\Framework\TestCase
                 ->field( "last_name" ) ->op( "=" ) ->value( "Simpson" );
             });
 
-            $query->filter( $query
-                ->matches_name ->and() ->matches_last_name
+            $query->filter(
+                $query ->matches_name ->and() ->matches_last_name
             );
         });
 

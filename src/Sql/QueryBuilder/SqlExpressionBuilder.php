@@ -2,32 +2,23 @@
 
 namespace Haijin\Persistency\Sql\QueryBuilder;
 
-use Haijin\Persistency\QueryBuilder\Visitors\QueryExpressionVisitor;
+use Haijin\Persistency\QueryBuilder\Visitors\Expressions\ExpressionVisitor;
 use Haijin\Tools\OrderedCollection;
 
 /**
  * A builder of general expressions used in different query parts.
  */
-class SqlExpressionBuilder extends QueryExpressionVisitor
+class SqlExpressionBuilder extends ExpressionVisitor
 {
     use SqlBuilderTrait;
-
-    protected $collection;
-    protected $collection_name;
 
     /// Initializing
 
     /**
      * Initializes $this instance.
      */
-    public function __construct($collection, $use_fields_alias = true)
+    public function __construct($use_fields_alias = true)
     {
-        $this->collection = $collection;
-
-        $this->collection_name = $this->escape(
-            $collection->get_referenced_name()
-        );
-
         $this->use_fields_alias = $use_fields_alias;
     }
 
@@ -38,7 +29,8 @@ class SqlExpressionBuilder extends QueryExpressionVisitor
      */
     public function accept_all_fields_expression($all_fields_expression)
     {
-        return $this->collection_name . ".*";
+        return $all_fields_expression->get_context_collection()
+                    ->get_referenced_name() . ".*";
     }
 
     /**
@@ -49,11 +41,11 @@ class SqlExpressionBuilder extends QueryExpressionVisitor
         $field = '';
 
         if( $field_expression->is_relative() ) {
-            $field .= $this->collection_name;
-            $field .= ".";
+            $field .= $field_expression->get_context_collection()
+                        ->get_referenced_name() . ".";
         }
 
-        $field .= $this->escape( $field_expression->get_field_name() );
+        $field .= $this->escape_sql( $field_expression->get_field_name() );
 
         return $field;
     }
@@ -79,7 +71,7 @@ class SqlExpressionBuilder extends QueryExpressionVisitor
 
         $sql .= " as ";
 
-        $sql .= $this->escape( $alias_expression->get_alias() );
+        $sql .= $this->escape_sql( $alias_expression->get_alias() );
 
         return $sql;
     }
@@ -94,7 +86,7 @@ class SqlExpressionBuilder extends QueryExpressionVisitor
             return $this->unary_function_sql( $function_name, $function_call_expression );
         }
 
-        $sql = $this->escape( $function_call_expression->get_function_name() );
+        $sql = $this->escape_sql( $function_call_expression->get_function_name() );
         $sql .= "(";
 
         $sql .= $this->expressions_list(
@@ -148,7 +140,7 @@ class SqlExpressionBuilder extends QueryExpressionVisitor
 
         $sql .= " ";
 
-        $sql .= $this->escape( $binary_operator_expression->get_operator_symbol() );
+        $sql .= $this->escape_sql( $binary_operator_expression->get_operator_symbol() );
 
         $sql .= " ";
 

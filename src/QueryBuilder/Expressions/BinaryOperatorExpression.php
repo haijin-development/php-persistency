@@ -22,9 +22,9 @@ class BinaryOperatorExpression extends Expression
     /**
      * Initializes $this instance.
      */
-    public function __construct($macro_expressions, $operator_symbol, $parameter_1, $parameter_2)
+    public function __construct($expression_context, $operator_symbol, $parameter_1, $parameter_2)
     {
-        parent::__construct( $macro_expressions );
+        parent::__construct( $expression_context );
 
         $this->operator_symbol = $operator_symbol;
         $this->parameter_1 = $parameter_1;
@@ -81,10 +81,24 @@ class BinaryOperatorExpression extends Expression
      */
     public function __call($function_name, $parameters)
     {
-        $expression_builder = new ExpressionBuilder( $this->macro_expressions );
+        $expression_builder = new ExpressionBuilder( $this->context );
 
         $this->set_parameter_2(
             $expression_builder->receive($function_name, $parameters)
+        );
+
+        return $this;
+    }
+
+    /**
+     * Assumes that the attribute is a macro expressions. Searches for a defined macro
+     * expression with that name and returns its evaluation. If none is found raises
+     * an error.
+     */
+    public function __get($macro_name)
+    {
+        $this->set_parameter_2(
+            $this->get_macros_dictionary()->at( $macro_name, $this )
         );
 
         return $this;
