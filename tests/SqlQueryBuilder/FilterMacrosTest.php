@@ -1,6 +1,6 @@
 <?php
 
-namespace Testing\SqlQueryBuilderTest;
+namespace SqlQueryBuilder\FilterMacrosTest;
 
 use Haijin\Persistency\Sql\QueryBuilder\SqlBuilder;
 

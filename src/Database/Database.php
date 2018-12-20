@@ -5,7 +5,6 @@ namespace Haijin\Persistency\Database;
 use Haijin\Persistency\Errors\Connections\DatabaseQueryError;
 use Haijin\Persistency\Errors\Connections\UninitializedConnectionError;
 use Haijin\Persistency\Errors\Connections\ConnectionFailedError;
-use Haijin\Persistency\QueryBuilder\Builders\QueryExpressionBuilder;
 
 abstract class Database
 {
@@ -29,22 +28,12 @@ abstract class Database
      * Compiles the $query_closure and executes the compiled query in the server.
      * Returns the rows returned by the query execution. 
      */
-    public function query($query_closure)
-    {
-        return $this->execute(
-            $this->compile_query( $query_closure )
-        );
-    }
+    abstract public function query($query_closure);
 
     /**
-     * Compiles the $query_closure and executes the compiled query in the server.
-     * Returns the rows returned by the query execution. 
+     * Compiles the $query_closure.
      */
-    public function compile_query($query_closure)
-    {
-        return $this->new_query_expression_builder()
-            ->build( $query_closure );
-    }
+    abstract public function compile_query($query_closure);
 
     /// Executing
 
@@ -52,22 +41,7 @@ abstract class Database
      * Executes the $compiled_query.
      * Returns the result of the execution.
      */
-    abstract public function execute($compiled_query);
-
-    /// Creating instances
-
-    /**
-     * Creates and returns a new QueryExpressionBuilder.
-     */
-    protected function new_query_expression_builder()
-    {
-        return new QueryExpressionBuilder();
-    }
-
-    /**
-     * Creates and returns a new MysqlQueryBuilder.
-     */
-    abstract protected function new_mysql_query_builder();
+    abstract public function execute($compiled_query, $parameters = []);
 
     /// Raising errors
 

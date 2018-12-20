@@ -1,6 +1,6 @@
 <?php
 
-namespace ConnectionTest;
+namespace Mysql\QueryBuilder\ConnectionTest;
 
 require_once __DIR__ . "/MysqlQueryTestBase.php";
 

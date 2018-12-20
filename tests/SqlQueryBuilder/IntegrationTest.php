@@ -1,6 +1,6 @@
 <?php
 
-namespace Testing\SqlQueryBuilder\SqlQueryBuilderTest;
+namespace SqlQueryBuilder\IntegrationTest;
 
 use Haijin\Persistency\Sql\QueryBuilder\SqlBuilder;
 

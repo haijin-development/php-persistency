@@ -1,6 +1,6 @@
 <?php
 
-namespace CollectionTest;
+namespace Mysql\QueryBuilder\CollectionTest;
 
 require_once __DIR__ . "/MysqlQueryTestBase.php";
 

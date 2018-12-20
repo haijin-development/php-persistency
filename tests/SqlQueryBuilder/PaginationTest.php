@@ -1,6 +1,6 @@
 <?php
 
-namespace Testing\SqlQueryBuilderTest;
+namespace SqlQueryBuilder\PaginationTest;
 
 use Haijin\Persistency\Sql\QueryBuilder\SqlBuilder;
 

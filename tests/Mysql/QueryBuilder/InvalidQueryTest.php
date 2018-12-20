@@ -1,6 +1,6 @@
 <?php
 
-namespace InvalidQueryTest;
+namespace Mysql\QueryBuilder\InvalidQueryTest;
 
 require_once __DIR__ . "/MysqlQueryTestBase.php";
 

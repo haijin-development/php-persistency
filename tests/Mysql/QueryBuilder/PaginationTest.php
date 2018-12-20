@@ -1,6 +1,6 @@
 <?php
 
-namespace PaginationTest;
+namespace Mysql\QueryBuilder\PaginationTest;
 
 require_once __DIR__ . "/MysqlQueryTestBase.php";
 

@@ -4,6 +4,8 @@ namespace Haijin\Persistency\Mysql;
 
 use Haijin\Persistency\Database\Database;
 use Haijin\Persistency\Mysql\QueryBuilder\MysqlQueryBuilder;
+use Haijin\Persistency\QueryBuilder\Builders\QueryExpressionBuilder;
+use Haijin\Tools\OrderedCollection;
 
 class MysqlDatabase extends Database
 {
@@ -42,23 +44,50 @@ class MysqlDatabase extends Database
         );
     }
 
+    /// Querying
+
+    /**
+     * Compiles the $query_closure and executes the compiled query in the server.
+     * Returns the rows returned by the query execution. 
+     */
+    public function query($query_closure)
+    {
+        $value_parameters = new OrderedCollection();
+
+        $compiled_query = $this->compile_query( $query_closure, $value_parameters );
+
+        return $this->execute( $compiled_query, $value_parameters );
+    }
+
+    /**
+     * Compiles the $query_closure and executes the compiled query in the server.
+     * Returns the rows returned by the query execution. 
+     */
+    public function compile_query($query_closure)
+    {
+        return $this->new_query_expression_builder()
+            ->build( $query_closure );
+    }
+
     /// Executing
 
     /**
      * Executes the $compiled_query.
      * Returns the result of the execution.
      */
-    public function execute($compiled_query)
+    public function execute($compiled_query, $parameters = [])
     {
         $this->validate_connection_handle();
 
-        $statement_handle = $this->_prepare_statement($compiled_query);
+        $query_parameters = new OrderedCollection();
+
+        $statement_handle = $this->_prepare_statement( $compiled_query, $query_parameters );
 
         if( $statement_handle === false ) {
             $this->raise_database_query_error( $this->connection_handle->error );
         }
 
-        $result_rows = $this->_execute_statement( $statement_handle );
+        $result_rows = $this->_execute_statement( $statement_handle, $query_parameters );
 
         return $this->_process_result_rows( $result_rows );
     }
@@ -66,9 +95,9 @@ class MysqlDatabase extends Database
     /**
      * Creates and returns a rrepared Mysql statement from a QueryExpression.
      */
-    protected function _prepare_statement($compiled_query)
+    protected function _prepare_statement($compiled_query, $query_parameters)
     {
-        $sql = $this->query_to_sql( $compiled_query );
+        $sql = $this->query_to_sql( $compiled_query, $query_parameters );
 
         return $this->connection_handle->prepare( $sql );
     }
@@ -77,13 +106,16 @@ class MysqlDatabase extends Database
      * Binds the parameters to the Mysql prepared statement and executes it.
      * Returns an associative array with the results.
      */
-    protected function _execute_statement($statement_handle, $params = [])
+    protected function _execute_statement($statement_handle, $query_parameters)
     {
-        $this->_bind_parameters_to_statement( $statement_handle, $params );
+        $this->_bind_parameters_to_statement( $statement_handle, $query_parameters );
 
-        $statement_handle->execute();
+        $result = $statement_handle->execute();
 
         $result_handle = $statement_handle->get_result();
+        if( $result_handle === false ) {
+            $this->raise_database_query_error( $statement_handle->error );
+        }
 
         return $result_handle->fetch_all( MYSQLI_ASSOC );
     }
@@ -91,9 +123,27 @@ class MysqlDatabase extends Database
     /**
      * Binds the parameters to the Mysql prepared statement.
      */
-    protected function _bind_parameters_to_statement($statement_handle, $params = [])
+    protected function _bind_parameters_to_statement($statement_handle, $query_parameters)
     {
-        // $statement_handle->bind_param();
+        if( $query_parameters->is_empty() ) {
+            return;
+        }
+
+        $parameters_array = $query_parameters->to_array();
+
+        $types = "";
+        foreach($parameters_array as $i => $value) {
+            if( is_string( $value ) )
+                $types .= "s";
+            elseif( is_double( $value ) )
+                $types .= "d";
+            elseif( is_int( $value ) )
+                $types .= "i";
+            else
+                $types;
+        }
+
+        $statement_handle->bind_param( $types, ...$parameters_array );
     }
 
     /**
@@ -109,9 +159,10 @@ class MysqlDatabase extends Database
     /**
      * Builds the SQL string from the given $compiled_query.
      */
-    protected function query_to_sql($compiled_query)
+    protected function query_to_sql($compiled_query, $query_parameters)
     {
-        return $this->new_mysql_query_builder()->build_sql_from( $compiled_query );
+        return $this->new_mysql_query_builder( $query_parameters )
+            ->build_sql_from( $compiled_query );
     }
 
     /// Validating
@@ -131,8 +182,16 @@ class MysqlDatabase extends Database
     /**
      * Creates and returns a new MysqlQueryBuilder.
      */
-    protected function new_mysql_query_builder()
+    protected function new_mysql_query_builder($query_parameters)
     {
-        return new MysqlQueryBuilder();
+        return new MysqlQueryBuilder( $query_parameters );
+    }
+
+    /**
+     * Creates and returns a new MysqlQueryBuilder.
+     */
+    protected function new_query_expression_builder()
+    {
+        return new QueryExpressionBuilder();
     }
 }

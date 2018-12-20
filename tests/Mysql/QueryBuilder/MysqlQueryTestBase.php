@@ -6,23 +6,26 @@ class MysqlQueryTestBase extends \PHPUnit\Framework\TestCase
 {
     use \Haijin\Testing\AllExpectationsTrait;
 
+    static public function setUpBeforeClass()
+    {
+        self::drop_tables();
+        self::create_tables();
+    }
+
+    static public function tearDownBeforeClass()
+    {
+        self::drop_tables();
+    }
+
     public function setUp()
     {
         parent::setUp();
 
-        $this->drop_tables();
-        $this->create_tables();
+        $this->clear_tables();
         $this->populate_tables();
     }
 
-    public function tearDown()
-    {
-        parent::tearDown();
-
-        $this->drop_tables();
-    }
-
-    protected function drop_tables()
+    static protected function drop_tables()
     {
         $db = new \mysqli( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
         $db->query(
@@ -31,7 +34,7 @@ class MysqlQueryTestBase extends \PHPUnit\Framework\TestCase
         $db->close();
     }
 
-    protected function create_tables()
+    static protected function create_tables()
     {
         $db = new \mysqli( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
         $db->query(
@@ -41,6 +44,15 @@ class MysqlQueryTestBase extends \PHPUnit\Framework\TestCase
                 `last_name` VARCHAR(45) NULL,
                 PRIMARY KEY (`id`)
             );"
+        );
+        $db->close();
+    }
+
+    protected function clear_tables()
+    {
+        $db = new \mysqli( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
+        $db->query(
+            "TRUNCATE users;"
         );
         $db->close();
     }

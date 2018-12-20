@@ -1,6 +1,6 @@
 <?php
 
-namespace OrderByTest;
+namespace Mysql\QueryBuilder\OrderByTest;
 
 require_once __DIR__ . "/MysqlQueryTestBase.php";
 
