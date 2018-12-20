@@ -30,7 +30,7 @@ class ExpressionVisitor extends AbstractQueryExpressionVisitor
     /**
      * Accepts a ValueExpression.
      */
-    public function accept_value($value_expression)
+    public function accept_value_expression($value_expression)
     {
         $this->raise_unexpected_expression_error( $filter_expression );
     }

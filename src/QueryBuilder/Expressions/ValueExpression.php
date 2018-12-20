@@ -33,6 +33,6 @@ class ValueExpression extends Expression
 
     public function accept_visitor($visitor)
     {
-        return $visitor->accept_value( $this );
+        return $visitor->accept_value_expression( $this );
     }
 }

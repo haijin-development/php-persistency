@@ -12,7 +12,7 @@ trait ExpressionsDSLTrait
     /// DSL
 
     /**
-     * Adds a AllFieldsExpression to the collection of proyected expressions.
+     * Returns a new AllFieldsExpression.
      */
     public function all()
     {
@@ -20,7 +20,7 @@ trait ExpressionsDSLTrait
     }
 
     /**
-     * Adds a FieldExpression to the collection of proyected expressions.
+     * Returns a new FieldExpression.
      */
     public function field($field_name)
     {
@@ -28,11 +28,19 @@ trait ExpressionsDSLTrait
     }
 
     /**
-     * Adds a ValueExpression to the collection of proyected expressions.
+     * Returns a new ValueExpression.
      */
     public function value($value)
     {
         return $this->new_value_expression( $value );
+    }
+
+    /**
+     * Returns a new NamedParameterExpression.
+     */
+    public function param($parameter_name)
+    {
+        return $this->new_named_parameter_expression( $parameter_name );
     }
 
     /**

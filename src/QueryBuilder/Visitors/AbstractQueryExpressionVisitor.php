@@ -64,7 +64,12 @@ abstract class AbstractQueryExpressionVisitor
     /**
      * Accepts a ValueExpression.
      */
-    abstract public function accept_value($value_expression);
+    abstract public function accept_value_expression($value_expression);
+
+    /**
+     * Accepts a NamedParameterExpression.
+     */
+    abstract public function accept_named_parameter_expression($named_parameter_expression);
 
     /**
      * Accepts a AliasExpression.

@@ -28,7 +28,7 @@ abstract class Database
      * Compiles the $query_closure and executes the compiled query in the server.
      * Returns the rows returned by the query execution. 
      */
-    abstract public function query($query_closure);
+    abstract public function query($query_closure, $named_parameters = []);
 
     /**
      * Compiles the $query_closure.
@@ -41,7 +41,7 @@ abstract class Database
      * Executes the $compiled_query.
      * Returns the result of the execution.
      */
-    abstract public function execute($compiled_query, $parameters = []);
+    abstract public function execute($compiled_query, $named_parameters = []);
 
     /// Raising errors
 

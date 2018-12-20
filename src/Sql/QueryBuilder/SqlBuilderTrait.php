@@ -2,7 +2,7 @@
 
 namespace Haijin\Persistency\Sql\QueryBuilder;
 
-use Haijin\Persistency\Errors\UnexpectedExpressionError;
+use Haijin\Persistency\Errors\QueryExpressions\UnexpectedExpressionError;
 
 trait SqlBuilderTrait
 {

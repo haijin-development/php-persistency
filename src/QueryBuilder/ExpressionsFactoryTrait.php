@@ -7,6 +7,7 @@ use Haijin\Persistency\QueryBuilder\Builders\MacroExpressionsDictionary;
 use Haijin\Persistency\QueryBuilder\Expressions\AllFieldsExpression;
 use Haijin\Persistency\QueryBuilder\Expressions\FieldExpression;
 use Haijin\Persistency\QueryBuilder\Expressions\ValueExpression;
+use Haijin\Persistency\QueryBuilder\Expressions\NamedParameterExpression;
 use Haijin\Persistency\QueryBuilder\Expressions\AliasExpression;
 use Haijin\Persistency\QueryBuilder\Expressions\FunctionCallExpression;
 use Haijin\Persistency\QueryBuilder\Expressions\BinaryOperatorExpression;
@@ -101,6 +102,14 @@ trait ExpressionsFactoryTrait
         return new ValueExpression(
             $this->context,
             $value
+        );
+    }
+
+    protected function new_named_parameter_expression($parameter_name)
+    {
+        return new NamedParameterExpression(
+            $this->context,
+            $parameter_name
         );
     }
 

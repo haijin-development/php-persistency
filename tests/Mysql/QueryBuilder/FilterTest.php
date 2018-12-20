@@ -354,4 +354,73 @@ class FilterTest extends \MysqlQueryTestBase
             ]
         );
     }
+
+    public function test_named_parameters()
+    {
+        $database = new MysqlDatabase();
+
+        $database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
+
+        $rows = $database->query( function($query) {
+
+            $query->collection( "users" );
+
+            $query->filter(
+                $query->field( "name" ) ->op( "=" ) ->value( "Lisa" )
+                ->or()
+                ->field( "name" ) ->op( "=" ) ->param( "name" )
+            );
+        },
+        [
+            "name" => "Maggie"
+        ]);
+
+        $this->expectObjectToBeExactly(
+            $rows,
+            [
+                [
+                    "id" => 1,
+                    "name" => "Lisa",
+                    "last_name" => "Simpson"
+                ],
+                [
+                    "id" => 3,
+                    "name" => "Maggie",
+                    "last_name" => "Simpson"
+                ]
+            ]
+        );
+    }
+
+    public function test_raises_an_error_when_a_named_parameter_is_not_found()
+    {
+        $database = new MysqlDatabase();
+
+        $database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
+
+        $this->expectExactExceptionRaised(
+            \Haijin\Persistency\Errors\Connections\NamedParameterNotFoundError::class,
+            function() use($database) {
+
+                $database->query( function($query) {
+
+                    $query->collection( "users" );
+
+                    $query->filter(
+                        $query->field( "name" ) ->op( "=" ) ->value( "Lisa" )
+                        ->or()
+                        ->field( "name" ) ->op( "=" ) ->param( "name" )
+                    );
+                });
+            },
+            function($error) {
+                $this->assertEquals(
+                    "The query named parameter 'name' was not found.",
+                    $error->getMessage()
+                );
+
+                $this->assertEquals( "name", $error->get_parameter_name() );
+            }
+        );
+    }
 }

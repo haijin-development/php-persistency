@@ -53,7 +53,7 @@ class SqlExpressionBuilder extends ExpressionVisitor
     /**
      * Accepts a ValueExpression.
      */
-    public function accept_value($value_expression)
+    public function accept_value_expression($value_expression)
     {
         return $this->value_to_sql( $value_expression->get_value() );
     }

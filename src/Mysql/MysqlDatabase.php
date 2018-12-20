@@ -2,9 +2,12 @@
 
 namespace Haijin\Persistency\Mysql;
 
+use Haijin\Persistency\Errors\Connections\NamedParameterNotFoundError;
 use Haijin\Persistency\Database\Database;
 use Haijin\Persistency\Mysql\QueryBuilder\MysqlQueryBuilder;
+use Haijin\Persistency\Mysql\QueryBuilder\NamedParameterPlaceholder;
 use Haijin\Persistency\QueryBuilder\Builders\QueryExpressionBuilder;
+use Haijin\Tools\Dictionary;
 use Haijin\Tools\OrderedCollection;
 
 class MysqlDatabase extends Database
@@ -50,13 +53,14 @@ class MysqlDatabase extends Database
      * Compiles the $query_closure and executes the compiled query in the server.
      * Returns the rows returned by the query execution. 
      */
-    public function query($query_closure)
+    public function query($query_closure, $named_parameters = [])
     {
-        $value_parameters = new OrderedCollection();
+        $query_parameters = new OrderedCollection();
+        $named_parameters = Dictionary::with_all( $named_parameters );
 
-        $compiled_query = $this->compile_query( $query_closure, $value_parameters );
+        $compiled_query = $this->compile_query( $query_closure, $query_parameters );
 
-        return $this->execute( $compiled_query, $value_parameters );
+        return $this->execute( $compiled_query, $named_parameters, $query_parameters );
     }
 
     /**
@@ -75,7 +79,7 @@ class MysqlDatabase extends Database
      * Executes the $compiled_query.
      * Returns the result of the execution.
      */
-    public function execute($compiled_query, $parameters = [])
+    public function execute($compiled_query, $named_parameters = [], $query_parameters = [])
     {
         $this->validate_connection_handle();
 
@@ -87,7 +91,11 @@ class MysqlDatabase extends Database
             $this->raise_database_query_error( $this->connection_handle->error );
         }
 
-        $result_rows = $this->_execute_statement( $statement_handle, $query_parameters );
+        $result_rows = $this->_execute_statement(
+            $statement_handle,
+            $named_parameters,
+            $query_parameters
+        );
 
         return $this->_process_result_rows( $result_rows );
     }
@@ -106,9 +114,13 @@ class MysqlDatabase extends Database
      * Binds the parameters to the Mysql prepared statement and executes it.
      * Returns an associative array with the results.
      */
-    protected function _execute_statement($statement_handle, $query_parameters)
+    protected function _execute_statement($statement_handle, $named_parameters, $query_parameters)
     {
-        $this->_bind_parameters_to_statement( $statement_handle, $query_parameters );
+        $this->_bind_parameters_to_statement(
+            $statement_handle,
+            $named_parameters,
+            $query_parameters
+        );
 
         $result = $statement_handle->execute();
 
@@ -123,7 +135,7 @@ class MysqlDatabase extends Database
     /**
      * Binds the parameters to the Mysql prepared statement.
      */
-    protected function _bind_parameters_to_statement($statement_handle, $query_parameters)
+    protected function _bind_parameters_to_statement($statement_handle, $named_parameters, $query_parameters)
     {
         if( $query_parameters->is_empty() ) {
             return;
@@ -132,7 +144,19 @@ class MysqlDatabase extends Database
         $parameters_array = $query_parameters->to_array();
 
         $types = "";
-        foreach($parameters_array as $i => $value) {
+        foreach( $parameters_array as $i => $value ) {
+
+            if( method_exists( $value, "get_parameter_name" ) ) {
+                $value = $named_parameters->at_if_absent(
+                    $value->get_parameter_name(), function() use($value) {
+                        $this->raise_named_parameter_not_found_error(
+                            $value->get_parameter_name()
+                        );
+                }, $this );
+
+                $parameters_array[ $i ] = $value;
+            }
+
             if( is_string( $value ) )
                 $types .= "s";
             elseif( is_double( $value ) )
@@ -175,6 +199,16 @@ class MysqlDatabase extends Database
         if( $this->connection_handle === null ) {
             $this->raise_uninitialized_connection_error();
         }
+    }
+
+    /// Raising errors
+
+    protected function raise_named_parameter_not_found_error($parameter_name)
+    {
+        throw new NamedParameterNotFoundError(
+            "The query named parameter '{$parameter_name}' was not found.",
+            $parameter_name
+        );
     }
 
     /// Creating instances
