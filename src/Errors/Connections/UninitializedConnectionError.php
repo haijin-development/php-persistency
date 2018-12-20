@@ -2,7 +2,9 @@
 
 namespace Haijin\Persistency\Errors\Connections;
 
-class UninitializedConnectionError extends \Exception
+use Haijin\Persistency\Errors\PersistencyError;
+
+class UninitializedConnectionError extends PersistencyError
 {
     protected $database;
 

@@ -251,23 +251,23 @@ class QueryExpressionBuilder
         return $this;
     }
 
-    public function limit($length)
+    public function limit($limit)
     {
-        $this->_pagination_expression()->set_length( $length );
+        $this->_pagination_expression()->set_limit( $limit );
 
         return $this;
     }
 
-    public function page($page)
+    public function page($page_number)
     {
-        $this->_pagination_expression()->set_page( $page );
+        $this->_pagination_expression()->set_page_number( $page_number );
 
         return $this;
     }
 
-    public function page_size($length)
+    public function page_size($page_size)
     {
-        $this->_pagination_expression()->set_length( $length );
+        $this->_pagination_expression()->set_page_size( $page_size );
 
         return $this;
     }

@@ -15,24 +15,18 @@ class SqlPaginationBuilder extends PaginationVisitor
      */
     public function accept_pagination_expression($pagination_expression)
     {
-        $length = $pagination_expression->get_length();
+        $page_number = $pagination_expression->get_page_number();
+        $page_size = $pagination_expression->get_page_size();
+
+        if( $page_number !== null && $page_size !== null ) {
+            return $this->page_sql($page_number, $page_size);
+        }
+
         $offset = $pagination_expression->get_offset();
-        $page = $pagination_expression->get_page();
+        $limit = $pagination_expression->get_limit();
 
-        if( $page !== null && $length !== null ) {
-            return $this->page_sql($page, $length);
-        }
-
-        if( $offset !== null && $length !== null ) {
-            return $this->offset_and_limit_sql( $offset, $length );
-        }
-
-        if( $length !== null ) {
-            return "limit " . $this->escape_sql( (string) $length );
-        }
-
-        if( $offset !== null ) {
-            return "offset " . $this->escape_sql( (string) $offset );
+        if( $offset !== null || $limit !== null ) {
+            return $this->offset_and_limit_sql( $offset, $limit );
         }
     }
 
@@ -45,6 +39,14 @@ class SqlPaginationBuilder extends PaginationVisitor
 
     protected function offset_and_limit_sql($offset, $limit)
     {
+        if( $offset === null ) {
+            return "limit " . $this->escape_sql( (string) $limit );
+        }
+
+        if( $limit === null ) {
+            return "offset " . $this->escape_sql( (string) $offset );
+        }
+
         return "limit " .
                 $this->escape_sql( (string) $limit ) . ", " . 
                 $this->escape_sql( (string) $offset );

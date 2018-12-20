@@ -2,7 +2,9 @@
 
 namespace Haijin\Persistency\Errors\Connections;
 
-class DatabaseQueryError extends \Exception
+use Haijin\Persistency\Errors\PersistencyError;
+
+class DatabaseQueryError extends PersistencyError
 {
     protected $database;
 

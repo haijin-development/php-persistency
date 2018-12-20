@@ -15,8 +15,9 @@ class PaginationExpression extends Expression
         parent::__construct( $expression_context );
 
         $this->offset = null;
-        $this->length = null;
-        $this->page = null;
+        $this->limit = null;
+        $this->page_number = null;
+        $this->page_size = null;
     }
 
     /// Accessing
@@ -31,24 +32,34 @@ class PaginationExpression extends Expression
         $this->offset = $offset;
     }
 
-    public function get_length()
+    public function get_limit()
     {
-        return $this->length;
+        return $this->limit;
     }
 
-    public function set_length($length)
+    public function set_limit($limit)
     {
-        $this->length = $length;
+        $this->limit = $limit;
     }
 
-    public function get_page()
+    public function get_page_number()
     {
-        return $this->page;
+        return $this->page_number;
     }
 
-    public function set_page($page)
+    public function set_page_number($page_number)
     {
-        $this->page = $page;
+        $this->page_number = $page_number;
+    }
+
+    public function get_page_size()
+    {
+        return $this->page_size;
+    }
+
+    public function set_page_size($page_size)
+    {
+        $this->page_size = $page_size;
     }
 
     /// Visiting

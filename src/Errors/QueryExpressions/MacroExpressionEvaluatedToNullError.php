@@ -1,8 +1,10 @@
 <?php
 
-namespace Haijin\Persistency\Errors;
+namespace Haijin\Persistency\Errors\QueryExpressions;
 
-class MacroExpressionNotFoundError extends \Exception
+use Haijin\Persistency\Errors\PersistencyError;
+
+class MacroExpressionEvaluatedToNullError extends PersistencyError
 {
     protected $macro_name;
 

@@ -1,8 +1,10 @@
 <?php
 
-namespace Haijin\Persistency\Errors;
+namespace Haijin\Persistency\Errors\QueryExpressions;
 
-class UnexpectedExpressionError extends \Exception
+use Haijin\Persistency\Errors\PersistencyError;
+
+class UnexpectedExpressionError extends PersistencyError
 {
     protected $expression;
 
