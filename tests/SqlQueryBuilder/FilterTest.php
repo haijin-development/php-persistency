@@ -31,7 +31,7 @@ class FilterTest extends \PHPUnit\Framework\TestCase
 
         $sql = $query_builder->build( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users" ) ->as( "u" );
 
             $query->filter(
                 $query ->field( "u.name" ) ->op( "=" ) ->value( "Lisa" )
@@ -39,7 +39,7 @@ class FilterTest extends \PHPUnit\Framework\TestCase
         });
 
         $this->assertEquals(
-            "select users.* from users where u.name = 'Lisa';",
+            "select u.* from users as u where u.name = 'Lisa';",
             $sql
         );
     }
