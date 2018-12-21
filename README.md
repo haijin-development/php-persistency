@@ -18,6 +18,9 @@ If you like it a lot you may contribute by financing its development. Please con
 1. [Installation](#c-1)
 2. [Usage](#c-2)
     1. [Querying a database](#c-2-1)
+        1. [A direct query to a database](#c-2-1-1)
+        2. [Using semantic expressions](#c-2-1-2)
+        3. [Calling query functions](#c-2-1-3)
     2. [Mapping objects](#c-2-2)
     3. [Migrations](#c-2-3)
 3. [Running the tests](#c-3)
@@ -47,11 +50,14 @@ Include this library in your project `composer.json` file:
 <a name="c-2-1"></a>
 ### Querying a database
 
+<a name="c-2-1-1"></a>
+#### A direct query to a database
+
 Make a query to a database:
 
 ```php
 $database = new MysqlDatabase();
-$database->connect( $connect_string );
+$database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
 
 $database->query( function($query) {
 
@@ -100,12 +106,16 @@ $database->query( function($query) {
 
 });
 ```
+It may seem that the constant values are appended as strings to a query string, which is unsafe. It is not the case, it is actually safe. Under the hood the DSL does quite a few things for each database engine to make the values safe.
+
+<a name="c-2-1-2"></a>
+#### Using semantic expressions
 
 Define semantic logical expressions and combine them using logical operands:
 
 ```php
 $database = new MysqlDatabase();
-$database->connect( $connect_string );
+$database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
 
 $database->query( function($query) {
 
@@ -166,6 +176,24 @@ $database->query( function($query) {
 });
 ```
 
+<a name="c-2-1-3"></a>
+#### Calling query functions
+
+Each database engine defines and allows different functions, sometimes specific to that engine alone.
+
+Just call any function the query, there is no need to declare it. The DSL uses a dynamic method to accept function calls.
+
+For instance in the example above:
+
+```php
+$query->proyect(
+    $query->concat(
+        $query->field( "street_name" ), " ", $query->field( "street_number" )
+    ) ->as( "address" )
+);
+```
+
+the `concat(...)` function was not declared anywhere in the DSL for Mysql nor for any other engine.
 
 <a name="c-2-2"></a>
 ### Mapping objects
