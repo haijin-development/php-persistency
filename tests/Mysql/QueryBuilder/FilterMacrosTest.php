@@ -1,6 +1,6 @@
 <?php
 
-namespace Mysql\QueryBuilder\FilterTest;
+namespace Mysql\QueryBuilder\FilterMacrosTest;
 
 require_once __DIR__ . "/MysqlQueryTestBase.php";
 

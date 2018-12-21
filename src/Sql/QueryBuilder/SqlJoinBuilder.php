@@ -25,9 +25,7 @@ class SqlJoinBuilder extends JoinVisitor
 
     protected function collection_sql_from($join_expression)
     {
-        return $this->escape_sql(
-            $join_expression->get_to_collection()->get_collection_name()
-        );
+        return $this->visit( $join_expression->get_to_collection() );
     }
 
     protected function from_field_sql_from($join_expression)
@@ -45,5 +43,27 @@ class SqlJoinBuilder extends JoinVisitor
     protected function new_sql_expression_builder()
     {
         return new SqlExpressionBuilder();
+    }
+
+    /**
+     * Accepts a AliasExpression. The alias at this DSL level is for the CollectionExpression.
+     */
+    public function accept_alias_expression($alias_expression)
+    {
+        $sql = $this->visit( $alias_expression->get_aliased_expression() );
+        $sql .= " as ";
+        $sql .= $this->escape_sql( $alias_expression->get_alias() );
+
+        return $sql;
+    }
+
+    /**
+     * Accepts a CollectionExpression.
+     */
+    public function accept_collection_expression($collection_expression)
+    {
+        return $this->escape_sql(
+            $collection_expression->get_collection_name()
+        );
     }
 }

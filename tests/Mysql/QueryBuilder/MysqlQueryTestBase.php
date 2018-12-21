@@ -28,9 +28,10 @@ class MysqlQueryTestBase extends \PHPUnit\Framework\TestCase
     static protected function drop_tables()
     {
         $db = new \mysqli( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
-        $db->query(
-            "DROP TABLE users;"
-        );
+        $db->query( "DROP TABLE users;" );
+        $db->query( "DROP TABLE address_1;" );
+        $db->query( "DROP TABLE address_2;" );
+        $db->query( "DROP TABLE cities;" );
         $db->close();
     }
 
@@ -45,15 +46,43 @@ class MysqlQueryTestBase extends \PHPUnit\Framework\TestCase
                 PRIMARY KEY (`id`)
             );"
         );
+        $db->query(
+            "CREATE TABLE `haijin-persistency`.`address_1` (
+                `id` INT NOT NULL AUTO_INCREMENT,
+                `id_user` INT NOT NULL,
+                `id_city` INT NOT NULL,
+                `street_name` VARCHAR(45) NULL,
+                `street_number` VARCHAR(45) NULL,
+                PRIMARY KEY (`id`)
+            );"
+        );
+        $db->query(
+            "CREATE TABLE `haijin-persistency`.`address_2` (
+                `id` INT NOT NULL AUTO_INCREMENT,
+                `id_user` INT NOT NULL,
+                `id_city` INT NOT NULL,
+                `street_name` VARCHAR(45) NULL,
+                `street_number` VARCHAR(45) NULL,
+                PRIMARY KEY (`id`)
+            );"
+        );
+        $db->query(
+            "CREATE TABLE `haijin-persistency`.`cities` (
+                `id` INT NOT NULL AUTO_INCREMENT,
+                `name` VARCHAR(45) NULL,
+                PRIMARY KEY (`id`)
+            );"
+        );
         $db->close();
     }
 
     protected function clear_tables()
     {
         $db = new \mysqli( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
-        $db->query(
-            "TRUNCATE users;"
-        );
+        $db->query( "TRUNCATE users;" );
+        $db->query( "TRUNCATE address_1;" );
+        $db->query( "TRUNCATE address_2;" );
+        $db->query( "TRUNCATE cities;" );
         $db->close();
     }
 

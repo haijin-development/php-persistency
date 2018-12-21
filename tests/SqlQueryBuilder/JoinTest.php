@@ -25,6 +25,25 @@ class JoinTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals( $expected_sql, $sql );
     }
 
+    public function test_aliased_join()
+    {
+        $query_builder = new SqlBuilder();
+
+        $sql = $query_builder->build( function($query) {
+
+            $query->collection( "users" );
+
+            $query->join( "address" ) ->as( "a" ) ->from( "id" ) ->to( "user_id" );
+        });
+
+        $expected_sql = 
+            "select users.*, a.* " .
+            "from users " .
+            "join address as a on users.id = a.user_id;";
+
+        $this->assertEquals( $expected_sql, $sql );
+    }
+
     public function test_multiple_joins()
     {
         $query_builder = new SqlBuilder();

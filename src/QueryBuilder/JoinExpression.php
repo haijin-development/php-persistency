@@ -121,6 +121,37 @@ class JoinExpression extends Expression
 
     /// DSL
 
+    /**
+     * Defines the an alias for the joined collection $this->to_collection.
+     *
+     * @param string $alias The alias for the collection.
+     */
+    public function as($alias)
+    {
+        $alias_expression = $this->new_alias_expression(
+            $alias,
+            $this->to_collection
+        );
+
+        $this->to_collection = $alias_expression;
+
+        $new_context = $this->new_expression_context(
+            $this->get_macros_dictionary(),
+            $this->to_collection
+        );
+
+        $this->update_expression_context_to( $new_context );
+
+        return $this;
+    }
+
+    protected function update_expression_context_to($new_context)
+    {
+        $this->to_collection->set_context( $new_context );
+        $this->set_context( $new_context );
+        $this->proyection->set_context( $new_context );
+    }
+
     public function from($from_field)
     {
         $from_field_expression = $this->new_field_expression( $from_field );
