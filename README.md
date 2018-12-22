@@ -21,6 +21,7 @@ If you like it a lot you may contribute by financing its development. Please con
         1. [A direct query to a database](#c-2-1-1)
         2. [Using semantic expressions](#c-2-1-2)
         3. [Calling query functions](#c-2-1-3)
+        4. [Debugging the query](#c-2-1-4)
     2. [Mapping objects](#c-2-2)
     3. [Migrations](#c-2-3)
 3. [Running the tests](#c-3)
@@ -194,6 +195,79 @@ $query->proyect(
 ```
 
 the `concat(...)` function was not declared anywhere in the DSL for Mysql nor for any other engine.
+
+<a name="c-2-1-4"></a>
+#### Debugging the query
+
+Inspect the query and its constant values with `inspect_query`:
+
+```php
+$database = new MysqlDatabase();
+$database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
+
+$database->query( function($query) use($database) {
+
+    $query->collection( "users" );
+
+    $query->proyect(
+        $query->field( "name" ),
+        $query->field( "last_name" )
+    );
+
+    $query->join( "address_1" ) ->from( "id" ) ->to( "id_user" )
+        ->eval( function($query) {
+
+            $query->proyect(
+                $query->concat(
+                    $query->field( "street_name" ), " ", $query->field( "street_number" )
+                ) ->as( "address" )
+            );
+
+            $query->let( "matches_address", function($query) { return
+                $query->brackets(
+                    $query ->field( "street_name" ) ->op( "like" ) ->value( "%Evergreen%" )
+                );
+            });
+    });
+
+    $query->let( "matches_name", function($query) { return
+        $query->brackets(
+            $query ->field( "name" ) ->op( "=" ) ->value( "Lisa" )
+        );
+    });
+
+    $query->let( "matches_last_name", function($query) { return
+        $query->brackets(
+            $query ->field( "last_name" ) ->op( "=" ) ->value( "Simpson" )
+        );
+    });
+
+    $query->filter(
+        $query->brackets( $query
+            ->matches_name ->and() ->matches_last_name
+        )
+        ->or()
+        ->matches_address
+    );
+
+    $query->order_by(
+        $query->field( "users.last_name" ) ->desc(),
+        $query->field( "users.name" ) ->desc(),
+        $query->field( "address" ) ->desc()
+    );
+
+    $query->pagination(
+        $query
+            ->offset( 0 )
+            ->limit( 10 )
+    );
+
+    $database->inspect_query( $query, function($sql, $query_parameters) {
+        var_dump( $sql );
+        var_dump( $query_parameters );
+    });
+});
+```
 
 <a name="c-2-2"></a>
 ### Mapping objects

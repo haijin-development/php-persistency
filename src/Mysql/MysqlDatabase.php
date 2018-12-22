@@ -231,23 +231,19 @@ class MysqlDatabase extends Database
 
     /// Debugging
 
-    public function sql_string_of($query_expression_builder)
+    public function inspect_query($query_expression_builder, $closure, $binding = null)
     {
-        return $this->query_to_sql(
-            $query_expression_builder->get_query_expression(),
-            new OrderedCollection()
-        );
-    }
+        if( $binding === null ) {
+            $binding = $this;
+        }
 
-    public function query_parameters_of($query_expression_builder)
-    {
         $query_parameters = new OrderedCollection();
 
-        $this->query_to_sql(
+        $sql = $this->query_to_sql(
             $query_expression_builder->get_query_expression(),
             $query_parameters
         );
 
-        return $query_parameters;
+        return $closure->call( $binding, $sql, $query_parameters );
     }
 }

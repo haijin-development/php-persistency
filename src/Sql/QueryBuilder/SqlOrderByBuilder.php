@@ -19,4 +19,9 @@ class SqlOrderByBuilder extends OrderByVisitor
                 $order_by_expression->get_order_by_expressions()
             );
     }
+
+    protected function new_sql_expression_builder()
+    {
+        return new SqlExpressionBuilder( true, false );
+    }
 }

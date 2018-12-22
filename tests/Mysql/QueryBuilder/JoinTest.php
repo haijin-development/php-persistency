@@ -303,41 +303,4 @@ class JoinTest extends \MysqlQueryTestBase
             ]
         );
     }
-
-    protected function populate_tables()
-    {
-        parent::populate_tables();
-
-        $db = new \mysqli( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
-
-        $db->query(
-            "INSERT INTO address_1 VALUES ( 10, 1, 2, 'Evergreen', '742' );"
-        );
-        $db->query(
-            "INSERT INTO address_1 VALUES ( 20, 2, 1, 'Evergreen', '742' );"
-        );
-        $db->query(
-            "INSERT INTO address_1 VALUES ( 30, 3, 1, 'Evergreen', '742' );"
-        );
-
-        $db->query(
-            "INSERT INTO address_2 VALUES ( 100, 1, 1, 'Evergreen 742', '' );"
-        );
-        $db->query(
-            "INSERT INTO address_2 VALUES ( 200, 2, 1, 'Evergreen 742', '' );"
-        );
-        $db->query(
-            "INSERT INTO address_2 VALUES ( 300, 3, 1, 'Evergreen 742', '' );"
-        );
-
-        $db->query(
-            "INSERT INTO cities VALUES ( 1, 'Springfield' );"
-        );
-
-        $db->query(
-            "INSERT INTO cities VALUES ( 2, 'Springfield_' );"
-        );
-
-        $db->close();
-    }
 }

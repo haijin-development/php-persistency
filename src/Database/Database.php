@@ -43,6 +43,14 @@ abstract class Database
      */
     abstract public function execute($compiled_query, $named_parameters = []);
 
+    /// Debugging
+
+    /**
+     * Evaluates the $closure with the debugging information about the built query.
+     * Each Database subclass defines the $closure parameters.
+     */
+    abstract public function inspect_query($query, $closure, $binding = null);
+
     /// Raising errors
 
     /**

@@ -44,9 +44,9 @@ class IntegrationTest extends \PHPUnit\Framework\TestCase
             );
 
             $query->order_by(
-                $query->field( "last_name" ),
-                $query->field( "name" ),
-                $query->field( "address.address" )
+                $query->field( "users.last_name" ),
+                $query->field( "users.name" ),
+                $query->field( "address" )
             );
 
             $query->pagination(
@@ -61,7 +61,7 @@ class IntegrationTest extends \PHPUnit\Framework\TestCase
             "from users" . " " .
             "join address on users.id = address.user_id" . " " .
             "where ((users.name = 'Lisa') and (users.last_name = 'Simpson')) or (address.street_name like '%Evergreen%')" . " " .
-            "order by users.last_name, users.name, address.address" . " " .
+            "order by users.last_name, users.name, address" . " " .
             "limit 10, 0;";
 
         $this->assertEquals( $expected_sql, $sql );
@@ -117,9 +117,9 @@ class IntegrationTest extends \PHPUnit\Framework\TestCase
             );
 
             $query->order_by(
-                $query->field( "last_name" ),
-                $query->field( "name" ),
-                $query->field( "address.address" )
+                $query->field( "users.last_name" ),
+                $query->field( "users.name" ),
+                $query->field( "address" )
             );
 
             $query->pagination(
@@ -134,7 +134,7 @@ class IntegrationTest extends \PHPUnit\Framework\TestCase
             "from users" . " " .
             "join address on users.id = address.user_id" . " " .
             "where ((users.name = 'Lisa') and (users.last_name = 'Simpson')) or (address.street_name like '%Evergreen%')" . " " .
-            "order by users.last_name, users.name, address.address" . " " .
+            "order by users.last_name, users.name, address" . " " .
             "limit 10, 0;";
 
         $this->assertEquals( $expected_sql, $sql );

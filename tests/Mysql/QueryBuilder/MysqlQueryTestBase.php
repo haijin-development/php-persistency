@@ -14,7 +14,7 @@ class MysqlQueryTestBase extends \PHPUnit\Framework\TestCase
 
     static public function tearDownBeforeClass()
     {
-        self::drop_tables();
+        //self::drop_tables();
     }
 
     public function setUp()
@@ -97,6 +97,33 @@ class MysqlQueryTestBase extends \PHPUnit\Framework\TestCase
         );
         $db->query(
             "INSERT INTO users VALUES ( 3, 'Maggie', 'Simpson' );"
+        );
+        $db->query(
+            "INSERT INTO address_1 VALUES ( 10, 1, 2, 'Evergreen', '742' );"
+        );
+        $db->query(
+            "INSERT INTO address_1 VALUES ( 20, 2, 1, 'Evergreen', '742' );"
+        );
+        $db->query(
+            "INSERT INTO address_1 VALUES ( 30, 3, 1, 'Evergreen', '742' );"
+        );
+
+        $db->query(
+            "INSERT INTO address_2 VALUES ( 100, 1, 1, 'Evergreen 742', '' );"
+        );
+        $db->query(
+            "INSERT INTO address_2 VALUES ( 200, 2, 1, 'Evergreen 742', '' );"
+        );
+        $db->query(
+            "INSERT INTO address_2 VALUES ( 300, 3, 1, 'Evergreen 742', '' );"
+        );
+
+        $db->query(
+            "INSERT INTO cities VALUES ( 1, 'Springfield' );"
+        );
+
+        $db->query(
+            "INSERT INTO cities VALUES ( 2, 'Springfield_' );"
         );
         $db->close();
     }

@@ -16,8 +16,6 @@ class IntegrationTest extends \MysqlQueryTestBase
 
         $rows = $database->query( function($query) use($database) {
 
-            var_dump( get_class( $query ) );
-
             $query->collection( "users" );
 
             $query->proyect(
@@ -52,9 +50,9 @@ class IntegrationTest extends \MysqlQueryTestBase
             );
 
             $query->order_by(
-                $query->field( "last_name" ),
-                $query->field( "name" ),
-                $query->field( "address.address" )
+                $query->field( "users.last_name" ) ->desc(),
+                $query->field( "users.name" ) ->desc(),
+                $query->field( "address" ) ->desc()
             );
 
             $query->pagination(
@@ -63,27 +61,34 @@ class IntegrationTest extends \MysqlQueryTestBase
                     ->limit( 10 )
             );
 
-            var_dump( $database->sql_string_of( $query ) );
-            var_dump( $database->query_parameters_of( $query ) );
         });
 
         $this->expectObjectToBeExactly(
             $rows,
             [
                 [
-                    "id" => 1,
+                    "name" => "Maggie",
+                    "last_name" => "Simpson"
+                ],
+                [
                     "name" => "Lisa",
+                    "last_name" => "Simpson"
+                ],
+                [
+                    "name" => "Bart",
                     "last_name" => "Simpson"
                 ]
             ]
         );
     }
 
-    public function xtest_integration_with_macro_expressions()
+    public function test_integration_with_macro_expressions()
     {
-        $query_builder = new SqlBuilder();
+        $database = new MysqlDatabase();
 
-        $sql = $query_builder->build( function($query) {
+        $database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
+
+        $rows = $database->query( function($query) use($database) {
 
             $query->collection( "users" );
 
@@ -92,20 +97,20 @@ class IntegrationTest extends \MysqlQueryTestBase
                 $query->field( "last_name" )
             );
 
-            $query->join( "address" ) ->from( "id" ) ->to( "user_id" ) ->eval( function($query) {
+            $query->join( "address_1" ) ->from( "id" ) ->to( "id_user" )
+                ->eval( function($query) {
 
-                $query->proyect(
-                    $query->concat(
-                        $query->field( "street_name" ), " ", $query->field( "street_number" )
-                    ) ->as( "address" )
-                );
-
-                $query->let( "matches_address", function($query) { return
-                    $query->brackets(
-                        $query ->field( "street_name" ) ->op( "like" ) ->value( "%Evergreen%" )
+                    $query->proyect(
+                        $query->concat(
+                            $query->field( "street_name" ), " ", $query->field( "street_number" )
+                        ) ->as( "address" )
                     );
-                });
 
+                    $query->let( "matches_address", function($query) { return
+                        $query->brackets(
+                            $query ->field( "street_name" ) ->op( "like" ) ->value( "%Evergreen%" )
+                        );
+                    });
             });
 
             $query->let( "matches_name", function($query) { return
@@ -129,9 +134,9 @@ class IntegrationTest extends \MysqlQueryTestBase
             );
 
             $query->order_by(
-                $query->field( "last_name" ),
-                $query->field( "name" ),
-                $query->field( "address.address" )
+                $query->field( "users.last_name" ) ->desc(),
+                $query->field( "users.name" ) ->desc(),
+                $query->field( "address" ) ->desc()
             );
 
             $query->pagination(
@@ -142,13 +147,22 @@ class IntegrationTest extends \MysqlQueryTestBase
 
         });
 
-        $expected_sql = "select users.name, users.last_name, concat(address.street_name, ' ', address.street_number) as address" . " " .
-            "from users" . " " .
-            "join address on users.id = address.user_id" . " " .
-            "where ((users.name = 'Lisa') and (users.last_name = 'Simpson')) or (address.street_name like '%Evergreen%')" . " " .
-            "order by users.last_name, users.name, address.address" . " " .
-            "limit 10, 0;";
-
-        $this->assertEquals( $expected_sql, $sql );
+        $this->expectObjectToBeExactly(
+            $rows,
+            [
+                [
+                    "name" => "Maggie",
+                    "last_name" => "Simpson"
+                ],
+                [
+                    "name" => "Lisa",
+                    "last_name" => "Simpson"
+                ],
+                [
+                    "name" => "Bart",
+                    "last_name" => "Simpson"
+                ]
+            ]
+        );
     }
 }

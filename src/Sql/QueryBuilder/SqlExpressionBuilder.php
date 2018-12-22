@@ -12,14 +12,18 @@ class SqlExpressionBuilder extends ExpressionVisitor
 {
     use SqlBuilderTrait;
 
+    protected $use_fields_alias;
+    protected $use_fields_table_prefix;
+
     /// Initializing
 
     /**
      * Initializes $this instance.
      */
-    public function __construct($use_fields_alias = true)
+    public function __construct($use_fields_alias = true, $use_fields_table_prefix = true)
     {
         $this->use_fields_alias = $use_fields_alias;
+        $this->use_fields_table_prefix = $use_fields_table_prefix;
     }
 
     /// Visiting
@@ -40,7 +44,7 @@ class SqlExpressionBuilder extends ExpressionVisitor
     {
         $field = '';
 
-        if( $field_expression->is_relative() ) {
+        if( $this->use_fields_table_prefix && $field_expression->is_relative() ) {
             $field .= $field_expression->get_context_collection()
                         ->get_referenced_name() . ".";
         }
@@ -155,5 +159,14 @@ class SqlExpressionBuilder extends ExpressionVisitor
     public function accept_brackets_expression($brackets_expression)
     {
         return "(" . $this->visit( $brackets_expression->get_expression() ) . ")";
+    }
+
+
+    protected function new_sql_expression_builder()
+    {
+        return new SqlExpressionBuilder(
+            $this->use_fields_alias,
+            $this->use_fields_table_prefix
+        );
     }
 }

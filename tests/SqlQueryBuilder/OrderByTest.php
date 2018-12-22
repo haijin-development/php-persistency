@@ -21,7 +21,7 @@ class OrderByTest extends \PHPUnit\Framework\TestCase
         });
 
         $this->assertEquals(
-            "select users.* from users order by users.name, users.last_name;",
+            "select users.* from users order by name, last_name;",
             $sql
         );
     }
@@ -40,7 +40,7 @@ class OrderByTest extends \PHPUnit\Framework\TestCase
         });
 
         $this->assertEquals(
-            "select users.* from users order by users.name desc;",
+            "select users.* from users order by name desc;",
             $sql
         );
     }
@@ -59,7 +59,30 @@ class OrderByTest extends \PHPUnit\Framework\TestCase
         });
 
         $this->assertEquals(
-            "select users.* from users order by users.name asc;",
+            "select users.* from users order by name asc;",
+            $sql
+        );
+    }
+
+    public function test_order_by_aliased_fields()
+    {
+        $query_builder = new SqlBuilder();
+
+        $sql = $query_builder->build( function($query) {
+
+            $query->collection( "users" );
+
+            $query->proyect(
+                $query->field( "name" ) ->as( "n" )
+            );
+
+            $query->order_by(
+                $query->field( "n" )
+            );
+        });
+
+        $this->assertEquals(
+            "select users.name as n from users order by n;",
             $sql
         );
     }
