@@ -228,4 +228,26 @@ class MysqlDatabase extends Database
     {
         return new QueryExpressionBuilder();
     }
+
+    /// Debugging
+
+    public function sql_string_of($query_expression_builder)
+    {
+        return $this->query_to_sql(
+            $query_expression_builder->get_query_expression(),
+            new OrderedCollection()
+        );
+    }
+
+    public function query_parameters_of($query_expression_builder)
+    {
+        $query_parameters = new OrderedCollection();
+
+        $this->query_to_sql(
+            $query_expression_builder->get_query_expression(),
+            $query_parameters
+        );
+
+        return $query_parameters;
+    }
 }
