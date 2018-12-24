@@ -4,6 +4,10 @@ namespace Haijin\Persistency\Errors\QueryExpressions;
 
 use Haijin\Persistency\Errors\PersistencyError;
 
+/**
+ * Error raised when a macro expression used in a query filter evaluates to null.
+ * That usually happens because of a missing return statement.
+ */
 class MacroExpressionEvaluatedToNullError extends PersistencyError
 {
     protected $macro_name;

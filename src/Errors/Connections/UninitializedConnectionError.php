@@ -4,6 +4,9 @@ namespace Haijin\Persistency\Errors\Connections;
 
 use Haijin\Persistency\Errors\PersistencyError;
 
+/**
+ * Error raised when the database is used before connecting to it.
+ */
 class UninitializedConnectionError extends PersistencyError
 {
     protected $database;

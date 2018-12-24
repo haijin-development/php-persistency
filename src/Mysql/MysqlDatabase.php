@@ -39,12 +39,16 @@ class MysqlDatabase extends Database
      */
     public function connect(...$params)
     {
-        $this->connection_handle = new \mysqli(
-            $params[0],
-            $params[1],
-            $params[2],
-            $params[3]
-        );
+        try {
+            $this->connection_handle = new \mysqli(
+                $params[0],
+                $params[1],
+                $params[2],
+                $params[3]
+            );
+        } catch(\PHPUnit\Framework\Error\Warning $e) {
+            $this->raise_connection_failed_error( $e->getMessage() );
+        }
     }
 
     /// Querying

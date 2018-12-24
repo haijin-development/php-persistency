@@ -4,6 +4,9 @@ namespace Haijin\Persistency\Errors\QueryExpressions;
 
 use Haijin\Persistency\Errors\PersistencyError;
 
+/**
+ * Error raised when a query QueryBuilder encounters an unexpected expression.
+ */
 class UnexpectedExpressionError extends PersistencyError
 {
     protected $expression;

@@ -5,12 +5,12 @@ namespace Haijin\Persistency\Errors\Connections;
 use Haijin\Persistency\Errors\PersistencyError;
 
 /**
- * Error raised when the execution of a query in the database server fails.
+ * Error raised when the connection to a database server fails.
  */
-class DatabaseQueryError extends PersistencyError
+class ConnectionFailureError extends PersistencyError
 {
     /**
-     * The database where the error was raised.
+     * The database that failed to connect to the server.
      */
     protected $database;
 
@@ -20,7 +20,7 @@ class DatabaseQueryError extends PersistencyError
      * Initializes $this object.
      *
      * @param string $error_message The error message.
-     * @param Database $database The database where the error was raised.
+     * @param Database $database The database that failed to connect to the server.
      */
     public function __construct($error_message, $database)
     {
@@ -34,7 +34,7 @@ class DatabaseQueryError extends PersistencyError
     /**
      * Returns the database that failed to connect to the server.
      *
-     * @return Database The database where the error was raised.
+     * @return Database The database that failed to connect to the server.
      */
     public function get_database()
     {

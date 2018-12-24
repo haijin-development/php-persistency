@@ -4,6 +4,10 @@ namespace Haijin\Persistency\Errors\Connections;
 
 use Haijin\Persistency\Errors\PersistencyError;
 
+/**
+ * Error raised when the query expected a named parameter that is missing in the given 
+ * $named_parameters.
+ */
 class NamedParameterNotFoundError extends PersistencyError
 {
     protected $parameter_name;
