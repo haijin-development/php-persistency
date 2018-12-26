@@ -30,11 +30,11 @@ abstract class Database
     /**
      * Connects to the database.
      * Each database may have its own connection parameters, this method does not constrain
-     * the parameters.
+     * them.
      * Raises a ConnectionFailureError is the connection fails.
      *
      * @param array $params A variable number of parameters required to connect to a
-     *      database server.
+     *      particular database server.
      */
     abstract public function connect(...$params);
 

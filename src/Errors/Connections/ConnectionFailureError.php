@@ -17,7 +17,7 @@ class ConnectionFailureError extends PersistencyError
     /// Initializing
 
     /**
-     * Initializes $this object.
+     * Initializes $this instance.
      *
      * @param string $error_message The error message.
      * @param Database $database The database that failed to connect to the server.

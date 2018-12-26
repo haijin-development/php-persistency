@@ -2,9 +2,13 @@
 
 namespace Haijin\Persistency\QueryBuilder\Builders;
 
+use Haijin\Persistency\Errors\QueryExpressions\MacroExpressionEvaluatedToNullError;
 use Haijin\Persistency\QueryBuilder\ExpressionsFactoryTrait;
 use Haijin\Persistency\QueryBuilder\ExpressionsDSLTrait;
 
+/**
+ * Object to build a QueryExpression from a query definition closure.
+ */
 class QueryExpressionBuilder
 {
     use ExpressionsFactoryTrait;
@@ -16,12 +20,18 @@ class QueryExpressionBuilder
     protected $query_expression;
 
     /**
-     * A dictionary with the macro expressions defined in the query.
+     * A Dictionary with the macro expressions defined in the scope of $this->$query_expression.
      */
     protected $expression_context;
 
     /// Initializing
 
+    /**
+     * Initializes $this instance.
+     *
+     * @param ExpressionContext $expression_context Optional - The ExpressionContext of the
+     *      QueryExpression being built. If none is given a new ExpressionContext is created.
+     */
     public function __construct($expression_context = null)
     {
         if( $expression_context === null ) {
@@ -34,11 +44,21 @@ class QueryExpressionBuilder
 
     /// Accessing
 
+    /**
+     * Returns the ExpressionContext of the QueryExpression.
+     *
+     * @return ExpressionContext The ExpressionContext of the QueryExpression.
+     */
     public function get_context()
     {
         return $this->context;
     }
 
+    /**
+     * Returns the Dictionary with the macro definitions of the QueryExpression.
+     *
+     * @return Dictionary The Dictionary with the macro definitions of the QueryExpression.
+     */
     public function get_macros_dictionary()
     {
         return $this->get_context()->get_macros_dictionary();
@@ -98,11 +118,30 @@ class QueryExpressionBuilder
      */
     public function build( $expression_closure, $binding = null )
     {
+        $this->query_expression = $this->new_query_expression();
+
+        $this->eval( $expression_closure, $binding );
+
+        return $this->query_expression;
+    }
+
+    /**
+     * Evaluates the given $expression_closure with the current $this->query_expression.
+     * This method allows to build the QueryExpression in different times instead of all
+     * at once.
+     *
+     * @param closure $expression_closure The closure to build the QueryExpression
+     *      using a DSL.
+     * @param object $binding Optional - An optional object to bind the evaluation of the
+     *      $expression_closure.
+     *
+     * @return QueryExpression The current $this->query_expression.
+     */
+    public function eval( $expression_closure, $binding = null )
+    {
         if( $binding === null ) {
             $binding = $this;
         }
-
-        $this->query_expression = $this->new_query_expression();
 
         $expression_closure->call( $binding, $this );
 
@@ -168,7 +207,7 @@ class QueryExpressionBuilder
 
         $from_collection = $this->get_context_collection();
 
-        return $this->with_expression_context_do(
+        return $this->_with_expression_context_do(
             $expression_context,
             function() use($from_collection, $joined_collection_name) {
 
@@ -282,7 +321,11 @@ class QueryExpressionBuilder
 
         $macro_expression = $definition_closure->call( $binding, $this );
 
-        $this->get_macros_dictionary()->set( $macro_name, $macro_expression );
+        if( $macro_expression === null ) {
+            $this->_raise_macro_expression_evaluated_to_null_error( $macro_name );
+        }
+
+        $this->get_macros_dictionary()[ $macro_name ] = $macro_expression;
     }
 
     /**
@@ -297,7 +340,7 @@ class QueryExpressionBuilder
 
     /// Helper methods
 
-    protected function with_expression_context_do($expression_context, $closure)
+    protected function _with_expression_context_do($expression_context, $closure)
     {
         $this->previous_expression_context = $this->context;
 
@@ -308,5 +351,15 @@ class QueryExpressionBuilder
         } finally {
             $this->context = $this->previous_expression_context;
         }
+    }
+
+    /// Raising errors
+
+    protected function _raise_macro_expression_evaluated_to_null_error($macro_name)
+    {
+        throw new MacroExpressionEvaluatedToNullError(
+            "The macro expression '{$macro_name}' evaluated to null. Probably it is missing the return statement.",
+            $macro_name
+        );
     }
 }

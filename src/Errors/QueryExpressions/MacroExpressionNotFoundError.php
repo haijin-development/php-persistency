@@ -9,10 +9,19 @@ use Haijin\Persistency\Errors\PersistencyError;
  */
 class MacroExpressionNotFoundError extends PersistencyError
 {
+    /**
+     * The name of the missing macro.
+     */
     protected $macro_name;
 
     /// Initializing
 
+    /**
+     * Initializes $this instance.
+     *
+     * @param string $error_message The error message.
+     * @param string $macro_name The name of the missing macro.
+     */
     public function __construct($error_message, $macro_name)
     {
         parent::__construct( $error_message );
@@ -22,6 +31,11 @@ class MacroExpressionNotFoundError extends PersistencyError
 
     /// Accessing
 
+    /**
+     * Returns The name of the missing macro.
+     *
+     * @return string The name of the missing macro.
+     */
     public function get_macro_name()
     {
         return $this->macro_name;

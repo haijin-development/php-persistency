@@ -192,7 +192,7 @@ class JoinExpression extends Expression
 
         $this->joins = $join_query_builder->get_joins();
 
-        $this->context->add_to_macro_expressions(
+        $this->context->add_macro_definitions_from(
             $join_query_builder->get_macros_dictionary()
         );
     }

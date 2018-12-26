@@ -9,6 +9,9 @@ use Haijin\Persistency\Errors\PersistencyError;
  */
 class UninitializedConnectionError extends PersistencyError
 {
+    /**
+     * The database where the error was raised.
+     */
     protected $database;
 
     /// Initializing
@@ -22,6 +25,11 @@ class UninitializedConnectionError extends PersistencyError
 
     /// Accessing
 
+    /**
+     * Returns the database that failed to connect to the server.
+     *
+     * @return Database The database that failed to connect to the server.
+     */
     public function get_database()
     {
         return $this->database;

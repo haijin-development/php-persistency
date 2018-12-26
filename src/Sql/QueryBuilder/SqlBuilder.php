@@ -26,7 +26,7 @@ class SqlBuilder extends AbstractQueryExpressionVisitor
      */
     public function build( $expression_closure, $binding = null )
     {
-        $query_expression = ( new QueryExpressionBuilder() )
+        $query_expression = $this->new_query_expression_builder()
             ->build( $expression_closure, $binding );
 
         return $this->build_sql_from( $query_expression );
@@ -105,7 +105,7 @@ class SqlBuilder extends AbstractQueryExpressionVisitor
      */
     public function accept_collection_expression($collection_expression)
     {
-        return ( new SqlCollectionBuilder() )
+        return $this->new_sql_collection_builder()
             ->build_sql_from( $collection_expression );
     }
 
@@ -114,7 +114,7 @@ class SqlBuilder extends AbstractQueryExpressionVisitor
      */
     public function accept_join_expression($join_expression)
     {
-        return ( new SqlJoinBuilder() )
+        return $this->new_sql_join_builder()
             ->build_sql_from( $join_expression );
     }
 
@@ -144,7 +144,7 @@ class SqlBuilder extends AbstractQueryExpressionVisitor
      */
     public function accept_filter_expression($filter_expression)
     {
-        return ( new SqlFilterBuilder() )
+        return $this->new_sql_filter_builder()
             ->build_sql_from( $filter_expression );
     }
 
@@ -153,7 +153,7 @@ class SqlBuilder extends AbstractQueryExpressionVisitor
      */
     public function accept_order_by_expression($order_by_expression)
     {
-        return ( new SqlOrderByBuilder() )
+        return $this->new_sql_order_by_builder()
             ->build_sql_from( $order_by_expression );
     }
 
@@ -162,7 +162,7 @@ class SqlBuilder extends AbstractQueryExpressionVisitor
      */
     public function accept_pagination_expression($pagination_expression)
     {
-        return ( new SqlPaginationBuilder() )
+        return $this->new_sql_pagination_builder()
             ->build_sql_from( $pagination_expression );
     }
 
@@ -180,13 +180,49 @@ class SqlBuilder extends AbstractQueryExpressionVisitor
 
     /// Creating instances
 
-    public function new_sql_builder()
+    protected function new_sql_builder()
     {
         return new self();
     }
 
-    public function new_sql_proyection_builder()
+    protected function new_sql_proyection_builder()
     {
         return new SqlProyectionBuilder();
     }
+
+    protected function new_query_expression_builder()
+    {
+        return new QueryExpressionBuilder();
+    }
+
+    protected function new_sql_collection_builder()
+    {
+        return new SqlCollectionBuilder();
+    }
+
+    protected function new_sql_join_builder()
+    {
+        return new SqlJoinBuilder();
+    }
+
+    protected function new_sql_order_by_builder()
+    {
+        return new SqlOrderByBuilder();
+    }
+
+    /**
+     * Returns a new MysqlPaginationBuilder.
+     */
+    protected function new_sql_pagination_builder()
+    {
+        return new SqlPaginationBuilder();
+    }
+
+    /**
+     * Returns a new SqlFilterBuilder.
+     */
+    protected function new_sql_filter_builder()
+    {
+        return new SqlFilterBuilder();
+    }   
 }

@@ -3,7 +3,6 @@
 namespace Haijin\Persistency\QueryBuilder;
 
 use Haijin\Persistency\QueryBuilder\Builders\ExpressionContext;
-use Haijin\Persistency\QueryBuilder\Builders\MacroExpressionsDictionary;
 use Haijin\Persistency\QueryBuilder\Expressions\AllFieldsExpression;
 use Haijin\Persistency\QueryBuilder\Expressions\FieldExpression;
 use Haijin\Persistency\QueryBuilder\Expressions\ValueExpression;
@@ -12,6 +11,7 @@ use Haijin\Persistency\QueryBuilder\Expressions\AliasExpression;
 use Haijin\Persistency\QueryBuilder\Expressions\FunctionCallExpression;
 use Haijin\Persistency\QueryBuilder\Expressions\BinaryOperatorExpression;
 use Haijin\Persistency\QueryBuilder\Expressions\BracketsExpression;
+use Haijin\Tools\Dictionary;
 
 /**
  * Trait with methods to create query expressions.
@@ -163,6 +163,6 @@ trait ExpressionsFactoryTrait
 
     protected function new_macro_expressions_dictionary()
     {
-        return new MacroExpressionsDictionary();
+        return new Dictionary();
     }
 }

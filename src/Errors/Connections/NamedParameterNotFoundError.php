@@ -10,10 +10,19 @@ use Haijin\Persistency\Errors\PersistencyError;
  */
 class NamedParameterNotFoundError extends PersistencyError
 {
+    /**
+     * The name of the missing paramter.
+     */
     protected $parameter_name;
 
     /// Initializing
 
+    /**
+     * Initializes $this instance.
+     *
+     * @param string $error_message The error message.
+     * @param string $parameter_name The name of the missing parameter.
+     */
     public function __construct($error_message, $parameter_name)
     {
         parent::__construct( $error_message );
@@ -23,6 +32,11 @@ class NamedParameterNotFoundError extends PersistencyError
 
     /// Accessing
 
+    /**
+     * Returns the name of the missing parameter.
+     *
+     * @return string The name of the missing parameter.
+     */
     public function get_parameter_name()
     {
         return $this->parameter_name;

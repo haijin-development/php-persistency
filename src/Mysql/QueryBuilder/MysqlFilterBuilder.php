@@ -3,31 +3,41 @@
 namespace Haijin\Persistency\Mysql\QueryBuilder;
 
 use Haijin\Persistency\Sql\QueryBuilder\SqlBuilderTrait;
-use Haijin\Persistency\QueryBuilder\Visitors\Expressions\FilterVisitor;
+use Haijin\Persistency\Sql\QueryBuilder\SqlFilterBuilder;
 
-class MysqlFilterBuilder extends FilterVisitor
+/**
+ * A FilterVisitor subclass to handle FilterExpressions according to Mysql queries requirements.
+ * See Haijin\Persistency\Sql\QueryBuilder\SqlExpressionBuilder\SqlFilterBuilder class
+ * for the complete protocol of this class.
+ */
+class MysqlFilterBuilder extends SqlFilterBuilder
 {
-    use SqlBuilderTrait;
-
+    /**
+     * An OrderedCollection with the collected query parameters from ValueExpressions and
+     * from NamedParameterExpressions.
+     */
     protected $query_parameters;
 
     /// Initializing
 
+    /**
+     * Initializes $this instance.
+     *
+     * @param OrderedCollection $query_parameters An OrderedCollection to collect query parameters
+     * from ValueExpressions and from NamedParameterExpressions.
+     */
     public function __construct($query_parameters)
     {
         $this->query_parameters = $query_parameters;
     }
 
-    /// Visiting
+    /// Creating instances
 
     /**
-     * Accepts a OrderByExpression.
+     * Overrides the super class method to return a MysqlExpressionBuilder instead.
+     *
+     * @return MysqlExpressionBuilder A new MysqlExpressionBuilder.
      */
-    public function accept_filter_expression($filter_expression)
-    {
-        return "where " . $this->expression_sql_from( $filter_expression->get_filter() );
-    }
-
     protected function new_sql_expression_builder()
     {
         return new MysqlExpressionBuilder( $this->query_parameters );
