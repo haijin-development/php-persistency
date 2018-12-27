@@ -2,7 +2,9 @@
 
 namespace Haijin\Persistency\Sql\QueryBuilder;
 
+use Haijin\Persistency\Factory\Factory;
 use Haijin\Persistency\QueryBuilder\Visitors\Expressions\ProyectionVisitor;
+use Haijin\Persistency\Sql\QueryBuilder\ExpressionBuilders\SqlExpressionInProyectionBuilder;
 use Haijin\Tools\OrderedCollection;
 
 class SqlProyectionBuilder extends ProyectionVisitor
@@ -30,6 +32,6 @@ class SqlProyectionBuilder extends ProyectionVisitor
 
     protected function new_sql_expression_builder()
     {
-        return new SqlExpressionBuilder( false );
+        return Factory::new( SqlExpressionInProyectionBuilder::class );
     }
 }

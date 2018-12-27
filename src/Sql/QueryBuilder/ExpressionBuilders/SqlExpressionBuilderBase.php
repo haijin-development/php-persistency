@@ -1,30 +1,18 @@
 <?php
 
-namespace Haijin\Persistency\Sql\QueryBuilder;
+namespace Haijin\Persistency\Sql\QueryBuilder\ExpressionBuilders;
 
+use Haijin\Persistency\Factory\Factory;
 use Haijin\Persistency\QueryBuilder\Visitors\Expressions\ExpressionVisitor;
+use Haijin\Persistency\Sql\QueryBuilder\SqlBuilderTrait;
 use Haijin\Tools\OrderedCollection;
 
 /**
  * A builder of general expressions used in different query parts.
  */
-class SqlExpressionBuilder extends ExpressionVisitor
+class SqlExpressionBuilderBase extends ExpressionVisitor
 {
     use SqlBuilderTrait;
-
-    protected $use_fields_alias;
-    protected $use_fields_table_prefix;
-
-    /// Initializing
-
-    /**
-     * Initializes $this instance.
-     */
-    public function __construct($use_fields_alias = true, $use_fields_table_prefix = true)
-    {
-        $this->use_fields_alias = $use_fields_alias;
-        $this->use_fields_table_prefix = $use_fields_table_prefix;
-    }
 
     /// Visiting
 
@@ -44,7 +32,7 @@ class SqlExpressionBuilder extends ExpressionVisitor
     {
         $field = '';
 
-        if( $this->use_fields_table_prefix && $field_expression->is_relative() ) {
+        if( $field_expression->is_relative() ) {
             $field .= $field_expression->get_context_collection()
                         ->get_referenced_name() . ".";
         }
@@ -67,17 +55,7 @@ class SqlExpressionBuilder extends ExpressionVisitor
      */
     public function accept_alias_expression($alias_expression)
     {
-        if( $this->use_fields_alias ) {
-            return $alias_expression->get_alias();
-        }
-
-        $sql = $this->visit( $alias_expression->get_aliased_expression() );
-
-        $sql .= " as ";
-
-        $sql .= $this->escape_sql( $alias_expression->get_alias() );
-
-        return $sql;
+        return $alias_expression->get_alias();
     }
 
     /**
@@ -164,9 +142,6 @@ class SqlExpressionBuilder extends ExpressionVisitor
 
     protected function new_sql_expression_builder()
     {
-        return new SqlExpressionBuilder(
-            $this->use_fields_alias,
-            $this->use_fields_table_prefix
-        );
+        return Factory::new( get_class( $this ) );
     }
 }

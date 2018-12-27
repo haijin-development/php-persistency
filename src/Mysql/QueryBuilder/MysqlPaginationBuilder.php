@@ -8,7 +8,7 @@ use Haijin\Persistency\Sql\QueryBuilder\SqlPaginationBuilder;
 /**
  * A SqlPaginationBuilder subclass to handle PaginationExpressions according to Mysql queries
  * requirements.
- * See Haijin\Persistency\Sql\QueryBuilder\SqlExpressionBuilder\SqlPaginationBuilder class
+ * See Haijin\Persistency\Sql\QueryBuilder\SqlPaginationBuilder class
  * for the complete protocol of this class.
  */
 class MysqlPaginationBuilder extends SqlPaginationBuilder

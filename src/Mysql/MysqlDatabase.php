@@ -2,13 +2,19 @@
 
 namespace Haijin\Persistency\Mysql;
 
+use Haijin\Persistency\Factory\Factory;
 use Haijin\Persistency\Errors\Connections\NamedParameterNotFoundError;
 use Haijin\Persistency\Database\Database;
-use Haijin\Persistency\Mysql\QueryBuilder\MysqlQueryBuilder;
+use Haijin\Persistency\Sql\QueryBuilder\SqlBuilder;
+use Haijin\Persistency\Sql\QueryBuilder\SqlPaginationBuilder;
+use Haijin\Persistency\Sql\QueryBuilder\SqlExpressionInFilterBuilder;
+use Haijin\Persistency\Mysql\QueryBuilder\MysqlPaginationBuilder;
+use Haijin\Persistency\Mysql\QueryBuilder\MysqlExpressionInFilterBuilder;
 use Haijin\Persistency\Mysql\QueryBuilder\NamedParameterPlaceholder;
 use Haijin\Persistency\QueryBuilder\Builders\QueryExpressionBuilder;
 use Haijin\Tools\Dictionary;
 use Haijin\Tools\OrderedCollection;
+
 
 class MysqlDatabase extends Database
 {
@@ -46,7 +52,7 @@ class MysqlDatabase extends Database
                 $params[2],
                 $params[3]
             );
-        } catch(\PHPUnit\Framework\Error\Warning $e) {
+        } catch(\Exception $e) {
             $this->raise_connection_failed_error( $e->getMessage() );
         }
     }
@@ -189,8 +195,22 @@ class MysqlDatabase extends Database
      */
     protected function query_to_sql($compiled_query, $query_parameters)
     {
-        return $this->new_mysql_query_builder( $query_parameters )
-            ->build_sql_from( $compiled_query );
+        return Factory::with_classes_do( function($factory)
+                                    use($compiled_query, $query_parameters) {
+
+            $factory->at_put( SqlPaginationBuilder::class, MysqlPaginationBuilder::class );
+
+            $factory->at_put(
+                SqlExpressionInFilterBuilder::class,
+                function() use($query_parameters) {
+                    return new MysqlExpressionInFilterBuilder( $query_parameters );
+                }
+            );
+
+            return $this->new_sql_builder( $query_parameters )
+                ->build_sql_from( $compiled_query );
+
+        }, $this);
     }
 
     /// Validating
@@ -217,20 +237,14 @@ class MysqlDatabase extends Database
 
     /// Creating instances
 
-    /**
-     * Creates and returns a new MysqlQueryBuilder.
-     */
-    protected function new_mysql_query_builder($query_parameters)
-    {
-        return new MysqlQueryBuilder( $query_parameters );
-    }
-
-    /**
-     * Creates and returns a new MysqlQueryBuilder.
-     */
     protected function new_query_expression_builder()
     {
         return new QueryExpressionBuilder();
+    }
+
+    protected function new_sql_builder()
+    {
+        return new SqlBuilder;
     }
 
     /// Debugging

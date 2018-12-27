@@ -2,6 +2,7 @@
 
 namespace Haijin\Persistency\Sql\QueryBuilder;
 
+use Haijin\Persistency\Factory\Factory;
 use Haijin\Persistency\Errors\QueryExpressions\UnexpectedExpressionError;
 
 trait SqlBuilderTrait
@@ -54,11 +55,6 @@ trait SqlBuilderTrait
     {
         return $this->collect_expressions_sql( $expressions )
             ->join_with( ", " );        
-    }
-
-    protected function new_sql_expression_builder()
-    {
-        return new SqlExpressionBuilder();
     }
 
     protected function raise_unexpected_expression_error($expression)

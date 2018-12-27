@@ -5,6 +5,7 @@ namespace Haijin\Persistency\Sql\QueryBuilder;
 use Haijin\Persistency\QueryBuilder\Builders\QueryExpressionBuilder;
 use Haijin\Persistency\QueryBuilder\Visitors\AbstractQueryExpressionVisitor;
 use Haijin\Persistency\QueryBuilder\Visitors\QueryVisitorTrait;
+use Haijin\Persistency\Factory\Factory;
 use Haijin\Tools\OrderedCollection;
 
 class SqlBuilder extends AbstractQueryExpressionVisitor
@@ -180,49 +181,47 @@ class SqlBuilder extends AbstractQueryExpressionVisitor
 
     /// Creating instances
 
+    //// Query expression
+
+    protected function new_query_expression_builder()
+    {
+        return Factory::new( QueryExpressionBuilder::class );
+    }
+
+    //// Sql builders
+
     protected function new_sql_builder()
     {
-        return new self();
+        return Factory::new( self::class );
     }
 
     protected function new_sql_proyection_builder()
     {
-        return new SqlProyectionBuilder();
-    }
-
-    protected function new_query_expression_builder()
-    {
-        return new QueryExpressionBuilder();
+        return Factory::new( SqlProyectionBuilder::class );
     }
 
     protected function new_sql_collection_builder()
     {
-        return new SqlCollectionBuilder();
+        return Factory::new( SqlCollectionBuilder::class );
     }
 
     protected function new_sql_join_builder()
     {
-        return new SqlJoinBuilder();
+        return Factory::new( SqlJoinBuilder::class );
     }
 
     protected function new_sql_order_by_builder()
     {
-        return new SqlOrderByBuilder();
+        return Factory::new( SqlOrderByBuilder::class );
     }
 
-    /**
-     * Returns a new MysqlPaginationBuilder.
-     */
     protected function new_sql_pagination_builder()
     {
-        return new SqlPaginationBuilder();
+        return Factory::new( SqlPaginationBuilder::class );
     }
 
-    /**
-     * Returns a new SqlFilterBuilder.
-     */
     protected function new_sql_filter_builder()
     {
-        return new SqlFilterBuilder();
+        return Factory::new( SqlFilterBuilder::class );
     }   
 }

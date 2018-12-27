@@ -2,15 +2,15 @@
 
 namespace Haijin\Persistency\Mysql\QueryBuilder;
 
-use Haijin\Persistency\Sql\QueryBuilder\SqlExpressionBuilder;
+use Haijin\Persistency\Sql\QueryBuilder\ExpressionBuilders\SqlExpressionInFilterBuilder;
 
 /**
- * A SqlExpressionBuilder subclass to handle ValueExpressions and NamedParameterExpressions
+ * A SqlExpressionInFilterBuilder subclass to handle ValueExpressions and NamedParameterExpressions
  * according to Mysql queries requirements.
- * See Haijin\Persistency\Sql\QueryBuilder\SqlExpressionBuilder\SqlExpressionBuilder class
+ * See Haijin\Persistency\Sql\QueryBuilder\ExpressionBuilders\SqlExpressionInFilterBuilder class
  * for the complete protocol of this class.
  */
-class MysqlExpressionBuilder extends SqlExpressionBuilder
+class MysqlExpressionInFilterBuilder extends SqlExpressionInFilterBuilder
 {
     /**
      * An OrderedCollection with the collected query parameters from ValueExpressions and

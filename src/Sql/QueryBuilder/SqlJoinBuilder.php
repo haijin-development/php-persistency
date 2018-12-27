@@ -2,7 +2,9 @@
 
 namespace Haijin\Persistency\Sql\QueryBuilder;
 
+use Haijin\Persistency\Factory\Factory;
 use Haijin\Persistency\QueryBuilder\Visitors\Expressions\JoinVisitor;
+use Haijin\Persistency\Sql\QueryBuilder\ExpressionBuilders\SqlExpressionInFilterBuilder;
 
 class SqlJoinBuilder extends JoinVisitor
 {
@@ -40,11 +42,6 @@ class SqlJoinBuilder extends JoinVisitor
             ->visit( $join_expression->get_to_field() );
     }
 
-    protected function new_sql_expression_builder()
-    {
-        return new SqlExpressionBuilder();
-    }
-
     /**
      * Accepts a AliasExpression. The alias at this DSL level is for the CollectionExpression.
      */
@@ -65,5 +62,12 @@ class SqlJoinBuilder extends JoinVisitor
         return $this->escape_sql(
             $collection_expression->get_collection_name()
         );
+    }
+
+    /// Creating instances
+
+    protected function new_sql_expression_builder()
+    {
+        return Factory::new( SqlExpressionInFilterBuilder::class );
     }
 }
