@@ -139,7 +139,6 @@ class SqlExpressionBuilderBase extends ExpressionVisitor
         return "(" . $this->visit( $brackets_expression->get_expression() ) . ")";
     }
 
-
     protected function new_sql_expression_builder()
     {
         return Factory::new( get_class( $this ) );

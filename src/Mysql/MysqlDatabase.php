@@ -7,7 +7,7 @@ use Haijin\Persistency\Errors\Connections\NamedParameterNotFoundError;
 use Haijin\Persistency\Database\Database;
 use Haijin\Persistency\Sql\QueryBuilder\SqlBuilder;
 use Haijin\Persistency\Sql\QueryBuilder\SqlPaginationBuilder;
-use Haijin\Persistency\Sql\QueryBuilder\SqlExpressionInFilterBuilder;
+use Haijin\Persistency\Sql\QueryBuilder\ExpressionBuilders\SqlExpressionInFilterBuilder;
 use Haijin\Persistency\Mysql\QueryBuilder\MysqlPaginationBuilder;
 use Haijin\Persistency\Mysql\QueryBuilder\MysqlExpressionInFilterBuilder;
 use Haijin\Persistency\Mysql\QueryBuilder\NamedParameterPlaceholder;
