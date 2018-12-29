@@ -15,39 +15,18 @@ use Haijin\Tools\Dictionary;
  */
 class Factory
 {
-    /// Class methods
-
-    static public $instance;
-
-    static public function instance()
-    {
-        if( self::$instance === null ) {
-            self::$instance = new self();    
-        }
-
-        return self::$instance;
-    }
-
-    static public function new($class_name, ...$params)
-    {
-        return self::instance()->_new($class_name, ...$params);
-    }
-
-    static public function with_classes_do($closure, $binding)
-    {
-        return self::instance()->_with_classes_do($closure, $binding);
-    }
-
     /// Instance methods
 
     public $instantiators;
+    public $singletons;
 
     public function __construct()
     {
         $this->instantiators = [];
+        $this->singletons = [];
     }
 
-    public function actual_class_for($class_name)
+    public function class_or_closure_for($class_name)
     {
         if( ! array_key_exists( $class_name, $this->instantiators ) ) {
             return $class_name;
@@ -56,9 +35,9 @@ class Factory
         return $this->instantiators[ $class_name ];
     }
 
-    public function _new($class_name, ...$params)
+    public function new($class_name, ...$params)
     {
-        $class_name_or_closure = $this->actual_class_for($class_name);
+        $class_name_or_closure = $this->class_or_closure_for($class_name);
 
         if( is_callable( $class_name_or_closure ) ) {
             return $class_name_or_closure->call( $this, ...$params );
@@ -67,7 +46,19 @@ class Factory
         return new $class_name_or_closure( ...$params );
     }
 
-    public function _with_classes_do($closure, $binding)
+    public function singleton($class_name)
+    {
+        return $this->singletons[ $class_name ];
+    }
+
+    public function set_singleton($class_name, $object)
+    {
+        $this->singletons[ $class_name ] = $object;
+
+        return $this;
+    }
+
+    public function with_classes_do($closure, $binding)
     {
         if( $binding === null ) {
             $binding = $this;

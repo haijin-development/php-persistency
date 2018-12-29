@@ -2,7 +2,7 @@
 
 namespace Haijin\Persistency\Factory;
 
-class ObjectInstantiator
+class SingletonInstantiator
 {
     protected $class_name;
 
@@ -13,6 +13,10 @@ class ObjectInstantiator
 
     public function with(...$params)
     {
-        return GlobalFactory::new( $this->class_name, ...$params );
+        $singleton = Create::a( $this->class_name )->with( ...$params );
+
+        GlobalFactory::set_singleton($this->class_name, $singleton );
+
+        return $singleton;
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Haijin\Persistency\Sql\QueryBuilder\ExpressionBuilders;
 
-use Haijin\Persistency\Factory\Factory;
+use Haijin\Persistency\Factory\GlobalFactory;
 use Haijin\Persistency\QueryBuilder\Visitors\Expressions\ExpressionVisitor;
 use Haijin\Persistency\Sql\QueryBuilder\SqlBuilderTrait;
 use Haijin\Tools\OrderedCollection;
@@ -141,6 +141,6 @@ class SqlExpressionBuilderBase extends ExpressionVisitor
 
     protected function new_sql_expression_builder()
     {
-        return Factory::new( get_class( $this ) );
+        return GlobalFactory::new( get_class( $this ) );
     }
 }

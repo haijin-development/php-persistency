@@ -5,7 +5,7 @@ namespace Haijin\Persistency\Sql\QueryBuilder;
 use Haijin\Persistency\QueryBuilder\Builders\QueryExpressionBuilder;
 use Haijin\Persistency\QueryBuilder\Visitors\AbstractQueryExpressionVisitor;
 use Haijin\Persistency\QueryBuilder\Visitors\QueryVisitorTrait;
-use Haijin\Persistency\Factory\Factory;
+use Haijin\Persistency\Factory\GlobalFactory;
 use Haijin\Tools\OrderedCollection;
 
 class SqlBuilder extends AbstractQueryExpressionVisitor
@@ -185,43 +185,43 @@ class SqlBuilder extends AbstractQueryExpressionVisitor
 
     protected function new_query_expression_builder()
     {
-        return Factory::new( QueryExpressionBuilder::class );
+        return GlobalFactory::new( QueryExpressionBuilder::class );
     }
 
     //// Sql builders
 
     protected function new_sql_builder()
     {
-        return Factory::new( self::class );
+        return GlobalFactory::new( self::class );
     }
 
     protected function new_sql_proyection_builder()
     {
-        return Factory::new( SqlProyectionBuilder::class );
+        return GlobalFactory::new( SqlProyectionBuilder::class );
     }
 
     protected function new_sql_collection_builder()
     {
-        return Factory::new( SqlCollectionBuilder::class );
+        return GlobalFactory::new( SqlCollectionBuilder::class );
     }
 
     protected function new_sql_join_builder()
     {
-        return Factory::new( SqlJoinBuilder::class );
+        return GlobalFactory::new( SqlJoinBuilder::class );
     }
 
     protected function new_sql_order_by_builder()
     {
-        return Factory::new( SqlOrderByBuilder::class );
+        return GlobalFactory::new( SqlOrderByBuilder::class );
     }
 
     protected function new_sql_pagination_builder()
     {
-        return Factory::new( SqlPaginationBuilder::class );
+        return GlobalFactory::new( SqlPaginationBuilder::class );
     }
 
     protected function new_sql_filter_builder()
     {
-        return Factory::new( SqlFilterBuilder::class );
+        return GlobalFactory::new( SqlFilterBuilder::class );
     }   
 }
