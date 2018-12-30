@@ -2,7 +2,7 @@
 
 namespace Haijin\Persistency\Mysql;
 
-use Haijin\Persistency\Factory\GlobalFactory;
+use Haijin\Instantiator\GlobalFactory;
 use Haijin\Persistency\Errors\Connections\NamedParameterNotFoundError;
 use Haijin\Persistency\Database\Database;
 use Haijin\Persistency\Sql\QueryBuilder\SqlBuilder;
@@ -195,12 +195,12 @@ class MysqlDatabase extends Database
      */
     protected function query_to_sql($compiled_query, $query_parameters)
     {
-        return GlobalFactory::with_classes_do( function($factory)
+        return GlobalFactory::with_factory_do( function($factory)
                                     use($compiled_query, $query_parameters) {
 
-            $factory->at_put( SqlPaginationBuilder::class, MysqlPaginationBuilder::class );
+            $factory->set( SqlPaginationBuilder::class, MysqlPaginationBuilder::class );
 
-            $factory->at_put(
+            $factory->set(
                 SqlExpressionInFilterBuilder::class,
                 function() use($query_parameters) {
                     return new MysqlExpressionInFilterBuilder( $query_parameters );

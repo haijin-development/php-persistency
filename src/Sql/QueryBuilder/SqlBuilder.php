@@ -2,10 +2,10 @@
 
 namespace Haijin\Persistency\Sql\QueryBuilder;
 
+use Haijin\Instantiator\Create;
 use Haijin\Persistency\QueryBuilder\Builders\QueryExpressionBuilder;
 use Haijin\Persistency\QueryBuilder\Visitors\AbstractQueryExpressionVisitor;
 use Haijin\Persistency\QueryBuilder\Visitors\QueryVisitorTrait;
-use Haijin\Persistency\Factory\GlobalFactory;
 use Haijin\Tools\OrderedCollection;
 
 class SqlBuilder extends AbstractQueryExpressionVisitor
@@ -185,43 +185,43 @@ class SqlBuilder extends AbstractQueryExpressionVisitor
 
     protected function new_query_expression_builder()
     {
-        return GlobalFactory::new( QueryExpressionBuilder::class );
+        return Create::object( QueryExpressionBuilder::class );
     }
 
     //// Sql builders
 
     protected function new_sql_builder()
     {
-        return GlobalFactory::new( self::class );
+        return Create::object( self::class );
     }
 
     protected function new_sql_proyection_builder()
     {
-        return GlobalFactory::new( SqlProyectionBuilder::class );
+        return Create::object( SqlProyectionBuilder::class );
     }
 
     protected function new_sql_collection_builder()
     {
-        return GlobalFactory::new( SqlCollectionBuilder::class );
+        return Create::object( SqlCollectionBuilder::class );
     }
 
     protected function new_sql_join_builder()
     {
-        return GlobalFactory::new( SqlJoinBuilder::class );
+        return Create::object( SqlJoinBuilder::class );
     }
 
     protected function new_sql_order_by_builder()
     {
-        return GlobalFactory::new( SqlOrderByBuilder::class );
+        return Create::object( SqlOrderByBuilder::class );
     }
 
     protected function new_sql_pagination_builder()
     {
-        return GlobalFactory::new( SqlPaginationBuilder::class );
+        return Create::object( SqlPaginationBuilder::class );
     }
 
     protected function new_sql_filter_builder()
     {
-        return GlobalFactory::new( SqlFilterBuilder::class );
+        return Create::object( SqlFilterBuilder::class );
     }   
 }

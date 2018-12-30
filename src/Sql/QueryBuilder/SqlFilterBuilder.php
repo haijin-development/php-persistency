@@ -2,7 +2,7 @@
 
 namespace Haijin\Persistency\Sql\QueryBuilder;
 
-use Haijin\Persistency\Factory\GlobalFactory;
+use Haijin\Instantiator\Create;
 use Haijin\Persistency\QueryBuilder\Visitors\Expressions\FilterVisitor;
 use Haijin\Persistency\Sql\QueryBuilder\ExpressionBuilders\SqlExpressionInFilterBuilder;
 
@@ -25,6 +25,6 @@ class SqlFilterBuilder extends FilterVisitor
 
     protected function new_sql_expression_builder()
     {
-        return GlobalFactory::new( SqlExpressionInFilterBuilder::class );
+        return Create::object( SqlExpressionInFilterBuilder::class );
     }
 }

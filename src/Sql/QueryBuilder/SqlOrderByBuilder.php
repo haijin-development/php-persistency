@@ -2,7 +2,7 @@
 
 namespace Haijin\Persistency\Sql\QueryBuilder;
 
-use Haijin\Persistency\Factory\GlobalFactory;
+use Haijin\Instantiator\Create;
 use Haijin\Persistency\QueryBuilder\Visitors\Expressions\OrderByVisitor;
 use Haijin\Persistency\Sql\QueryBuilder\ExpressionBuilders\SqlExpressionInOrderByBuilder;
 
@@ -24,6 +24,6 @@ class SqlOrderByBuilder extends OrderByVisitor
 
     protected function new_sql_expression_builder()
     {
-        return GlobalFactory::new( SqlExpressionInOrderByBuilder::class, false );
+        return Create::object( SqlExpressionInOrderByBuilder::class );
     }
 }

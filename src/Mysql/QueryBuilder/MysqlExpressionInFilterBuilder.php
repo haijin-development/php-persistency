@@ -2,7 +2,7 @@
 
 namespace Haijin\Persistency\Mysql\QueryBuilder;
 
-use Haijin\Persistency\Factory\GlobalFactory;
+use Haijin\Instantiator\Create;
 use Haijin\Persistency\Sql\QueryBuilder\ExpressionBuilders\SqlExpressionInFilterBuilder;
 
 /**
@@ -85,6 +85,6 @@ class MysqlExpressionInFilterBuilder extends SqlExpressionInFilterBuilder
 
     protected function new_sql_expression_builder()
     {
-        return GlobalFactory::new( get_class( $this ), $this->query_parameters );
+        return Create::a( get_class( $this ) )->with( $this->query_parameters );
     }
 }
