@@ -11,7 +11,7 @@ A simple, complete, adaptable and independent query builder and ORM for PHP.
 
 This library is under active development and no stable version was released yet.
 
-If you like it a lot you may contribute by financing its development. Please contact us by email.
+If you like it a lot you may contribute by [financing](https://github.com/haijin-development/support-haijin-development) its development.
 
 ## Table of contents
 
