@@ -4,7 +4,7 @@ A simple, complete, adaptable and independent query builder and ORM for PHP.
 
 [![Latest Stable Version](https://poser.pugx.org/haijin/persistency/version)](https://packagist.org/packages/haijin/persistency)
 [![Latest Unstable Version](https://poser.pugx.org/haijin/persistency/v/unstable)](https://packagist.org/packages/haijin/persistency)
-[![Build Status](https://travis-ci.com/haijin-development/php-persistency.svg?branch=v0.0.2)](https://travis-ci.com/haijin-development/php-persistency)
+[![Build Status](https://travis-ci.org/haijin-development/php-persistency.svg?branch=v0.0.2)](https://travis-ci.org/haijin-development/php-persistency)
 [![License](https://poser.pugx.org/haijin/persistency/license)](https://packagist.org/packages/haijin/persistency)
 
 ### Version 0.0.1
