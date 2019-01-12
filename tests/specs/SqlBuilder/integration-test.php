@@ -1,16 +1,16 @@
 <?php
 
-namespace SqlQueryBuilder\IntegrationTest;
-
 use Haijin\Persistency\Sql\QueryBuilder\SqlBuilder;
 
-class IntegrationTest extends \PHPUnit\Framework\TestCase
-{
-    public function test_integration()
-    {
-        $query_builder = new SqlBuilder();
+$spec->describe( "When building a sql expression", function() {
 
-        $sql = $query_builder->build( function($query) {
+    $this->let( "query_builder", function() {
+        return new SqlBuilder();
+    });
+
+    $this->it( "builds a complete sql expression", function() {
+
+        $sql = $this->query_builder->build( function($query) {
 
             $query->collection( "users" );
 
@@ -64,14 +64,13 @@ class IntegrationTest extends \PHPUnit\Framework\TestCase
             "order by users.last_name, users.name, address" . " " .
             "limit 10, 0;";
 
-        $this->assertEquals( $expected_sql, $sql );
-    }
+        $this->expect( $sql ) ->to() ->equal( $expected_sql );
 
-    public function test_integration_with_macro_expressions()
-    {
-        $query_builder = new SqlBuilder();
+    });
 
-        $sql = $query_builder->build( function($query) {
+    $this->it( "builds a complete sql expression using macros", function() {
+
+        $sql = $this->query_builder->build( function($query) {
 
             $query->collection( "users" );
 
@@ -137,6 +136,8 @@ class IntegrationTest extends \PHPUnit\Framework\TestCase
             "order by users.last_name, users.name, address" . " " .
             "limit 10, 0;";
 
-        $this->assertEquals( $expected_sql, $sql );
-    }
-}
+        $this->expect( $sql ) ->to() ->equal( $expected_sql );
+
+    });
+
+});

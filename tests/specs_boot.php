@@ -1,44 +1,38 @@
 <?php
 
-use Haijin\Persistency\Mysql\MysqlDatabase;
+\Haijin\Specs\Specs_Runner::configure( function($specs) {
 
-class MysqlQueryTestBase extends \PHPUnit\Framework\TestCase
-{
-    use \Haijin\Testing\AllExpectationsTrait;
+    $this->before_all( function() {
 
-    static public function setUpBeforeClass()
-    {
-        self::drop_tables();
-        self::create_tables();
-    }
+        $this->mysql = new \mysqli( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
 
-    static public function tearDownBeforeClass()
-    {
-        //self::drop_tables();
-    }
-
-    public function setUp()
-    {
-        parent::setUp();
-
-        $this->clear_tables();
+        $this->drop_tables();
+        $this->create_tables();
         $this->populate_tables();
-    }
 
-    static protected function drop_tables()
-    {
-        $db = new \mysqli( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
-        $db->query( "DROP TABLE users;" );
-        $db->query( "DROP TABLE address_1;" );
-        $db->query( "DROP TABLE address_2;" );
-        $db->query( "DROP TABLE cities;" );
-        $db->close();
-    }
+    });
 
-    static protected function create_tables()
-    {
-        $db = new \mysqli( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
-        $db->query(
+    $this->after_all( function() {
+
+        $this->drop_tables();
+
+        $this->mysql->close();
+
+    });
+
+    $this->def( "drop_tables", function() {
+
+        $this->mysql->query( "DROP TABLE users;" );
+        $this->mysql->query( "DROP TABLE address_1;" );
+        $this->mysql->query( "DROP TABLE address_2;" );
+        $this->mysql->query( "DROP TABLE cities;" );
+
+    });
+
+    $this->def( "create_tables", function() {
+
+        $this->mysql = new \mysqli( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
+        $this->mysql->query(
             "CREATE TABLE `haijin-persistency`.`users` (
                 `id` INT NOT NULL AUTO_INCREMENT,
                 `name` VARCHAR(45) NULL,
@@ -46,7 +40,7 @@ class MysqlQueryTestBase extends \PHPUnit\Framework\TestCase
                 PRIMARY KEY (`id`)
             );"
         );
-        $db->query(
+        $this->mysql->query(
             "CREATE TABLE `haijin-persistency`.`address_1` (
                 `id` INT NOT NULL AUTO_INCREMENT,
                 `id_user` INT NOT NULL,
@@ -56,7 +50,7 @@ class MysqlQueryTestBase extends \PHPUnit\Framework\TestCase
                 PRIMARY KEY (`id`)
             );"
         );
-        $db->query(
+        $this->mysql->query(
             "CREATE TABLE `haijin-persistency`.`address_2` (
                 `id` INT NOT NULL AUTO_INCREMENT,
                 `id_user` INT NOT NULL,
@@ -66,65 +60,65 @@ class MysqlQueryTestBase extends \PHPUnit\Framework\TestCase
                 PRIMARY KEY (`id`)
             );"
         );
-        $db->query(
+        $this->mysql->query(
             "CREATE TABLE `haijin-persistency`.`cities` (
                 `id` INT NOT NULL AUTO_INCREMENT,
                 `name` VARCHAR(45) NULL,
                 PRIMARY KEY (`id`)
             );"
         );
-        $db->close();
-    }
 
-    protected function clear_tables()
-    {
-        $db = new \mysqli( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
-        $db->query( "TRUNCATE users;" );
-        $db->query( "TRUNCATE address_1;" );
-        $db->query( "TRUNCATE address_2;" );
-        $db->query( "TRUNCATE cities;" );
-        $db->close();
-    }
+    });
 
-    protected function populate_tables()
-    {
-        $db = new \mysqli( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
-        $db->query(
+
+    $this->def( "clear_tables", function() {
+
+        $this->mysql->query( "TRUNCATE users;" );
+        $this->mysql->query( "TRUNCATE address_1;" );
+        $this->mysql->query( "TRUNCATE address_2;" );
+        $this->mysql->query( "TRUNCATE cities;" );
+
+    });
+
+    $this->def( "populate_tables", function() {
+
+        $this->mysql->query(
             "INSERT INTO users VALUES ( 1, 'Lisa', 'Simpson' );"
         );
-        $db->query(
+        $this->mysql->query(
             "INSERT INTO users VALUES ( 2, 'Bart', 'Simpson' );"
         );
-        $db->query(
+        $this->mysql->query(
             "INSERT INTO users VALUES ( 3, 'Maggie', 'Simpson' );"
         );
-        $db->query(
+        $this->mysql->query(
             "INSERT INTO address_1 VALUES ( 10, 1, 2, 'Evergreen', '742' );"
         );
-        $db->query(
+        $this->mysql->query(
             "INSERT INTO address_1 VALUES ( 20, 2, 1, 'Evergreen', '742' );"
         );
-        $db->query(
+        $this->mysql->query(
             "INSERT INTO address_1 VALUES ( 30, 3, 1, 'Evergreen', '742' );"
         );
 
-        $db->query(
+        $this->mysql->query(
             "INSERT INTO address_2 VALUES ( 100, 1, 1, 'Evergreen 742', '' );"
         );
-        $db->query(
+        $this->mysql->query(
             "INSERT INTO address_2 VALUES ( 200, 2, 1, 'Evergreen 742', '' );"
         );
-        $db->query(
+        $this->mysql->query(
             "INSERT INTO address_2 VALUES ( 300, 3, 1, 'Evergreen 742', '' );"
         );
 
-        $db->query(
+        $this->mysql->query(
             "INSERT INTO cities VALUES ( 1, 'Springfield' );"
         );
 
-        $db->query(
+        $this->mysql->query(
             "INSERT INTO cities VALUES ( 2, 'Springfield_' );"
         );
-        $db->close();
-    }
-}
+
+    });
+
+});

@@ -277,5 +277,5 @@ $database->query( function($query) use($database) {
 ## Running the tests
 
 ```
-composer test
+composer specs
 ```

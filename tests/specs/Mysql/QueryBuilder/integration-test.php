@@ -1,20 +1,20 @@
 <?php
 
-namespace Mysql\QueryBuilder\FilterTest;
-
-require_once __DIR__ . "/MysqlQueryTestBase.php";
-
 use Haijin\Persistency\Mysql\MysqlDatabase;
 
-class IntegrationTest extends \MysqlQueryTestBase
-{
-    public function test_integration()
-    {
+$spec->describe( "When building a MySql expression", function() {
+
+    $this->let( "database", function() {
         $database = new MysqlDatabase();
 
         $database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
 
-        $rows = $database->query( function($query) use($database) {
+        return $database;
+    });
+
+    $this->it( "builds a complete sql expression", function() {
+
+        $rows = $this->database->query( function($query) {
 
             $query->collection( "users" );
 
@@ -63,32 +63,26 @@ class IntegrationTest extends \MysqlQueryTestBase
 
         });
 
-        $this->expectObjectToBeExactly(
-            $rows,
+        $this->expect( $rows ) ->to() ->be() ->like([
             [
-                [
-                    "name" => "Maggie",
-                    "last_name" => "Simpson"
-                ],
-                [
-                    "name" => "Lisa",
-                    "last_name" => "Simpson"
-                ],
-                [
-                    "name" => "Bart",
-                    "last_name" => "Simpson"
-                ]
+                "name" => "Maggie",
+                "last_name" => "Simpson"
+            ],
+            [
+                "name" => "Lisa",
+                "last_name" => "Simpson"
+            ],
+            [
+                "name" => "Bart",
+                "last_name" => "Simpson"
             ]
-        );
-    }
+        ]);
 
-    public function test_integration_with_macro_expressions()
-    {
-        $database = new MysqlDatabase();
+    });
 
-        $database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
+    $this->it( "builds a complete sql expression using macros", function() {
 
-        $rows = $database->query( function($query) use($database) {
+        $rows = $this->database->query( function($query) {
 
             $query->collection( "users" );
 
@@ -147,22 +141,21 @@ class IntegrationTest extends \MysqlQueryTestBase
 
         });
 
-        $this->expectObjectToBeExactly(
-            $rows,
+        $this->expect( $rows ) ->to() ->be() ->like([
             [
-                [
-                    "name" => "Maggie",
-                    "last_name" => "Simpson"
-                ],
-                [
-                    "name" => "Lisa",
-                    "last_name" => "Simpson"
-                ],
-                [
-                    "name" => "Bart",
-                    "last_name" => "Simpson"
-                ]
+                "name" => "Maggie",
+                "last_name" => "Simpson"
+            ],
+            [
+                "name" => "Lisa",
+                "last_name" => "Simpson"
+            ],
+            [
+                "name" => "Bart",
+                "last_name" => "Simpson"
             ]
-        );
-    }
-}
+        ]);
+
+    });
+
+});

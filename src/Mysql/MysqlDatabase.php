@@ -45,15 +45,19 @@ class MysqlDatabase extends Database
      */
     public function connect(...$params)
     {
-        try {
-            $this->connection_handle = new \mysqli(
-                $params[0],
-                $params[1],
-                $params[2],
-                $params[3]
-            );
-        } catch(\Exception $e) {
-            $this->raise_connection_failed_error( $e->getMessage() );
+        $this->connection_handle = new \mysqli(
+            $params[0],
+            $params[1],
+            $params[2],
+            $params[3]
+        );
+
+        if( $this->connection_handle->connect_errno ) {
+            $error_message = $this->connection_handle->connect_error;
+
+            $this->connection_handle = null;
+
+            $this->raise_connection_failed_error( $error_message );
         }
     }
 

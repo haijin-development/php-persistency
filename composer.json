@@ -24,8 +24,7 @@
         "haijin/instantiator": "^0.0.1"
     },
     "require-dev": {
-        "phpunit/phpunit": "^7.4",
-        "haijin/testing": "^0.0.2"
+        "haijin/specs": "^0.1.0"
     },
     "autoload": {
         "psr-4": {
@@ -38,6 +37,6 @@
         }
     },
     "scripts": {
-        "test": "./vendor/bin/phpunit tests/ --bootstrap vendor/autoload.php"
+        "specs": "php ./vendor/bin/specs"
     }
 }
