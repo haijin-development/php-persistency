@@ -24,7 +24,7 @@
         "haijin/instantiator": "^0.0.1"
     },
     "require-dev": {
-        "haijin/specs": "^0.1.0"
+        "haijin/specs": "^0.1.2"
     },
     "autoload": {
         "psr-4": {
