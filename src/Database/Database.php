@@ -2,9 +2,9 @@
 
 namespace Haijin\Persistency\Database;
 
-use Haijin\Persistency\Errors\Connections\DatabaseQueryError;
-use Haijin\Persistency\Errors\Connections\UninitializedConnectionError;
-use Haijin\Persistency\Errors\Connections\ConnectionFailureError;
+use Haijin\Persistency\Errors\Connections\Database_Query_Error;
+use Haijin\Persistency\Errors\Connections\Uninitialized_Connection_Error;
+use Haijin\Persistency\Errors\Connections\Connection_Failure_Error;
 
 /**
  * Base class for database engines wrappers.
@@ -31,7 +31,7 @@ abstract class Database
      * Connects to the database.
      * Each database may have its own connection parameters, this method does not constrain
      * them.
-     * Raises a ConnectionFailureError is the connection fails.
+     * Raises a Connection_Failure_Error is the connection fails.
      *
      * @param array $params A variable number of parameters required to connect to a
      *      particular database server.
@@ -54,11 +54,11 @@ abstract class Database
 
     /**
      * Compiles the $query_closure and retunrs the compiled
-     *      Haijin\Persistency\QueryBuilder\QueryExpression.
+     *      Haijin\Persistency\Query_Builder\Query_Expression.
      *
      * @param closure $query_closure A closure to construct the database query.
      *
-     * @return Haijin\Persistency\QueryBuilder\QueryExpression The QueryExpression compiled from
+     * @return Haijin\Persistency\Query_Builder\Query_Expression The Query_Expression compiled from
      *      the $query_closure evaluation.
      */
     abstract public function compile_query($query_closure);
@@ -69,9 +69,9 @@ abstract class Database
      * Executes the $compiled_query with the database server.
      * Returns the result of the execution.
      *
-     * @param Haijin\Persistency\QueryBuilder\QueryExpression $compiled_query A QueryExpression.
+     * @param Haijin\Persistency\Query_Builder\Query_Expression $compiled_query A Query_Expression.
      * @param array $named_parameters An associative array of the named parameters values
-     *      referenced in the QueryExpression.
+     *      referenced in the Query_Expression.
      *
      * @return array An associative array with the results of the query execution.
      */
@@ -85,7 +85,7 @@ abstract class Database
      * sql database one parameter can be the built sql string.
      * This method is intenteded for debugging purposes, not to use in production.
      *
-     * @param $query QueryExpressionBuilder The parameter of the query_closure.
+     * @param $query Query_Expression_Builder The parameter of the query_closure.
      * @param closure $closure A closure with the debugging information as its parametets.
      * @param object $binding Optional - An optional object to bind to the evaluation of
      *      the $closure. If none is given the $closure is bound to $this object.
@@ -108,9 +108,9 @@ abstract class Database
     /// Raising errors
 
     /**
-     * Raises a ConnectionFailureError.
+     * Raises a Connection_Failure_Error.
      *
-     * @oaram string $error_message Optional - The error message of the ConnectionFailureError.
+     * @oaram string $error_message Optional - The error message of the Connection_Failure_Error.
      */
     protected function raise_connection_failed_error($error_message)
     {
@@ -118,21 +118,21 @@ abstract class Database
             $error_message = 'The connection to the database failed.';
         }
 
-        throw new ConnectionFailureError( $error_message, $this );
+        throw new Connection_Failure_Error( $error_message, $this );
     }
 
     /**
-     * Raises a DatabaseQueryError.
+     * Raises a Database_Query_Error.
      *
-     * @oaram string $error_message The error message of the DatabaseQueryError.
+     * @oaram string $error_message The error message of the Database_Query_Error.
      */
     protected function raise_database_query_error($error_message)
     {
-        throw new DatabaseQueryError( $error_message, $this );
+        throw new Database_Query_Error( $error_message, $this );
     }
 
     /**
-     * Raises a UninitializedConnectionError.
+     * Raises a Uninitialized_Connection_Error.
      */
     protected function raise_uninitialized_connection_error($error_message = null)
     {
@@ -140,6 +140,6 @@ abstract class Database
             $error_message = 'The connection handle has not being initialized. Initialize it with \'->connect($hostname, $user, $password, $database)\' first.';
         }
 
-        throw new UninitializedConnectionError( $error_message, $this );
+        throw new Uninitialized_Connection_Error( $error_message, $this );
     }
 }

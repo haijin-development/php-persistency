@@ -57,7 +57,7 @@ Include this library in your project `composer.json` file:
 Make a query to a database:
 
 ```php
-$database = new MysqlDatabase();
+$database = new Mysql_Database();
 $database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
 
 $database->query( function($query) {
@@ -115,7 +115,7 @@ It may seem that the constant values are appended as strings to a query string, 
 Define semantic logical expressions and combine them using logical operands:
 
 ```php
-$database = new MysqlDatabase();
+$database = new Mysql_Database();
 $database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
 
 $database->query( function($query) {
@@ -202,7 +202,7 @@ the `concat(...)` function was not declared anywhere in the DSL for Mysql nor fo
 Inspect the query and its constant values with `inspect_query`:
 
 ```php
-$database = new MysqlDatabase();
+$database = new Mysql_Database();
 $database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
 
 $database->query( function($query) use($database) {

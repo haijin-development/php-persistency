@@ -5,12 +5,12 @@ namespace Haijin\Persistency\Errors\QueryExpressions;
 use Haijin\Persistency\Errors\PersistencyError;
 
 /**
- * Error raised when a query QueryBuilder encounters an unexpected expression.
+ * Error raised when a query Query_Builder encounters an unexpected expression.
  */
 class UnexpectedExpressionError extends PersistencyError
 {
     /**
-     * The unexpected QueryExpression.
+     * The unexpected Query_Expression.
      */
     protected $expression;
 
@@ -20,7 +20,7 @@ class UnexpectedExpressionError extends PersistencyError
      * Initializes $this instance.
      *
      * @param string $error_message The error message.
-     * @param QueryExpression $expression The unexpected QueryExpression.
+     * @param Query_Expression $expression The unexpected Query_Expression.
      */
     public function __construct($error_message, $expression)
     {
@@ -32,9 +32,9 @@ class UnexpectedExpressionError extends PersistencyError
     /// Accessing
 
     /**
-     * Returns the unexpected QueryExpression.
+     * Returns the unexpected Query_Expression.
      *
-     * @return QueryExpression The unexpected QueryExpression.
+     * @return Query_Expression The unexpected Query_Expression.
      */
     public function get_expression()
     {
