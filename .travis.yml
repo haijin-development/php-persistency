@@ -4,7 +4,7 @@ php:
 before_script:
   - composer self-update
   - composer install
-script: ./vendor/bin/phpunit tests/
+script: composer specs
 services:
   - mysql
 before_install:
