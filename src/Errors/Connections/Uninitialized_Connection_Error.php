@@ -2,12 +2,12 @@
 
 namespace Haijin\Persistency\Errors\Connections;
 
-use Haijin\Persistency\Errors\PersistencyError;
+use Haijin\Persistency\Errors\Persistency_Error;
 
 /**
  * Error raised when the database is used before connecting to it.
  */
-class Uninitialized_Connection_Error extends PersistencyError
+class Uninitialized_Connection_Error extends Persistency_Error
 {
     /**
      * The database where the error was raised.

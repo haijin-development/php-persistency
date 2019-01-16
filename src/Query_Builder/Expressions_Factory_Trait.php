@@ -11,7 +11,7 @@ use Haijin\Persistency\Query_Builder\Expressions\Alias_Expression;
 use Haijin\Persistency\Query_Builder\Expressions\Function_Call_Expression;
 use Haijin\Persistency\Query_Builder\Expressions\Binary_Operator_Expression;
 use Haijin\Persistency\Query_Builder\Expressions\Brackets_Expression;
-use Haijin\Tools\Dictionary;
+use Haijin\Dictionary;
 
 /**
  * Trait with methods to create query expressions.

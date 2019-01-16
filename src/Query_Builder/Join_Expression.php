@@ -3,7 +3,7 @@
 namespace Haijin\Persistency\Query_Builder;
 
 use Haijin\Persistency\Query_Builder\Builders\Query_Expression_Builder;
-use Haijin\Tools\OrderedCollection;
+use Haijin\Ordered_Collection;
 
 class Join_Expression extends Expression
 {
@@ -25,7 +25,7 @@ class Join_Expression extends Expression
         $this->from_field = null;
         $this->to_field = null;
         $this->proyection = $this->new_proyection_expression();
-        $this->joins = new OrderedCollection();
+        $this->joins = new Ordered_Collection();
     }
 
     /// Accessing
@@ -89,7 +89,7 @@ class Join_Expression extends Expression
 
     public function get_nested_joins()
     {
-        $joins = OrderedCollection::with( $this );
+        $joins = Ordered_Collection::with( $this );
 
         $this->joins->each_do( function($each_nested_join) use($joins) {
             $joins->add_all( $each_nested_join->get_nested_joins() );

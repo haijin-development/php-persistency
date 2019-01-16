@@ -2,7 +2,7 @@
 
 namespace Haijin\Persistency\Mysql;
 
-use Haijin\Instantiator\GlobalFactory;
+use Haijin\Instantiator\Global_Factory;
 use Haijin\Persistency\Errors\Connections\Named_Parameter_Not_Found_Error;
 use Haijin\Persistency\Database\Database;
 use Haijin\Persistency\Sql\Query_Builder\Sql_Builder;
@@ -12,8 +12,8 @@ use Haijin\Persistency\Mysql\Query_Builder\Mysql_Pagination_Builder;
 use Haijin\Persistency\Mysql\Query_Builder\Mysql_Expression_In_Filter_Builder;
 use Haijin\Persistency\Mysql\Query_Builder\NamedParameterPlaceholder;
 use Haijin\Persistency\Query_Builder\Builders\Query_Expression_Builder;
-use Haijin\Tools\Dictionary;
-use Haijin\Tools\OrderedCollection;
+use Haijin\Dictionary;
+use Haijin\Ordered_Collection;
 
 
 class Mysql_Database extends Database
@@ -69,7 +69,7 @@ class Mysql_Database extends Database
      */
     public function query($query_closure, $named_parameters = [])
     {
-        $query_parameters = new OrderedCollection();
+        $query_parameters = new Ordered_Collection();
         $named_parameters = Dictionary::with_all( $named_parameters );
 
         $compiled_query = $this->compile_query( $query_closure, $query_parameters );
@@ -97,7 +97,7 @@ class Mysql_Database extends Database
     {
         $this->validate_connection_handle();
 
-        $query_parameters = new OrderedCollection();
+        $query_parameters = new Ordered_Collection();
 
         $statement_handle = $this->_prepare_statement( $compiled_query, $query_parameters );
 
@@ -199,7 +199,7 @@ class Mysql_Database extends Database
      */
     protected function query_to_sql($compiled_query, $query_parameters)
     {
-        return GlobalFactory::with_factory_do( function($factory)
+        return Global_Factory::with_factory_do( function($factory)
                                     use($compiled_query, $query_parameters) {
 
             $factory->set( Sql_Pagination_Builder::class, Mysql_Pagination_Builder::class );
@@ -259,7 +259,7 @@ class Mysql_Database extends Database
             $binding = $this;
         }
 
-        $query_parameters = new OrderedCollection();
+        $query_parameters = new Ordered_Collection();
 
         $sql = $this->query_to_sql(
             $query_expression_builder->get_query_expression(),

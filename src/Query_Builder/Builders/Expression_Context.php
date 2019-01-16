@@ -2,9 +2,9 @@
 
 namespace Haijin\Persistency\Query_Builder\Builders;
 
-use Haijin\Tools\Dictionary;
-use Haijin\Persistency\Errors\MacroExpressionNotFoundError;
-use Haijin\Persistency\Errors\MacroExpressionEvaluatedToNullError;
+use Haijin\Dictionary;
+use Haijin\Persistency\Errors\Macro_Expression_Not_Found_Error;
+use Haijin\Persistency\Errors\Macro_Expression_Evaluated_To_Null_Error;
 
 /**
  * This object holds all the necessary context any Expression needs.

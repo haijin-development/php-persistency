@@ -2,12 +2,12 @@
 
 namespace Haijin\Persistency\Errors\QueryExpressions;
 
-use Haijin\Persistency\Errors\PersistencyError;
+use Haijin\Persistency\Errors\Persistency_Error;
 
 /**
  * Error raised when a query Query_Builder encounters an unexpected expression.
  */
-class UnexpectedExpressionError extends PersistencyError
+class Unexpected_Expression_Error extends Persistency_Error
 {
     /**
      * The unexpected Query_Expression.

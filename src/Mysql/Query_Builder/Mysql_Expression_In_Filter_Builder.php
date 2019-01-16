@@ -14,7 +14,7 @@ use Haijin\Persistency\Sql\Query_Builder\Expression_Builders\Sql_Expression_In_F
 class Mysql_Expression_In_Filter_Builder extends Sql_Expression_In_Filter_Builder
 {
     /**
-     * An OrderedCollection with the collected query parameters from ValueExpressions and
+     * An Ordered_Collection with the collected query parameters from ValueExpressions and
      * from NamedParameterExpressions.
      */
     protected $query_parameters;
@@ -24,7 +24,7 @@ class Mysql_Expression_In_Filter_Builder extends Sql_Expression_In_Filter_Builde
     /**
      * Initializes $this instance.
      *
-     * @param OrderedCollection $query_parameters An OrderedCollection to collect query parameters
+     * @param Ordered_Collection $query_parameters An Ordered_Collection to collect query parameters
      * from ValueExpressions and from NamedParameterExpressions.
      */
     public function __construct($query_parameters)
@@ -35,7 +35,7 @@ class Mysql_Expression_In_Filter_Builder extends Sql_Expression_In_Filter_Builde
     /// Visiting
 
     /**
-     * Adds a value to the OrderedCollection of the query parameters and returns the sql to append
+     * Adds a value to the Ordered_Collection of the query parameters and returns the sql to append
      * to the query sql.
      *
      * @param Value_Expression $value_expression The Value_Expression to accept.
@@ -52,7 +52,7 @@ class Mysql_Expression_In_Filter_Builder extends Sql_Expression_In_Filter_Builde
     }
 
     /**
-     * Adds a Named_Parameter_Expression placeholder to the OrderedCollection of the query
+     * Adds a Named_Parameter_Expression placeholder to the Ordered_Collection of the query
      * parameters and returns the sql to append to the query sql.
      *
      * @param Named_Parameter_Expression $named_parameter_expression The Named_Parameter_Expression

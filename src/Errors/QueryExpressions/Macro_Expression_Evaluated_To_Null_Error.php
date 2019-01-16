@@ -2,15 +2,16 @@
 
 namespace Haijin\Persistency\Errors\QueryExpressions;
 
-use Haijin\Persistency\Errors\PersistencyError;
+use Haijin\Persistency\Errors\Persistency_Error;
 
 /**
- * Error raised when a macro expression is used in a query filter without being previously defined.
+ * Error raised when a macro expression used in a query filter evaluates to null.
+ * That usually happens because of a missing return statement.
  */
-class MacroExpressionNotFoundError extends PersistencyError
+class Macro_Expression_Evaluated_To_Null_Error extends Persistency_Error
 {
     /**
-     * The name of the missing macro.
+     * The name of the macro that evaluated to null.
      */
     protected $macro_name;
 
@@ -20,7 +21,7 @@ class MacroExpressionNotFoundError extends PersistencyError
      * Initializes $this instance.
      *
      * @param string $error_message The error message.
-     * @param string $macro_name The name of the missing macro.
+     * @param string $macro_name The name of the macro that evaluated to null.
      */
     public function __construct($error_message, $macro_name)
     {
@@ -32,9 +33,9 @@ class MacroExpressionNotFoundError extends PersistencyError
     /// Accessing
 
     /**
-     * Returns The name of the missing macro.
+     * Returns The name of the macro that evaluated to null.
      *
-     * @return string The name of the missing macro.
+     * @return string The name of the macro that evaluated to null.
      */
     public function get_macro_name()
     {

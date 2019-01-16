@@ -2,7 +2,7 @@
 
 namespace Haijin\Persistency\Query_Builder;
 
-use Haijin\Tools\OrderedCollection;
+use Haijin\Ordered_Collection;
 
 /**
  * Trait with methods to create query expressions.
@@ -70,7 +70,7 @@ trait Expressions_DSL_Trait
      */
     public function _values_to_expressions($values)
     {
-        return OrderedCollection::with_all( $values )
+        return Ordered_Collection::with_all( $values )
             ->collect( function($each_parameter) {
                 return $this->_value_to_expression( $each_parameter );
             }, 

@@ -6,7 +6,7 @@ use Haijin\Instantiator\Create;
 use Haijin\Persistency\Query_Builder\Builders\Query_Expression_Builder;
 use Haijin\Persistency\Query_Builder\Visitors\Abstract_Query_Expression_Visitor;
 use Haijin\Persistency\Query_Builder\Visitors\Query_Visitor_Trait;
-use Haijin\Tools\OrderedCollection;
+use Haijin\Ordered_Collection;
 
 class Sql_Builder extends Abstract_Query_Expression_Visitor
 {
@@ -77,7 +77,7 @@ class Sql_Builder extends Abstract_Query_Expression_Visitor
 
     public function get_nested_proyections_sql_from($expression)
     {
-        $proyected_fields = new OrderedCollection();
+        $proyected_fields = new Ordered_Collection();
 
         $proyected_fields[] = $this->proyected_fields_from( $expression );
 
@@ -125,7 +125,7 @@ class Sql_Builder extends Abstract_Query_Expression_Visitor
             return "";
         }
 
-        $joins = new OrderedCollection();
+        $joins = new Ordered_Collection();
 
         $query_expression->joins_do( function($join_expression) use($joins) {
 

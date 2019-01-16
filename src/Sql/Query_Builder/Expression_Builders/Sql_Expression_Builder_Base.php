@@ -5,7 +5,7 @@ namespace Haijin\Persistency\Sql\Query_Builder\Expression_Builders;
 use Haijin\Instantiator\Create;
 use Haijin\Persistency\Query_Builder\Visitors\Expressions\Expression_Visitor;
 use Haijin\Persistency\Sql\Query_Builder\Sql_Builder_Trait;
-use Haijin\Tools\OrderedCollection;
+use Haijin\Ordered_Collection;
 
 /**
  * A builder of general expressions used in different query parts.
@@ -72,7 +72,7 @@ class Sql_Expression_Builder_Base extends Expression_Visitor
         $sql .= "(";
 
         $sql .= $this->expressions_list(
-            OrderedCollection::with_all( $function_call_expression->get_parameters() )
+            Ordered_Collection::with_all( $function_call_expression->get_parameters() )
         );
 
         $sql .= ")";

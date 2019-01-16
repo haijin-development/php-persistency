@@ -2,12 +2,12 @@
 
 namespace Haijin\Persistency\Errors\Connections;
 
-use Haijin\Persistency\Errors\PersistencyError;
+use Haijin\Persistency\Errors\Persistency_Error;
 
 /**
  * Error raised when the connection to a database server fails.
  */
-class Connection_Failure_Error extends PersistencyError
+class Connection_Failure_Error extends Persistency_Error
 {
     /**
      * The database that failed to connect to the server.

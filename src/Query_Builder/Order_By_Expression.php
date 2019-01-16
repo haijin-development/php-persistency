@@ -2,7 +2,7 @@
 
 namespace Haijin\Persistency\Query_Builder;
 
-use Haijin\Tools\OrderedCollection;
+use Haijin\Ordered_Collection;
 
 class Order_By_Expression extends Expression
 {
@@ -14,7 +14,7 @@ class Order_By_Expression extends Expression
     {
         parent::__construct( $expression_context );
 
-        $this->order_by_expressions = new OrderedCollection();
+        $this->order_by_expressions = new Ordered_Collection();
     }
 
     /// Asking

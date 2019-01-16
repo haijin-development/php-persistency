@@ -2,7 +2,7 @@
 
 namespace Haijin\Persistency\Query_Builder;
 
-use Haijin\Tools\OrderedCollection;
+use Haijin\Ordered_Collection;
 
 class Query_Expression extends Expression
 {
@@ -25,7 +25,7 @@ class Query_Expression extends Expression
         $this->collection = null;
         $this->proyection = $this->new_proyection_expression();
         $this->filter = null;
-        $this->joins = new OrderedCollection();
+        $this->joins = new Ordered_Collection();
         $this->order_by = null;
         $this->pagination = null;
     }

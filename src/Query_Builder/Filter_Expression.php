@@ -2,7 +2,7 @@
 
 namespace Haijin\Persistency\Query_Builder;
 
-use Haijin\Tools\OrderedCollection;
+use Haijin\Ordered_Collection;
 
 class Filter_Expression extends Expression
 {

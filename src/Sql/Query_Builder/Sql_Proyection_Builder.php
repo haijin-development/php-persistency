@@ -5,7 +5,7 @@ namespace Haijin\Persistency\Sql\Query_Builder;
 use Haijin\Instantiator\Create;
 use Haijin\Persistency\Query_Builder\Visitors\Expressions\Proyection_Visitor;
 use Haijin\Persistency\Sql\Query_Builder\Expression_Builders\Sql_Expression_In_Proyection_Builder;
-use Haijin\Tools\OrderedCollection;
+use Haijin\Ordered_Collection;
 
 class Sql_Proyection_Builder extends Proyection_Visitor
 {

@@ -3,7 +3,7 @@
 namespace Haijin\Persistency\Sql\Query_Builder;
 
 use Haijin\Persistency\Factory\Factory;
-use Haijin\Persistency\Errors\QueryExpressions\UnexpectedExpressionError;
+use Haijin\Persistency\Errors\QueryExpressions\Unexpected_Expression_Error;
 
 trait Sql_Builder_Trait
 {
@@ -61,7 +61,7 @@ trait Sql_Builder_Trait
     {
         $expression_name = get_class( $expression );
 
-        throw new UnexpectedExpressionError(
+        throw new Unexpected_Expression_Error(
             "Unexpected {$expression_name}",
             $expression
         );

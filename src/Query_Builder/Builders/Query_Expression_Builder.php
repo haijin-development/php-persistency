@@ -2,7 +2,7 @@
 
 namespace Haijin\Persistency\Query_Builder\Builders;
 
-use Haijin\Persistency\Errors\QueryExpressions\MacroExpressionEvaluatedToNullError;
+use Haijin\Persistency\Errors\QueryExpressions\Macro_Expression_Evaluated_To_Null_Error;
 use Haijin\Persistency\Query_Builder\Expressions_Factory_Trait;
 use Haijin\Persistency\Query_Builder\Expressions_DSL_Trait;
 
@@ -357,7 +357,7 @@ class Query_Expression_Builder
 
     protected function _raise_macro_expression_evaluated_to_null_error($macro_name)
     {
-        throw new MacroExpressionEvaluatedToNullError(
+        throw new Macro_Expression_Evaluated_To_Null_Error(
             "The macro expression '{$macro_name}' evaluated to null. Probably it is missing the return statement.",
             $macro_name
         );
