@@ -61,7 +61,7 @@ trait Sql_Builder_Trait
     {
         $expression_name = get_class( $expression );
 
-        throw new Unexpected_Expression_Error(
+        throw Create::an( Unexpected_Expression_Error::class )->with(
             "Unexpected {$expression_name}",
             $expression
         );

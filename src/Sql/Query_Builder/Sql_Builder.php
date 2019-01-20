@@ -77,7 +77,7 @@ class Sql_Builder extends Abstract_Query_Expression_Visitor
 
     public function get_nested_proyections_sql_from($expression)
     {
-        $proyected_fields = new Ordered_Collection();
+        $proyected_fields = Create::an( Ordered_Collection::class )->with();
 
         $proyected_fields[] = $this->proyected_fields_from( $expression );
 
@@ -125,7 +125,7 @@ class Sql_Builder extends Abstract_Query_Expression_Visitor
             return "";
         }
 
-        $joins = new Ordered_Collection();
+        $joins = Create::an( Ordered_Collection::class )->with();
 
         $query_expression->joins_do( function($join_expression) use($joins) {
 

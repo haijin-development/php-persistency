@@ -3,6 +3,7 @@
 namespace Haijin\Persistency\Engines\Mysql;
 
 use Haijin\Instantiator\Global_Factory;
+use  Haijin\Instantiator\Create;
 use Haijin\Persistency\Errors\Connections\Named_Parameter_Not_Found_Error;
 use Haijin\Persistency\Database\Database;
 use Haijin\Persistency\Sql\Query_Builder\Sql_Builder;
@@ -68,7 +69,7 @@ class Mysql_Database extends Database
      */
     public function query($query_closure, $named_parameters = [])
     {
-        $query_parameters = new Ordered_Collection();
+        $query_parameters = Create::an( Ordered_Collection::class )->with();
         $named_parameters = Dictionary::with_all( $named_parameters );
 
         $compiled_query = $this->compile_query( $query_closure, $query_parameters );
@@ -96,7 +97,7 @@ class Mysql_Database extends Database
     {
         $this->validate_connection_handle();
 
-        $query_parameters = new Ordered_Collection();
+        $query_parameters = Create::an( Ordered_Collection::class )->with();
 
         $statement_handle = $this->_prepare_statement( $compiled_query, $query_parameters );
 
@@ -206,7 +207,8 @@ class Mysql_Database extends Database
             $factory->set(
                 Sql_Expression_In_Filter_Builder::class,
                 function() use($query_parameters) {
-                    return new Mysql_Expression_In_Filter_Builder( $query_parameters );
+                    return Create::a( Mysql_Expression_In_Filter_Builder::class )
+                                ->with( $query_parameters );
                 }
             );
 
@@ -232,7 +234,7 @@ class Mysql_Database extends Database
 
     protected function raise_named_parameter_not_found_error($parameter_name)
     {
-        throw new Named_Parameter_Not_Found_Error(
+        throw Create::a( Named_Parameter_Not_Found_Error::class )->with(
             "The query named parameter '{$parameter_name}' was not found.",
             $parameter_name
         );
@@ -242,12 +244,12 @@ class Mysql_Database extends Database
 
     protected function new_query_expression_builder()
     {
-        return new Query_Expression_Builder();
+        return Create::a( Query_Expression_Builder::class )->with();
     }
 
     protected function new_sql_builder()
     {
-        return new Sql_Builder;
+        return Create::a( Sql_Builder::class )->with();
     }
 
     /// Debugging
@@ -258,7 +260,7 @@ class Mysql_Database extends Database
             $binding = $this;
         }
 
-        $query_parameters = new Ordered_Collection();
+        $query_parameters = Create::an( Ordered_Collection::class )->with();
 
         $sql = $this->query_to_sql(
             $query_expression_builder->get_query_expression(),

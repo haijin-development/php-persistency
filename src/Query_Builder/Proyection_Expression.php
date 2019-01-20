@@ -2,6 +2,7 @@
 
 namespace Haijin\Persistency\Query_Builder;
 
+use Haijin\Instantiator\Create;
 use Haijin\Ordered_Collection;
 
 class Proyection_Expression extends Expression
@@ -14,7 +15,7 @@ class Proyection_Expression extends Expression
     {
         parent::__construct( $expression_context );
 
-        $this->proyected_expressions = new Ordered_Collection();
+        $this->proyected_expressions = Create::an( Ordered_Collection::class )->with();
     }
 
     /// Asking

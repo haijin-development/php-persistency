@@ -2,6 +2,7 @@
 
 namespace Haijin\Persistency\Query_Builder;
 
+use Haijin\Instantiator\Create;
 use Haijin\Persistency\Query_Builder\Builders\Query_Expression_Builder;
 use Haijin\Ordered_Collection;
 
@@ -25,7 +26,7 @@ class Join_Expression extends Expression
         $this->from_field = null;
         $this->to_field = null;
         $this->proyection = $this->new_proyection_expression();
-        $this->joins = new Ordered_Collection();
+        $this->joins = Create::an( Ordered_Collection::class )->with();
     }
 
     /// Accessing
@@ -201,7 +202,7 @@ class Join_Expression extends Expression
 
     public function new_query_expression_builder($expression_context = null)
     {
-        return new Query_Expression_Builder( $expression_context );
+        return Create::a( Query_Expression_Builder::class )->with( $expression_context );
     }
 
     /// Visiting

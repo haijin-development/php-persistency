@@ -2,6 +2,7 @@
 
 namespace Haijin\Persistency\Query_Builder\Expressions;
 
+use Haijin\Instantiator\Create;
 use Haijin\Persistency\Query_Builder\Expression;
 use Haijin\Persistency\Query_Builder\Expressions_DSL_Trait;
 use Haijin\Persistency\Query_Builder\Builders\Expression_Builder;
@@ -81,7 +82,7 @@ class Binary_Operator_Expression extends Expression
      */
     public function __call($function_name, $parameters)
     {
-        $expression_builder = new Expression_Builder( $this->context );
+        $expression_builder = Create::a( Expression_Builder::class )->with( $this->context );
 
         $this->set_parameter_2(
             $expression_builder->receive($function_name, $parameters)

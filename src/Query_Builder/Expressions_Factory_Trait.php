@@ -2,6 +2,7 @@
 
 namespace Haijin\Persistency\Query_Builder;
 
+use Haijin\Instantiator\Create;
 use Haijin\Persistency\Query_Builder\Builders\Expression_Context;
 use Haijin\Persistency\Query_Builder\Expressions\All_Fields_Expression;
 use Haijin\Persistency\Query_Builder\Expressions\Field_Expression;
@@ -22,14 +23,14 @@ trait Expressions_Factory_Trait
 
     protected function new_query_expression()
     {
-        return new Query_Expression(
+        return Create::a( Query_Expression::class )->with(
             $this->context
         );
     }
 
     protected function new_collection_expression( $collection_name = null)
     {
-        return new Collection_Expression(
+        return Create::a( Collection_Expression::class )->with(
             $this->context,
             $collection_name
         );
@@ -37,7 +38,7 @@ trait Expressions_Factory_Trait
 
     protected function new_proyection_expression()
     {
-        return new Proyection_Expression(
+        return Create::a( Proyection_Expression::class )->with(
             $this->context
         );
     }
@@ -53,7 +54,7 @@ trait Expressions_Factory_Trait
 
     protected function new_join_expression($from_collection, $to_collection)
     {
-        return new Join_Expression(
+        return Create::a( Join_Expression::class )->with(
             $this->context,
             $from_collection,
             $to_collection
@@ -62,7 +63,7 @@ trait Expressions_Factory_Trait
 
     protected function new_filter_expression($expression)
     {
-        return new Filter_Expression(
+        return Create::a( Filter_Expression::class )->with(
             $this->context,
             $expression
         );
@@ -70,28 +71,28 @@ trait Expressions_Factory_Trait
 
     protected function new_order_by_expression()
     {
-        return new Order_By_Expression(
+        return Create::a( Order_By_Expression::class )->with(
             $this->context
         );
     }
 
     protected function new_pagination_expression()
     {
-        return new Pagination_Expression(
+        return Create::a( Pagination_Expression::class )->with(
             $this->context
         );
     }
 
     protected function new_all_fields_expression()
     {
-        return new All_Fields_Expression(
+        return Create::a( All_Fields_Expression::class )->with(
             $this->context
         );
     }
 
     protected function new_field_expression($field_name)
     {
-        return new Field_Expression(
+        return Create::a( Field_Expression::class )->with(
             $this->context,
             $field_name
         );
@@ -99,7 +100,7 @@ trait Expressions_Factory_Trait
 
     protected function new_value_expression($value)
     {
-        return new Value_Expression(
+        return Create::a( Value_Expression::class )->with(
             $this->context,
             $value
         );
@@ -107,7 +108,7 @@ trait Expressions_Factory_Trait
 
     protected function new_named_parameter_expression($parameter_name)
     {
-        return new Named_Parameter_Expression(
+        return Create::a( Named_Parameter_Expression::class )->with(
             $this->context,
             $parameter_name
         );
@@ -115,7 +116,7 @@ trait Expressions_Factory_Trait
 
     protected function new_alias_expression($alias, $aliased_expression)
     {
-        return new Alias_Expression(
+        return Create::a( Alias_Expression::class )->with(
             $this->context,
             $alias,
             $aliased_expression
@@ -124,7 +125,7 @@ trait Expressions_Factory_Trait
 
     protected function new_function_call_expression($function_name, $parameters)
     {
-        return new Function_Call_Expression(
+        return Create::a( Function_Call_Expression::class )->with(
             $this->context,
             $function_name,
             $parameters
@@ -133,7 +134,7 @@ trait Expressions_Factory_Trait
 
     protected function new_binary_operator_expression($operator_symbol, $parameter_1, $parameter_2)
     {
-        return new Binary_Operator_Expression(
+        return Create::a( Binary_Operator_Expression::class )->with(
             $this->context,
             $operator_symbol,
             $parameter_1,
@@ -143,7 +144,7 @@ trait Expressions_Factory_Trait
 
     protected function new_brackets_expression($expression = null)
     {
-        return new Brackets_Expression(
+        return Create::a( Brackets_Expression::class )->with(
             $this->context,
             $expression
         );
@@ -155,7 +156,7 @@ trait Expressions_Factory_Trait
             $macro_expressions = $this->new_macro_expressions_dictionary();
         }
 
-        return new Expression_Context(
+        return Create::a( Expression_Context::class )->with(
             $macro_expressions,
             $current_collection
         );
@@ -163,6 +164,6 @@ trait Expressions_Factory_Trait
 
     protected function new_macro_expressions_dictionary()
     {
-        return new Dictionary();
+        return Create::a( Dictionary::class )->with();
     }
 }

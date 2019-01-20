@@ -2,6 +2,7 @@
 
 namespace Haijin\Persistency\Database;
 
+use  Haijin\Instantiator\Create;
 use Haijin\Persistency\Errors\Connections\Database_Query_Error;
 use Haijin\Persistency\Errors\Connections\Uninitialized_Connection_Error;
 use Haijin\Persistency\Errors\Connections\Connection_Failure_Error;
@@ -118,7 +119,7 @@ abstract class Database
             $error_message = 'The connection to the database failed.';
         }
 
-        throw new Connection_Failure_Error( $error_message, $this );
+        throw Create::a( Connection_Failure_Error::class )->with( $error_message, $this );
     }
 
     /**
@@ -128,7 +129,7 @@ abstract class Database
      */
     protected function raise_database_query_error($error_message)
     {
-        throw new Database_Query_Error( $error_message, $this );
+        throw Create::a( Database_Query_Error::class )->with( $error_message, $this );
     }
 
     /**
@@ -140,6 +141,6 @@ abstract class Database
             $error_message = 'The connection handle has not being initialized. Initialize it with \'->connect($hostname, $user, $password, $database)\' first.';
         }
 
-        throw new Uninitialized_Connection_Error( $error_message, $this );
+        throw Create::a( Uninitialized_Connection_Error::class )->with( $error_message, $this );
     }
 }
