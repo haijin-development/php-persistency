@@ -1,6 +1,6 @@
 <?php
 
-namespace Haijin\Persistency\Mysql\Query_Builder;
+namespace Haijin\Persistency\Engines;
 
 /**
  * In many database servers support parametrized values in their queries, meaning that a parameter

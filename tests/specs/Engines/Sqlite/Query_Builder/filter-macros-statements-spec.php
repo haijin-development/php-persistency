@@ -1,15 +1,17 @@
 <?php
 
-use Haijin\Persistency\Mysql\Mysql_Database;
+use Haijin\Persistency\Engines\Sqlite\Sqlite_Database;
 
-$spec->describe( "When using macros in the filter statement of a Mysql expression", function() {
+$spec->describe( "When using macros in the filter statement of a Sqlite expression", function() {
 
     $this->let( "database", function() {
-        $database = new Mysql_Database();
 
-        $database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
+        $database = new Sqlite_Database();
+
+        $database->connect( $this->sqlite_file );
 
         return $database;
+
     });
 
     $this->it( "resolves the macro expression when referenced", function() {
@@ -22,8 +24,8 @@ $spec->describe( "When using macros in the filter statement of a Mysql expressio
                 ->field( "name" ) ->op( "=" ) ->value( "Lisa" );
             });
 
-            $query->filter( $query
-                ->matches_name
+            $query->filter(
+                $query ->matches_name
             );
         });
 
@@ -39,7 +41,8 @@ $spec->describe( "When using macros in the filter statement of a Mysql expressio
 
     $this->it( "combines macro expression with a logical operand", function() {
 
-        $rows = $this->database->query( function($query) {
+        $db = $this->database;
+        $rows = $this->database->query( function($query) use($db) {
 
             $query->collection( "users" );
 

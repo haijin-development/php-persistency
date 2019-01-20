@@ -1,6 +1,6 @@
 <?php
 
-use Haijin\Persistency\Mysql\Mysql_Database;
+use Haijin\Persistency\Engines\Mysql\Mysql_Database;
 
 $spec->describe( "When stablishing a connection to a Mysql database", function() {
 

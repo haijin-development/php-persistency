@@ -1,6 +1,6 @@
 <?php
 
-namespace Haijin\Persistency\Mysql;
+namespace Haijin\Persistency\Engines\Mysql;
 
 use Haijin\Instantiator\Global_Factory;
 use Haijin\Persistency\Errors\Connections\Named_Parameter_Not_Found_Error;
@@ -8,9 +8,8 @@ use Haijin\Persistency\Database\Database;
 use Haijin\Persistency\Sql\Query_Builder\Sql_Builder;
 use Haijin\Persistency\Sql\Query_Builder\Sql_Pagination_Builder;
 use Haijin\Persistency\Sql\Query_Builder\Expression_Builders\Sql_Expression_In_Filter_Builder;
-use Haijin\Persistency\Mysql\Query_Builder\Mysql_Pagination_Builder;
-use Haijin\Persistency\Mysql\Query_Builder\Mysql_Expression_In_Filter_Builder;
-use Haijin\Persistency\Mysql\Query_Builder\NamedParameterPlaceholder;
+use Haijin\Persistency\Engines\Mysql\Query_Builder\Mysql_Pagination_Builder;
+use Haijin\Persistency\Engines\Mysql\Query_Builder\Mysql_Expression_In_Filter_Builder;
 use Haijin\Persistency\Query_Builder\Builders\Query_Expression_Builder;
 use Haijin\Dictionary;
 use Haijin\Ordered_Collection;

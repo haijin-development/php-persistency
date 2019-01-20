@@ -1,6 +1,6 @@
 <?php
 
-use Haijin\Persistency\Mysql\Mysql_Database;
+use Haijin\Persistency\Engines\Sqlite\Sqlite_Database;
 
 $spec->describe( "When building the order by statement of a sql expression", function() {
 
@@ -17,11 +17,13 @@ $spec->describe( "When building the order by statement of a sql expression", fun
     });
 
     $this->let( "database", function() {
-        $database = new Mysql_Database();
 
-        $database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
+        $database = new Sqlite_Database();
+
+        $database->connect( $this->sqlite_file );
 
         return $database;
+
     });
 
     $this->it( "builds the order by fields", function() {
@@ -37,7 +39,7 @@ $spec->describe( "When building the order by statement of a sql expression", fun
 
         });
 
-        $this->expect( $rows ) ->to() ->be() ->like([
+        $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
                 "id" => 2,
                 "name" => "Marge",
@@ -69,7 +71,7 @@ $spec->describe( "When building the order by statement of a sql expression", fun
 
         });
 
-        $this->expect( $rows ) ->to() ->be() ->like([
+        $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
                 "id" => 3,
                 "name" => "Maggie",
@@ -101,7 +103,7 @@ $spec->describe( "When building the order by statement of a sql expression", fun
 
         });
 
-        $this->expect( $rows ) ->to() ->be() ->like([
+        $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
                 "id" => 1,
                 "name" => "Lisa",
@@ -123,15 +125,15 @@ $spec->describe( "When building the order by statement of a sql expression", fun
 
     $this->def( "sort_users", function() {
 
-        $this->mysql->query( "TRUNCATE users;" );
+        $this->sqlite->query( "delete from users where 1 = 1;" );
 
-        $this->mysql->query(
+        $this->sqlite->query(
             "INSERT INTO users VALUES ( 1, 'Lisa', 'Simpson' );"
         );
-        $this->mysql->query(
+        $this->sqlite->query(
             "INSERT INTO users VALUES ( 2, 'Marge', 'Bouvier' );"
         );
-        $this->mysql->query(
+        $this->sqlite->query(
             "INSERT INTO users VALUES ( 3, 'Maggie', 'Simpson' );"
         );
 
@@ -139,8 +141,8 @@ $spec->describe( "When building the order by statement of a sql expression", fun
 
     $this->def( "re_populate_tables", function() {
 
-        $this->clear_tables();
-        $this->populate_tables();
+        $this->clear_sqlite_tables();
+        $this->populate_sqlite_tables();
 
     });
 

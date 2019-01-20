@@ -1,15 +1,17 @@
 <?php
 
-use Haijin\Persistency\Mysql\Mysql_Database;
+use Haijin\Persistency\Engines\Sqlite\Sqlite_Database;
 
 $spec->describe( "When building the collection statement of a MySql expression", function() {
 
     $this->let( "database", function() {
-        $database = new Mysql_Database();
 
-        $database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
+        $database = new Sqlite_Database();
+
+        $database->connect( $this->sqlite_file );
 
         return $database;
+
     });
 
     $this->it( "builds the collection name", function() {
@@ -20,7 +22,7 @@ $spec->describe( "When building the collection statement of a MySql expression",
 
         });
 
-        $this->expect( $rows ) ->to() ->be() ->like([
+        $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
                 "id" => 1,
                 "name" => "Lisa",
@@ -48,7 +50,7 @@ $spec->describe( "When building the collection statement of a MySql expression",
 
         });
 
-        $this->expect( $rows ) ->to() ->be() ->like([
+        $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
                 "id" => 1,
                 "name" => "Lisa",

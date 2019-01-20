@@ -1,17 +1,18 @@
 <?php
 
-namespace Haijin\Persistency\Mysql\Query_Builder;
+namespace Haijin\Persistency\Engines\Sqlite\Query_Builder;
 
 use Haijin\Instantiator\Create;
+use Haijin\Persistency\Engines\Named_Parameter_Placerholder;
 use Haijin\Persistency\Sql\Query_Builder\Expression_Builders\Sql_Expression_In_Filter_Builder;
 
 /**
- * A Sql_Expression_In_Filter_Builder subclass to handle ValueExpressions and NamedParameterExpressions
- * according to Mysql queries requirements.
- * See Haijin\Persistency\Sql\Query_Builder\Expression_Builders\Sql_Expression_In_Filter_Builder class
- * for the complete protocol of this class.
+ * A Sql_Expression_In_Filter_Builder subclass to handle ValueExpressions and
+ * NamedParameterExpressions according to Sqlite queries requirements.
+ * See Haijin\Persistency\Sql\Query_Builder\Expression_Builders\Sql_Expression_In_Filter_Builder
+ * class for the complete protocol of this class.
  */
-class Mysql_Expression_In_Filter_Builder extends Sql_Expression_In_Filter_Builder
+class Sqlite_Expression_In_Filter_Builder extends Sql_Expression_In_Filter_Builder
 {
     /**
      * An Ordered_Collection with the collected query parameters from ValueExpressions and
@@ -40,7 +41,7 @@ class Mysql_Expression_In_Filter_Builder extends Sql_Expression_In_Filter_Builde
      *
      * @param Value_Expression $value_expression The Value_Expression to accept.
      *
-     * @return string The sql to append to the Mysql query.
+     * @return string The sql to append to the Sqlite query.
      */
     public function accept_value_expression($value_expression)
     {
@@ -58,7 +59,7 @@ class Mysql_Expression_In_Filter_Builder extends Sql_Expression_In_Filter_Builde
      * @param Named_Parameter_Expression $named_parameter_expression The Named_Parameter_Expression
      *      to accept.
      *
-     * @return string The sql to append to the Mysql query.
+     * @return string The sql to append to the Sqlite query.
      */
     public function accept_named_parameter_expression($named_parameter_expression)
     {

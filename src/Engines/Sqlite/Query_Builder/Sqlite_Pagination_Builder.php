@@ -1,6 +1,6 @@
 <?php
 
-namespace Haijin\Persistency\Mysql\Query_Builder;
+namespace Haijin\Persistency\Engines\Sqlite\Query_Builder;
 
 use Haijin\Persistency\Sql\Query_Builder\Sql_Builder_Trait;
 use Haijin\Persistency\Sql\Query_Builder\Sql_Pagination_Builder;
@@ -11,7 +11,7 @@ use Haijin\Persistency\Sql\Query_Builder\Sql_Pagination_Builder;
  * See Haijin\Persistency\Sql\Query_Builder\Sql_Pagination_Builder class
  * for the complete protocol of this class.
  */
-class Mysql_Pagination_Builder extends Sql_Pagination_Builder
+class Sqlite_Pagination_Builder extends Sql_Pagination_Builder
 {
     /// Building sql
 
@@ -34,8 +34,7 @@ class Mysql_Pagination_Builder extends Sql_Pagination_Builder
             return "limit " . $this->escape_sql( (string) $limit );
         }
 
-        return "limit " .
-                $this->escape_sql( (string) $offset )  . ", " .
-                $this->escape_sql( (string) $limit );
+        return "limit " . $this->escape_sql( (string) $limit )  .
+                " offset " . $this->escape_sql( (string) $offset );
     }
 }

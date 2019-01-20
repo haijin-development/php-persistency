@@ -1,15 +1,17 @@
 <?php
 
-use Haijin\Persistency\Mysql\Mysql_Database;
+use Haijin\Persistency\Engines\Sqlite\Sqlite_Database;
 
-$spec->describe( "When building the proyection statement of a Mysql expression", function() {
+$spec->describe( "When building the proyection statement of a Sqlite expression", function() {
 
     $this->let( "database", function() {
-        $database = new Mysql_Database();
 
-        $database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
+        $database = new Sqlite_Database();
+
+        $database->connect( $this->sqlite_file );
 
         return $database;
+
     });
 
     $this->it( "builds the select all statement", function() {
@@ -24,7 +26,7 @@ $spec->describe( "When building the proyection statement of a Mysql expression",
 
         });
 
-        $this->expect( $rows ) ->to() ->be() ->like([
+        $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
                 "id" => 1,
                 "name" => "Lisa",
@@ -57,7 +59,7 @@ $spec->describe( "When building the proyection statement of a Mysql expression",
 
         });
 
-        $this->expect( $rows ) ->to() ->be() ->like([
+        $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
                 "name" => "Lisa",
                 "last_name" => "Simpson"
@@ -87,7 +89,7 @@ $spec->describe( "When building the proyection statement of a Mysql expression",
 
         });
 
-        $this->expect( $rows ) ->to() ->be() ->like([
+        $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
                 "n" => "Lisa",
                 "ln" => "Simpson"
@@ -117,18 +119,18 @@ $spec->describe( "When building the proyection statement of a Mysql expression",
 
         });
 
-        $this->expect( $rows ) ->to() ->be() ->like([
+        $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
                 1 => 1,
-                2 => "2"
+                "'2'" => "2"
             ],
             [
                 1 => 1,
-                2 => "2"
+                "'2'" => "2"
             ],
             [
                 1 => 1,
-                2 => "2"
+                "'2'" => "2"
             ]
         ]);
 
@@ -147,7 +149,7 @@ $spec->describe( "When building the proyection statement of a Mysql expression",
 
         });
 
-        $this->expect( $rows ) ->to() ->be() ->like([
+        $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
                 "v1" => 1,
                 "v2" => "2"
@@ -171,20 +173,20 @@ $spec->describe( "When building the proyection statement of a Mysql expression",
             $query->collection( "users" );
 
             $query->proyect(
-                $query->concat( "1", "0" ) ->as( "s" )
+                $query ->lower( "Lisa" ) ->as( "s" )
             );
 
         });
 
-        $this->expect( $rows ) ->to() ->be() ->like([
+        $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
-                "s" => "10"
+                "s" => "lisa"
             ],
             [
-                "s" => "10"
+                "s" => "lisa"
             ],
             [
-                "s" => "10"
+                "s" => "lisa"
             ]
         ]);
 
@@ -197,23 +199,22 @@ $spec->describe( "When building the proyection statement of a Mysql expression",
             $query->collection( "users" );
 
             $query->proyect(
-                $query->concat(
-                    $query->value( "1" ),
-                    $query->value( "0" )
+                $query->lower(
+                    $query->value( "A" )
                 ) ->as( "s" )
             );
 
         });
 
-        $this->expect( $rows ) ->to() ->be() ->like([
+        $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
-                "s" => "10"
+                "s" => "a"
             ],
             [
-                "s" => "10"
+                "s" => "a"
             ],
             [
-                "s" => "10"
+                "s" => "a"
             ]
         ]);
 
@@ -226,23 +227,20 @@ $spec->describe( "When building the proyection statement of a Mysql expression",
             $query->collection( "users" );
 
             $query->proyect(
-                $query->concat(
-                    $query->upper( "a" ),
-                    $query->lower( "A" )
-                ) ->as( "s" )
+                $query->lower( $query->upper( "a" ) ) ->as( "s" )
             );
 
         });
 
-        $this->expect( $rows ) ->to() ->be() ->like([
+        $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
-                "s" => "Aa"
+                "s" => "a"
             ],
             [
-                "s" => "Aa"
+                "s" => "a"
             ],
             [
-                "s" => "Aa"
+                "s" => "a"
             ]
         ]);
 
@@ -262,7 +260,7 @@ $spec->describe( "When building the proyection statement of a Mysql expression",
 
         });
 
-        $this->expect( $rows ) ->to() ->be() ->like([
+        $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
                 "n" => 3
             ],

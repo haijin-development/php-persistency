@@ -1,15 +1,17 @@
 <?php
 
-use Haijin\Persistency\Mysql\Mysql_Database;
+use Haijin\Persistency\Engines\Mysql\Mysql_Database;
 
 $spec->describe( "When building an invalid Mysql query", function() {
 
     $this->let( "database", function() {
+
         $database = new Mysql_Database();
 
         $database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
 
         return $database;
+
     });
 
     $this->it( "raises an error when the query has an error", function() {

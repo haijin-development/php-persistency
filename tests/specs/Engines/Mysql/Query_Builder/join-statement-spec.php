@@ -1,15 +1,17 @@
 <?php
 
-use Haijin\Persistency\Mysql\Mysql_Database;
+use Haijin\Persistency\Engines\Mysql\Mysql_Database;
 
 $spec->describe( "When building the join statement of a Mysql expression", function() {
 
     $this->let( "database", function() {
+
         $database = new Mysql_Database();
 
         $database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
 
         return $database;
+
     });
 
     $this->it( "builds a join", function() {
@@ -35,7 +37,7 @@ $spec->describe( "When building the join statement of a Mysql expression", funct
 
         });
 
-        $this->expect( $rows ) ->to() ->be() ->like([
+        $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
                 "user_id" => 1,
                 "name" => "Lisa",
@@ -86,7 +88,7 @@ $spec->describe( "When building the join statement of a Mysql expression", funct
                 });
         });
 
-        $this->expect( $rows ) ->to() ->be() ->like([
+        $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
                 "user_id" => 1,
                 "name" => "Lisa",
@@ -147,7 +149,7 @@ $spec->describe( "When building the join statement of a Mysql expression", funct
 
         });
 
-        $this->expect( $rows ) ->to() ->be() ->like([
+        $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
                 "user_id" => 1,
                 "name" => "Lisa",
@@ -206,7 +208,7 @@ $spec->describe( "When building the join statement of a Mysql expression", funct
 
         });
 
-        $this->expect( $rows ) ->to() ->be() ->like([
+        $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
                 "name" => "Lisa",
                 "last_name" => "Simpson",
@@ -262,7 +264,7 @@ $spec->describe( "When building the join statement of a Mysql expression", funct
 
         });
 
-        $this->expect( $rows ) ->to() ->be() ->like([
+        $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
                 "user_id" => 1,
                 "name" => "Lisa",
@@ -318,7 +320,7 @@ $spec->describe( "When building the join statement of a Mysql expression", funct
 
         });
 
-        $this->expect( $rows ) ->to() ->be() ->like([
+        $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
                 "user_id" => 1,
                 "name" => "Lisa",
