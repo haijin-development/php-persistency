@@ -1,6 +1,6 @@
 <?php
 
-namespace Haijin\Persistency\Engines\Mysql;
+namespace Haijin\Persistency\Engines\Postgresql;
 
 use Haijin\Instantiator\Global_Factory;
 use  Haijin\Instantiator\Create;
@@ -9,17 +9,17 @@ use Haijin\Persistency\Database\Database;
 use Haijin\Persistency\Sql\Query_Builder\Sql_Builder;
 use Haijin\Persistency\Sql\Query_Builder\Sql_Pagination_Builder;
 use Haijin\Persistency\Sql\Query_Builder\Expression_Builders\Sql_Expression_In_Filter_Builder;
-use Haijin\Persistency\Engines\Mysql\Query_Builder\Mysql_Pagination_Builder;
-use Haijin\Persistency\Engines\Mysql\Query_Builder\Mysql_Expression_In_Filter_Builder;
+use Haijin\Persistency\Engines\Postgresql\Query_Builder\Postgresql_Pagination_Builder;
+use Haijin\Persistency\Engines\Postgresql\Query_Builder\Postgresql_Expression_In_Filter_Builder;
 use Haijin\Persistency\Query_Builder\Builders\Query_Expression_Builder;
 use Haijin\Dictionary;
 use Haijin\Ordered_Collection;
 
 
-class Mysql_Database extends Database
+class Postgresql_Database extends Database
 {
     /**
-     * The handle to an open connection to a Mysql server.
+     * The handle to an open connection to a Postgresql server.
      */
     protected $connection_handle;
 
@@ -36,23 +36,21 @@ class Mysql_Database extends Database
     /// Connecting
 
     /**
-     * Connects to the Mysql database.
+     * Connects to the Postgresql database.
      *
      * Parameters are:
-     *      [ $hostname, $user, $password, $database ]
-     *
-     *  from http://php.net/manual/en/mysqli.quickstart.connections.php
+     *      params[0] $connect_string
      */
     public function connect(...$params)
     {
-        $this->connection_handle = new \mysqli( ...$params );
+        $this->connection_handle = \pg_connect( ...$params );
 
-        if( $this->connection_handle->connect_errno ) {
-            $error_message = $this->connection_handle->connect_error;
+        if( $this->connection_handle === false ) {
 
             $this->connection_handle = null;
 
-            $this->raise_connection_failed_error( $error_message );
+            $this->raise_connection_failed_error( "Connection failed." );
+
         }
     }
 
@@ -94,93 +92,63 @@ class Mysql_Database extends Database
 
         $query_parameters = Create::an( Ordered_Collection::class )->with();
 
-        $statement_handle = $this->_prepare_statement( $compiled_query, $query_parameters );
-
-        if( $statement_handle === false ) {
-            $this->raise_database_query_error( $this->connection_handle->error );
-        }
-
-        $result_rows = $this->_execute_statement(
-            $statement_handle,
-            $named_parameters,
-            $query_parameters
-        );
+        $result_rows =
+            $this->_execute_statement( $compiled_query, $named_parameters, $query_parameters );
 
         return $this->_process_result_rows( $result_rows );
     }
 
     /**
-     * Creates and returns a rrepared Mysql statement from a Query_Expression.
+     * Binds the parameters to the Postgresql prepared statement and executes it.
+     * Returns an associative array with the results.
      */
-    protected function _prepare_statement($compiled_query, $query_parameters)
+    protected function _execute_statement($compiled_query, $named_parameters, $query_parameters)
     {
         $sql = $this->query_to_sql( $compiled_query, $query_parameters );
 
-        return $this->connection_handle->prepare( $sql );
-    }
+        $query_parameters =
+            $this->_collect_query_parameters( $named_parameters, $query_parameters )
+            ->to_array();
 
-    /**
-     * Binds the parameters to the Mysql prepared statement and executes it.
-     * Returns an associative array with the results.
-     */
-    protected function _execute_statement($statement_handle, $named_parameters, $query_parameters)
-    {
-        $this->_bind_parameters_to_statement(
-            $statement_handle,
-            $named_parameters,
-            $query_parameters
-        );
+        $result_handle =
+            \pg_query_params( $this->connection_handle, $sql, $query_parameters );
 
-        $result = $statement_handle->execute();
-
-        $result_handle = $statement_handle->get_result();
         if( $result_handle === false ) {
-            $this->raise_database_query_error( $statement_handle->error );
+            $this->raise_database_query_error( \pg_last_error( $this->connection_handle ) );
         }
 
-        return $result_handle->fetch_all( MYSQLI_ASSOC );
+        return pg_fetch_all( $result_handle );
     }
 
     /**
-     * Binds the parameters to the Mysql prepared statement.
+     * Binds the parameters to the Postgresql prepared statement.
      */
-    protected function _bind_parameters_to_statement($statement_handle, $named_parameters, $query_parameters)
+    protected function _collect_query_parameters($named_parameters, $query_parameters)
     {
-        if( $query_parameters->is_empty() ) {
-            return;
-        }
-
-        $parameters_array = $query_parameters->to_array();
-
-        $types = "";
-        foreach( $parameters_array as $i => $value ) {
+        return $query_parameters->collect( function($value) use($named_parameters) {
 
             if( method_exists( $value, "get_parameter_name" ) ) {
+
                 $value = $named_parameters->at_if_absent(
+
                     $value->get_parameter_name(), function() use($value) {
+
                         $this->raise_named_parameter_not_found_error(
                             $value->get_parameter_name()
                         );
+
                 }, $this );
 
-                $parameters_array[ $i ] = $value;
             }
 
-            if( is_string( $value ) )
-                $types .= "s";
-            elseif( is_double( $value ) )
-                $types .= "d";
-            elseif( is_int( $value ) )
-                $types .= "i";
-            else
-                $types;
-        }
+            return $value;
 
-        $statement_handle->bind_param( $types, ...$parameters_array );
+        }, $this );
+
     }
 
     /**
-     * Process the associative array resulting from a Mysql query.
+     * Process the associative array resulting from a Postgresql query.
      * This method can be hooked by subclasses to map the associative array into
      * something else.
      */
@@ -197,12 +165,12 @@ class Mysql_Database extends Database
         return Global_Factory::with_factory_do( function($factory)
                                     use($compiled_query, $query_parameters) {
 
-            $factory->set( Sql_Pagination_Builder::class, Mysql_Pagination_Builder::class );
+            $factory->set( Sql_Pagination_Builder::class, Postgresql_Pagination_Builder::class );
 
             $factory->set(
                 Sql_Expression_In_Filter_Builder::class,
                 function() use($query_parameters) {
-                    return Create::a( Mysql_Expression_In_Filter_Builder::class )
+                    return Create::a( Postgresql_Expression_In_Filter_Builder::class )
                                 ->with( $query_parameters );
                 }
             );
@@ -216,7 +184,7 @@ class Mysql_Database extends Database
     /// Validating
 
     /**
-     * Validates that the connection_handle to the Mysql server was initialized.
+     * Validates that the connection_handle to the Postgresql server was initialized.
      */
     protected function validate_connection_handle()
     {
