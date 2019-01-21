@@ -2,7 +2,7 @@
 
 use Haijin\Persistency\Engines\Postgresql\Postgresql_Database;
 
-$spec->xdescribe( "When building the filter statement of a Postgresql expression", function() {
+$spec->describe( "When building the filter statement of a Postgresql expression", function() {
 
     $this->let( "database", function() {
 

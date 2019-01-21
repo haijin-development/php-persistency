@@ -89,7 +89,7 @@ class Sqlite_Database extends Database
      * Executes the $compiled_query.
      * Returns the result of the execution.
      */
-    public function execute($compiled_query, $named_parameters = [], $query_parameters = [])
+    public function execute($compiled_query, $named_parameters = [])
     {
         $this->validate_connection_handle();
 

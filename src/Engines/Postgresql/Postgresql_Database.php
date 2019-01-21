@@ -86,7 +86,7 @@ class Postgresql_Database extends Database
      * Executes the $compiled_query.
      * Returns the result of the execution.
      */
-    public function execute($compiled_query, $named_parameters = [], $query_parameters = [])
+    public function execute($compiled_query, $named_parameters = [])
     {
         $this->validate_connection_handle();
 
@@ -106,18 +106,41 @@ class Postgresql_Database extends Database
     {
         $sql = $this->query_to_sql( $compiled_query, $query_parameters );
 
-        $query_parameters =
-            $this->_collect_query_parameters( $named_parameters, $query_parameters )
+        $query_parameters = $this
+            ->_collect_query_parameters( $named_parameters, $query_parameters )
             ->to_array();
 
-        $result_handle =
-            \pg_query_params( $this->connection_handle, $sql, $query_parameters );
+        foreach( $query_parameters as $i => $value ) {
+
+            if( $value === null ) {
+                $value = "null";
+            } elseif( $value === true ) {
+                $value = "true";
+            } elseif( $value === false ) {
+                $value = "false";
+            } elseif( is_int( $value ) || is_double( $value ) ) {
+                $value = $value;
+            } else {
+                $value = \pg_escape_literal( $this->connection_handle, $value );
+            }
+
+            $i += 1;
+
+            $sql = preg_replace( "|\\$$i|", $value, $sql );
+
+        }
+
+        $result_handle = \pg_query( $this->connection_handle, $sql );
 
         if( $result_handle === false ) {
             $this->raise_database_query_error( \pg_last_error( $this->connection_handle ) );
         }
 
-        return pg_fetch_all( $result_handle );
+        $rows = pg_fetch_all( $result_handle );
+
+        \pg_free_result( $result_handle );
+
+        return $rows;
     }
 
     /**
@@ -178,7 +201,8 @@ class Postgresql_Database extends Database
             return $this->new_sql_builder( $query_parameters )
                 ->build_sql_from( $compiled_query );
 
-        }, $this);
+        }, $this );
+
     }
 
     /// Validating
