@@ -266,6 +266,7 @@ $database->query( function($query) use($database) {
         var_dump( $sql );
         var_dump( $query_parameters );
     });
+
 });
 ```
 

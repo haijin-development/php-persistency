@@ -45,12 +45,7 @@ class Mysql_Database extends Database
      */
     public function connect(...$params)
     {
-        $this->connection_handle = new \mysqli(
-            $params[0],
-            $params[1],
-            $params[2],
-            $params[3]
-        );
+        $this->connection_handle = new \mysqli( ...$params );
 
         if( $this->connection_handle->connect_errno ) {
             $error_message = $this->connection_handle->connect_error;
@@ -93,7 +88,7 @@ class Mysql_Database extends Database
      * Executes the $compiled_query.
      * Returns the result of the execution.
      */
-    public function execute($compiled_query, $named_parameters = [], $query_parameters = [])
+    public function execute($compiled_query, $named_parameters = [])
     {
         $this->validate_connection_handle();
 
