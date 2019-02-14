@@ -1,8 +1,8 @@
 {
+    "minumum-stability": "dev",
     "name": "haijin/persistency",
     "description": "A simple, complete, adaptable and independent query builder and ORM for PHP.",
     "keywords": ["database", "ORM", "query builder", "persistency"],
-    "version": "0.0.1",
     "type": "library",
     "license": "MIT",
     "homepage": "https://github.com/haijin-development/php-persistency",
@@ -19,12 +19,35 @@
             "php": "7.1"
         }
     },
+    "repositories": {
+        "haijin/specs": {
+            "type": "path",
+            "url": "../php-specs",
+            "options": {
+            "symlink": true
+            }
+        },
+        "haijin/tools": {
+            "type": "path",
+            "url": "../php-tools",
+            "options": {
+            "symlink": true
+            }
+        },
+        "haijin/instantiator": {
+            "type": "path",
+            "url": "../php-instantiator",
+            "options": {
+            "symlink": true
+            }
+        }
+    },
     "require": {
-        "haijin/tools": "^1.0.0",
-        "haijin/instantiator": "^0.0.3"
+        "haijin/tools": "dev-development",
+        "haijin/instantiator": "dev-development"
     },
     "require-dev": {
-        "haijin/specs": "^1.0.0"
+        "haijin/specs": "dev-development"
     },
     "autoload": {
         "psr-4": {

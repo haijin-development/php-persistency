@@ -85,7 +85,7 @@ trait Expressions_Factory_Trait
 
     protected function new_all_fields_expression()
     {
-        return Create::a( All_Fields_Expression::class )->with(
+        return Create::an( All_Fields_Expression::class )->with(
             $this->context
         );
     }
@@ -116,7 +116,7 @@ trait Expressions_Factory_Trait
 
     protected function new_alias_expression($alias, $aliased_expression)
     {
-        return Create::a( Alias_Expression::class )->with(
+        return Create::an( Alias_Expression::class )->with(
             $this->context,
             $alias,
             $aliased_expression
