@@ -25,6 +25,7 @@ If you like it a lot you may contribute by [financing](https://github.com/haijin
     2. [Mapping objects](#c-2-2)
     3. [Migrations](#c-2-3)
 3. [Running the tests](#c-3)
+4. [Developing with Vagrant](#c-4)
 
 <a name="c-1"></a>
 ## Installation
@@ -279,4 +280,45 @@ $database->query( function($query) use($database) {
 
 ```
 composer specs
+```
+
+<a name="c-4"></a>
+## Developing with Vagrant
+
+Vagrant eases the creation and setup of virtual machines to create development environments.
+
+To use Vagrant to test or develop this project download [Vagrant](https://www.vagrantup.com/downloads.html) and [VirtualBox](https://www.virtualbox.org/wiki/Downloads).
+
+Then clone this repository:
+
+```
+git clone https://github.com/haijin-development/php-persistency.git
+```
+
+and start the virtual machine with all the databases installed and configured for development with
+
+```
+cd php-persistency/
+vagrant up
+```
+
+Connect to the virtual machine with
+
+```
+vagrant ssh
+```
+
+and run the tests
+
+```
+cd src/php-persistency
+composer specs
+```
+
+In case you want to connect to any database from the host machine instead of the virtual machine, for instance using a GUI client, the virtual machine IP is `192.168.33.10` and the database credentials are
+
+```
+user: haijin
+password: 123456
+database: 'haijin-persistency'
 ```
