@@ -4,7 +4,6 @@ namespace Haijin\Persistency\Query_Builder\Expressions;
 
 use Haijin\Instantiator\Create;
 use Haijin\Persistency\Query_Builder\Expression;
-use Haijin\Persistency\Query_Builder\Expressions_DSL_Trait;
 use Haijin\Persistency\Query_Builder\Builders\Expression_Builder;
 
 /**

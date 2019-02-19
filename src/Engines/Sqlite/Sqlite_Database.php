@@ -8,10 +8,10 @@ use Haijin\Dictionary;
 use Haijin\Ordered_Collection;
 use Haijin\Persistency\Errors\Connections\Named_Parameter_Not_Found_Error;
 use Haijin\Persistency\Database\Database;
-use Haijin\Persistency\Sql\Query_Builder\Sql_Builder;
+use Haijin\Persistency\Sql\Query_Builder\Sql_Query_Statement_Builder;
 use Haijin\Persistency\Sql\Query_Builder\Sql_Pagination_Builder;
 use Haijin\Persistency\Sql\Query_Builder\Expression_Builders\Sql_Expression_In_Filter_Builder;
-use Haijin\Persistency\Query_Builder\Builders\Query_Expression_Builder;
+use Haijin\Persistency\Query_Builder\Builders\Query_Statement_Builder;
 use Haijin\Persistency\Engines\Sqlite\Query_Builder\Sqlite_Expression_In_Filter_Builder;
 use Haijin\Persistency\Engines\Sqlite\Query_Builder\Sqlite_Pagination_Builder;
 
@@ -61,59 +61,82 @@ class Sqlite_Database extends Database
 
     /**
      * Compiles the $query_closure and executes the compiled query in the server.
-     * Returns the rows returned by the query execution. 
+     * Returns the rows returned by the query execution.
      */
     public function query($query_closure, $named_parameters = [])
     {
-        $query_parameters = Create::an( Ordered_Collection::class )->with();
         $named_parameters = Dictionary::with_all( $named_parameters );
 
-        $compiled_query = $this->compile_query( $query_closure, $query_parameters );
+        $compiled_query = $this->compile_query_statement( $query_closure );
 
-        return $this->execute( $compiled_query, $named_parameters, $query_parameters );
+        return $this->execute( $compiled_query, $named_parameters );
+    }
+
+    /**
+     * Compiles the $create_closure and executes the create record query in the database server.
+     * Returns the id of the created query.
+     *
+     * @param closure $create_closure A closure to construct the record creation.
+     * @param array $named_parameters An associative array of the named parameters values
+     *      referenced in the create_closure.
+     *
+     * @return object The unique id of the created record in the database expression.
+     */
+    public function create_one($create_closure, $named_parameters = [])
+    {
+
     }
 
     /**
      * Compiles the $query_closure and executes the compiled query in the server.
-     * Returns the rows returned by the query execution. 
+     * Returns the rows returned by the query execution.
      */
-    public function compile_query($query_closure)
+    public function compile_query_statement($query_closure)
     {
-        return $this->new_query_expression_builder()
+        return $this->new_query_statement_builder()
             ->build( $query_closure );
     }
 
     /// Executing
 
     /**
-     * Executes the $compiled_query.
+     * Executes the $statement.
      * Returns the result of the execution.
      */
-    public function execute($compiled_query, $named_parameters = [])
+    public function execute($statement, $named_parameters = [])
     {
         $this->validate_connection_handle();
 
+        return $statement->execute_in( $this, $named_parameters );
+    }
+
+    /**
+     * Executes the $compiled_query.
+     * Returns the result of the execution.
+     */
+    public function execute_query_statement($compiled_query, $named_parameters)
+    {
         $query_parameters = Create::an( Ordered_Collection::class )->with();
 
-        $statement_handle = $this->_prepare_statement( $compiled_query, $query_parameters );
+        $statement_handle = $this->prepare_statement( $compiled_query, $query_parameters );
 
         if( $statement_handle === false ) {
             $this->raise_database_query_error( $this->connection_handle->lastErrorMsg() );
         }
 
-        $result_rows = $this->_execute_statement(
+        $result_rows = $this->execute_statement(
             $statement_handle,
             $named_parameters,
             $query_parameters
         );
 
-        return $this->_process_result_rows( $result_rows );
+        return $this->process_result_rows( $result_rows );
     }
 
     /**
-     * Creates and returns a rrepared Sqlite statement from a Query_Expression.
+     * Creates and returns a rrepared Sqlite statement from a Query_Statement.
      */
-    protected function _prepare_statement($compiled_query, $query_parameters)
+    protected function prepare_statement($compiled_query, $query_parameters)
     {
         $sql = $this->query_to_sql( $compiled_query, $query_parameters );
 
@@ -124,9 +147,9 @@ class Sqlite_Database extends Database
      * Binds the parameters to the Sqlite prepared statement and executes it.
      * Returns an associative array with the results.
      */
-    protected function _execute_statement($statement_handle, $named_parameters, $query_parameters)
+    protected function execute_statement($statement_handle, $named_parameters, $query_parameters)
     {
-        $this->_bind_parameters_to_statement(
+        $this->bind_parameters_to_statement(
             $statement_handle,
             $named_parameters,
             $query_parameters
@@ -147,7 +170,7 @@ class Sqlite_Database extends Database
      * Binds the parameters to the Sqlite prepared statement.
      * Positional parameters are 1-based in Sqlite.
      */
-    protected function _bind_parameters_to_statement($statement_handle, $named_parameters, $query_parameters)
+    protected function bind_parameters_to_statement($statement_handle, $named_parameters, $query_parameters)
     {
         $statement_handle->reset();
 
@@ -195,7 +218,7 @@ class Sqlite_Database extends Database
      * This method can be hooked by subclasses to map the associative array into
      * something else.
      */
-    protected function _process_result_rows($result_rows)
+    protected function process_result_rows($result_rows)
     {
         return $result_rows;
     }
@@ -248,19 +271,19 @@ class Sqlite_Database extends Database
 
     /// Creating instances
 
-    protected function new_query_expression_builder()
+    protected function new_query_statement_builder()
     {
-        return Create::a( Query_Expression_Builder::class )->with();
+        return Create::a( Query_Statement_Builder::class )->with();
     }
 
     protected function new_sql_builder()
     {
-        return Create::a( Sql_Builder::class )->with();
+        return Create::a( Sql_Query_Statement_Builder::class )->with();
     }
 
     /// Debugging
 
-    public function inspect_query($query_expression_builder, $closure, $binding = null)
+    public function inspect_query($query_statement_builder, $closure, $binding = null)
     {
         if( $binding === null ) {
             $binding = $this;
@@ -269,7 +292,7 @@ class Sqlite_Database extends Database
         $query_parameters = Create::a( Ordered_Collection::class )->with();
 
         $sql = $this->query_to_sql(
-            $query_expression_builder->get_query_expression(),
+            $query_statement_builder->get_query_statement(),
             $query_parameters
         );
 

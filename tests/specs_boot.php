@@ -23,9 +23,14 @@ require_once __DIR__ . "/sqlite-methods.php";
     $this->after_all( function() {
 
         $this->tear_down_mysql();
-        //$this->tear_down_postgresql();
+        $this->tear_down_postgresql();
         $this->tear_down_sqlite();
 
     });
 
 });
+
+function inspect($object)
+{
+    \Haijin\Debugger::inspect( $object );
+}

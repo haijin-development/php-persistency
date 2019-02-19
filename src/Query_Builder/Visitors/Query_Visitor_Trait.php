@@ -11,11 +11,19 @@ trait Query_Visitor_Trait
     /// Visiting
 
     /**
-     * Accepts a Query_Expression.
+     * Accepts a Query_Statement.
      */
-    public function accept_query_expression($query_expression)
+    public function accept_query_statement($query_statement)
     {
-        $this->raise_unexpected_expression_error( $query_expression );
+        $this->raise_unexpected_expression_error( $query_statement );
+    }
+
+    /**
+     * Accepts a Create_Statement.
+     */
+    public function accept_create_statement($create_statement)
+    {
+        $this->raise_unexpected_expression_error( $create_statement );
     }
 
     /**

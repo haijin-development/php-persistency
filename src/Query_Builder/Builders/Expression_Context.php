@@ -3,8 +3,8 @@
 namespace Haijin\Persistency\Query_Builder\Builders;
 
 use Haijin\Dictionary;
-use Haijin\Persistency\Errors\Macro_Expression_Not_Found_Error;
-use Haijin\Persistency\Errors\Macro_Expression_Evaluated_To_Null_Error;
+use Haijin\Persistency\Errors\QueryExpressions\Macro_Expression_Not_Found_Error;
+use Haijin\Persistency\Errors\QueryExpressions\Macro_Expression_Evaluated_To_Null_Error;
 
 /**
  * This object holds all the necessary context any Expression needs.
@@ -12,7 +12,7 @@ use Haijin\Persistency\Errors\Macro_Expression_Evaluated_To_Null_Error;
 class Expression_Context
 {
     /**
-     * A Dictionary with the macro definitions defined in the scope of a Query_Expression.
+     * A Dictionary with the macro definitions defined in the scope of an Expression.
      */
     protected $macros_dictionary;
 
@@ -27,7 +27,7 @@ class Expression_Context
      * Initializes $this instance.
      *
      * @param Dictionary $macros_dictionary A Dictionary with the macro definitions defined in
-     *          the scope of a Query_Expression.
+     *          the scope of a Expression.
      * @param Collection_Expression $current_collection The Collection_Expression in which context
      *          a expression is stated.
      */

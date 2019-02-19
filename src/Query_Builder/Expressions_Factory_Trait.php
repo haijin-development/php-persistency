@@ -12,6 +12,8 @@ use Haijin\Persistency\Query_Builder\Expressions\Alias_Expression;
 use Haijin\Persistency\Query_Builder\Expressions\Function_Call_Expression;
 use Haijin\Persistency\Query_Builder\Expressions\Binary_Operator_Expression;
 use Haijin\Persistency\Query_Builder\Expressions\Brackets_Expression;
+use Haijin\Persistency\Query_Builder\Expressions\Field_Value_Expression;
+use Haijin\Persistency\Query_Builder\Expressions\Record_Values_Expression;
 use Haijin\Dictionary;
 
 /**
@@ -21,9 +23,16 @@ trait Expressions_Factory_Trait
 {
     /// Instance creation
 
-    protected function new_query_expression()
+    protected function new_query_statement()
     {
-        return Create::a( Query_Expression::class )->with(
+        return Create::a( Query_Statement::class )->with(
+            $this->context
+        );
+    }
+
+    protected function new_create_expression()
+    {
+        return Create::a( Create_Statement::class )->with(
             $this->context
         );
     }
@@ -147,6 +156,22 @@ trait Expressions_Factory_Trait
         return Create::a( Brackets_Expression::class )->with(
             $this->context,
             $expression
+        );
+    }
+
+    protected function new_field_value_expression($field_name)
+    {
+        return Create::a( Field_Value_Expression::class )->with(
+            $this->context,
+            $field_name
+        );
+    }
+
+    protected function new_record_values_expression($record_attributes = [])
+    {
+        return Create::a( Record_Values_Expression::class )->with(
+            $this->context,
+            $record_attributes
         );
     }
 

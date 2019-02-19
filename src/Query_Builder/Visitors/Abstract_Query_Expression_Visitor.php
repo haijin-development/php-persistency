@@ -14,9 +14,14 @@ abstract class Abstract_Query_Expression_Visitor
     /// Query expressions
 
     /**
-     * Accepts a Query_Expression.
+     * Accepts a Query_Statement.
      */
-    abstract public function accept_query_expression($query_expression);
+    abstract public function accept_query_statement($query_statement);
+
+    /**
+     * Accepts a Create_Statement.
+     */
+    abstract public function accept_create_statement($create_statement);
 
     /**
      * Accepts a Collection_Expression.

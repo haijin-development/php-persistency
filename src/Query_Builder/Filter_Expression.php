@@ -6,25 +6,25 @@ use Haijin\Ordered_Collection;
 
 class Filter_Expression extends Expression
 {
-    protected $filter;
+    protected $matching_expression;
 
     /// Initializing
 
-    public function __construct($expression_context, $filter = null)
+    public function __construct($expression_context, $matching_expression = null)
     {
         parent::__construct( $expression_context );
 
-        $this->filter = $filter;
+        $this->matching_expression = $matching_expression;
     }
 
     /// Accessing
 
     /**
-     * Returns the filter.
+     * Returns the matching matching_expression.
      */
-    public function get_filter()
+    public function get_matching_expression()
     {
-        return $this->filter;
+        return $this->matching_expression;
     }
 
     /// Visiting

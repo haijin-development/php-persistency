@@ -6,12 +6,14 @@ use Haijin\Instantiator\Global_Factory;
 use  Haijin\Instantiator\Create;
 use Haijin\Persistency\Errors\Connections\Named_Parameter_Not_Found_Error;
 use Haijin\Persistency\Database\Database;
-use Haijin\Persistency\Sql\Query_Builder\Sql_Builder;
+use Haijin\Persistency\Sql\Query_Builder\Sql_Query_Statement_Builder;
+use Haijin\Persistency\Sql\Query_Builder\Sql_Create_Statement_Builder;
 use Haijin\Persistency\Sql\Query_Builder\Sql_Pagination_Builder;
 use Haijin\Persistency\Sql\Query_Builder\Expression_Builders\Sql_Expression_In_Filter_Builder;
 use Haijin\Persistency\Engines\Mysql\Query_Builder\Mysql_Pagination_Builder;
 use Haijin\Persistency\Engines\Mysql\Query_Builder\Mysql_Expression_In_Filter_Builder;
-use Haijin\Persistency\Query_Builder\Builders\Query_Expression_Builder;
+use Haijin\Persistency\Query_Builder\Builders\Query_Statement_Builder;
+use Haijin\Persistency\Query_Builder\Builders\Create_Statement_Builder;
 use Haijin\Dictionary;
 use Haijin\Ordered_Collection;
 
@@ -60,71 +62,85 @@ class Mysql_Database extends Database
 
     /**
      * Compiles the $query_closure and executes the compiled query in the server.
-     * Returns the rows returned by the query execution. 
+     * Returns the rows returned by the query execution.
      */
     public function query($query_closure, $named_parameters = [])
     {
-        $query_parameters = Create::an( Ordered_Collection::class )->with();
         $named_parameters = Dictionary::with_all( $named_parameters );
 
-        $compiled_query = $this->compile_query( $query_closure, $query_parameters );
+        $compiled_query = $this->compile_query_statement( $query_closure );
 
-        return $this->execute( $compiled_query, $named_parameters, $query_parameters );
+        return $this->execute( $compiled_query, $named_parameters );
+    }
+
+    /**
+     * Compiles the $create_closure and executes the create record query in the database server.
+     * Returns the id of the created query.
+     *
+     * @param closure $create_closure A closure to construct the record creation.
+     * @param array $named_parameters An associative array of the named parameters values
+     *      referenced in the create_closure.
+     *
+     * @return object The unique id of the created record in the database expression.
+     */
+    public function create_one($create_closure, $named_parameters = [])
+    {
+        $named_parameters = Dictionary::with_all( $named_parameters );
+
+        $compiled_statement = $this->compile_create_statement( $create_closure );
+
+        return $this->execute( $compiled_statement, $named_parameters );
     }
 
     /**
      * Compiles the $query_closure and executes the compiled query in the server.
-     * Returns the rows returned by the query execution. 
+     * Returns the rows returned by the query execution.
      */
-    public function compile_query($query_closure)
+    public function compile_query_statement($query_closure)
     {
-        return $this->new_query_expression_builder()
+        return $this->new_query_statement_builder()
             ->build( $query_closure );
+    }
+
+    /**
+     * Compiles the $create_closure and executes the compiled statement in the server.
+     * Returns the rows returned by the query execution.
+     */
+    public function compile_create_statement($create_closure)
+    {
+        return $this->new_create_expression_builder()
+            ->build( $create_closure );
     }
 
     /// Executing
 
     /**
-     * Executes the $compiled_query.
+     * Executes the $statement.
      * Returns the result of the execution.
      */
-    public function execute($compiled_query, $named_parameters = [])
+    public function execute($statement, $named_parameters = [])
     {
         $this->validate_connection_handle();
 
+        return $statement->execute_in( $this, $named_parameters );
+    }
+
+    /**
+     * Executes the $query_statement.
+     * Returns the result of the execution.
+     */
+    public function execute_query_statement($query_statement, $named_parameters)
+    {
         $query_parameters = Create::an( Ordered_Collection::class )->with();
 
-        $statement_handle = $this->_prepare_statement( $compiled_query, $query_parameters );
+        $sql = $this->query_statement_to_sql( $query_statement, $query_parameters );
+
+        $statement_handle = $this->connection_handle->prepare( $sql );
 
         if( $statement_handle === false ) {
             $this->raise_database_query_error( $this->connection_handle->error );
         }
 
-        $result_rows = $this->_execute_statement(
-            $statement_handle,
-            $named_parameters,
-            $query_parameters
-        );
-
-        return $this->_process_result_rows( $result_rows );
-    }
-
-    /**
-     * Creates and returns a rrepared Mysql statement from a Query_Expression.
-     */
-    protected function _prepare_statement($compiled_query, $query_parameters)
-    {
-        $sql = $this->query_to_sql( $compiled_query, $query_parameters );
-
-        return $this->connection_handle->prepare( $sql );
-    }
-
-    /**
-     * Binds the parameters to the Mysql prepared statement and executes it.
-     * Returns an associative array with the results.
-     */
-    protected function _execute_statement($statement_handle, $named_parameters, $query_parameters)
-    {
         $this->_bind_parameters_to_statement(
             $statement_handle,
             $named_parameters,
@@ -138,7 +154,40 @@ class Mysql_Database extends Database
             $this->raise_database_query_error( $statement_handle->error );
         }
 
-        return $result_handle->fetch_all( MYSQLI_ASSOC );
+        $result_rows = $result_handle->fetch_all( MYSQLI_ASSOC );
+
+        return $this->process_result_rows( $result_rows );
+    }
+
+    /**
+     * Executes the $create_statement.
+     * Returns the result of the execution.
+     */
+    public function execute_create_statement($create_statement, $named_parameters, $query_parameters = [])
+    {
+        $query_parameters = Create::an( Ordered_Collection::class )->with( $query_parameters );
+
+        $sql = $this->create_statement_to_sql( $create_statement, $query_parameters );
+
+        $statement_handle = $this->connection_handle->prepare( $sql );
+
+        if( $statement_handle === false ) {
+            $this->raise_database_query_error( $this->connection_handle->error );
+        }
+
+        $this->_bind_parameters_to_statement(
+            $statement_handle,
+            $named_parameters,
+            $query_parameters
+        );
+
+        $result = $statement_handle->execute();
+
+        if( $result === false ) {
+            $this->raise_database_query_error( $statement_handle->error );
+        }
+
+        return $this->connection_handle->insert_id;
     }
 
     /**
@@ -184,7 +233,7 @@ class Mysql_Database extends Database
      * This method can be hooked by subclasses to map the associative array into
      * something else.
      */
-    protected function _process_result_rows($result_rows)
+    protected function process_result_rows($result_rows)
     {
         return $result_rows;
     }
@@ -192,10 +241,10 @@ class Mysql_Database extends Database
     /**
      * Builds the SQL string from the given $compiled_query.
      */
-    protected function query_to_sql($compiled_query, $query_parameters)
+    protected function query_statement_to_sql($query_statement, $query_parameters)
     {
         return Global_Factory::with_factory_do( function($factory)
-                                    use($compiled_query, $query_parameters) {
+                                    use($query_statement, $query_parameters) {
 
             $factory->set( Sql_Pagination_Builder::class, Mysql_Pagination_Builder::class );
 
@@ -207,8 +256,32 @@ class Mysql_Database extends Database
                 }
             );
 
-            return $this->new_sql_builder( $query_parameters )
-                ->build_sql_from( $compiled_query );
+            return $this->new_query_statement_sql_builder( $query_parameters )
+                ->build_sql_from( $query_statement );
+
+        }, $this);
+    }
+
+    /**
+     * Builds the SQL string from the given $create_statement.
+     */
+    protected function create_statement_to_sql($create_statement, $query_parameters)
+    {
+        return Global_Factory::with_factory_do( function($factory)
+                                    use($create_statement, $query_parameters) {
+
+            $factory->set( Sql_Pagination_Builder::class, Mysql_Pagination_Builder::class );
+
+            $factory->set(
+                Sql_Expression_In_Filter_Builder::class,
+                function() use($query_parameters) {
+                    return Create::a( Mysql_Expression_In_Filter_Builder::class )
+                                ->with( $query_parameters );
+                }
+            );
+
+            return $this->new_create_statement_sql_builder( $query_parameters )
+                ->build_sql_from( $create_statement );
 
         }, $this);
     }
@@ -237,19 +310,29 @@ class Mysql_Database extends Database
 
     /// Creating instances
 
-    protected function new_query_expression_builder()
+    protected function new_query_statement_builder()
     {
-        return Create::a( Query_Expression_Builder::class )->with();
+        return Create::a( Query_Statement_Builder::class )->with();
     }
 
-    protected function new_sql_builder()
+    protected function new_create_expression_builder()
     {
-        return Create::a( Sql_Builder::class )->with();
+        return Create::a( Create_Statement_Builder::class )->with();
+    }
+
+    protected function new_query_statement_sql_builder()
+    {
+        return Create::a( Sql_Query_Statement_Builder::class )->with();
+    }
+
+    protected function new_create_statement_sql_builder()
+    {
+        return Create::a( Sql_Create_Statement_Builder::class )->with();
     }
 
     /// Debugging
 
-    public function inspect_query($query_expression_builder, $closure, $binding = null)
+    public function inspect_query($query_statement_builder, $closure, $binding = null)
     {
         if( $binding === null ) {
             $binding = $this;
@@ -257,8 +340,8 @@ class Mysql_Database extends Database
 
         $query_parameters = Create::an( Ordered_Collection::class )->with();
 
-        $sql = $this->query_to_sql(
-            $query_expression_builder->get_query_expression(),
+        $sql = $this->query_statement_to_sql(
+            $query_statement_builder->get_query_statement(),
             $query_parameters
         );
 

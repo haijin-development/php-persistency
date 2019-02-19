@@ -19,6 +19,13 @@ class Mysql_Methods
 
         });
 
+        $spec->def( "re_populate_mysql_tables", function() {
+
+            $this->clear_mysql_tables();
+            $this->populate_mysql_tables();
+
+        });
+
         $spec->def( "tear_down_mysql", function() {
 
             $this->drop_mysql_tables();

@@ -3,7 +3,7 @@
 namespace Haijin\Persistency\Query_Builder;
 
 use Haijin\Instantiator\Create;
-use Haijin\Persistency\Query_Builder\Builders\Query_Expression_Builder;
+use Haijin\Persistency\Query_Builder\Builders\Query_Statement_Builder;
 use Haijin\Ordered_Collection;
 
 class Join_Expression extends Expression
@@ -12,8 +12,8 @@ class Join_Expression extends Expression
     protected $to_collection;
     protected $from_field;
     protected $to_field;
-    protected $proyection;
-    protected $joins;
+    protected $proyection_expression;
+    protected $join_expressions;
 
     /// Initializing
 
@@ -25,8 +25,8 @@ class Join_Expression extends Expression
         $this->to_collection = $to_collection;
         $this->from_field = null;
         $this->to_field = null;
-        $this->proyection = $this->new_proyection_expression();
-        $this->joins = Create::an( Ordered_Collection::class )->with();
+        $this->proyection_expression = $this->new_proyection_expression();
+        $this->join_expressions = Create::an( Ordered_Collection::class )->with();
     }
 
     /// Accessing
@@ -66,34 +66,34 @@ class Join_Expression extends Expression
         $this->to_field = $to_field;
     }
 
-    public function get_proyection()
+    public function get_proyection_expression()
     {
-        return $this->proyection;
+        return $this->proyection_expression;
     }
 
-    public function set_proyection($proyection)
+    public function set_proyection_expression($proyection_expression)
     {
-        $this->proyection = $proyection;
+        $this->proyection_expression = $proyection_expression;
     }
 
-    public function add_join($join_expression)
+    public function add_join_expression($join_expression)
     {
-        $this->joins->add( $join_expression );
+        $this->join_expressions->add( $join_expression );
 
         return $join_expression;
     }
 
-    public function get_joins()
+    public function get_join_expressions()
     {
-        return $this->joins;
+        return $this->join_expressions;
     }
 
-    public function get_nested_joins()
+    public function get_nested_join_expressions()
     {
         $joins = Ordered_Collection::with( $this );
 
-        $this->joins->each_do( function($each_nested_join) use($joins) {
-            $joins->add_all( $each_nested_join->get_nested_joins() );
+        $this->join_expressions->each_do( function($each_nested_join) use($joins) {
+            $joins->add_all( $each_nested_join->get_nested_join_expressions() );
         });
 
         return $joins;
@@ -111,13 +111,13 @@ class Join_Expression extends Expression
 
     /// Iterating
 
-    public function joins_do($closure, $binding = null)
+    public function join_expressions_do($closure, $binding = null)
     {
         if( $binding === null ) {
             $binding = $this;
         }
 
-        return $this->joins->each_do( $closure, $binding );
+        return $this->join_expressions->each_do( $closure, $binding );
     }
 
     /// DSL
@@ -150,7 +150,7 @@ class Join_Expression extends Expression
     {
         $this->to_collection->set_context( $new_context );
         $this->set_context( $new_context );
-        $this->proyection->set_context( $new_context );
+        $this->proyection_expression->set_context( $new_context );
     }
 
     public function from($from_field)
@@ -185,13 +185,13 @@ class Join_Expression extends Expression
             $binding = $this;
         }
 
-        $join_query_builder = $this->new_query_expression_builder( $this->context );
+        $join_query_builder = $this->new_query_statement_builder( $this->context );
 
         $build_closure->call( $binding, $join_query_builder );
 
-        $this->proyection = $join_query_builder->get_proyection();
+        $this->proyection_expression = $join_query_builder->get_proyection();
 
-        $this->joins = $join_query_builder->get_joins();
+        $this->join_expressions = $join_query_builder->get_joins();
 
         $this->context->add_macro_definitions_from(
             $join_query_builder->get_macros_dictionary()
@@ -200,9 +200,9 @@ class Join_Expression extends Expression
 
     /// Creating instances
 
-    public function new_query_expression_builder($expression_context = null)
+    public function new_query_statement_builder($expression_context = null)
     {
-        return Create::a( Query_Expression_Builder::class )->with( $expression_context );
+        return Create::a( Query_Statement_Builder::class )->with( $expression_context );
     }
 
     /// Visiting

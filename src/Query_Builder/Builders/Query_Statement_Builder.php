@@ -4,153 +4,59 @@ namespace Haijin\Persistency\Query_Builder\Builders;
 
 use Haijin\Instantiator\Create;
 use Haijin\Persistency\Errors\QueryExpressions\Macro_Expression_Evaluated_To_Null_Error;
-use Haijin\Persistency\Query_Builder\Expressions_Factory_Trait;
-use Haijin\Persistency\Query_Builder\Expressions_DSL_Trait;
 
 /**
- * Object to build a Query_Expression from a query definition closure.
+ * Object to build a Query_Statement from a query definition closure.
  */
-class Query_Expression_Builder
+class Query_Statement_Builder extends Statement_Builder
 {
-    use Expressions_Factory_Trait;
-    use Expressions_DSL_Trait;
-
-    /**
-     * The Query_Expression being built.
-     */
-    protected $query_expression;
-
-    /**
-     * A Dictionary with the macro expressions defined in the scope of $this->$query_expression.
-     */
-    protected $expression_context;
-
-    /// Initializing
-
-    /**
-     * Initializes $this instance.
-     *
-     * @param Expression_Context $expression_context Optional - The Expression_Context of the
-     *      Query_Expression being built. If none is given a new Expression_Context is created.
-     */
-    public function __construct($expression_context = null)
-    {
-        if( $expression_context === null ) {
-            $expression_context = $this->new_expression_context();
-        }
-        $this->context = $expression_context;
-
-        $this->query_expression = $this->new_query_expression();
-    }
-
     /// Accessing
 
     /**
-     * Returns the Expression_Context of the Query_Expression.
-     *
-     * @return Expression_Context The Expression_Context of the Query_Expression.
+     * Returns the concrete statement instance.
      */
-    public function get_context()
+    protected function new_statement_expression()
     {
-        return $this->context;
+        return $this->new_query_statement();
     }
 
-    /**
-     * Returns the Dictionary with the macro definitions of the Query_Expression.
-     *
-     * @return Dictionary The Dictionary with the macro definitions of the Query_Expression.
-     */
-    public function get_macros_dictionary()
+    public function get_query_statement()
     {
-        return $this->get_context()->get_macros_dictionary();
+        return $this->statement_expression;
     }
 
-    public function get_context_collection()
+    public function get_collection_expression()
     {
-        return $this->get_context()->get_current_collection();
-    }
-
-    public function get_query_expression()
-    {
-        return $this->query_expression;
-    }
-
-    public function get_collection()
-    {
-        return $this->query_expression->get_collection();
+        return $this->statement_expression->get_collection();
     }
 
     public function get_proyection()
     {
-        return $this->query_expression->get_proyection();
+        return $this->statement_expression->get_proyection_expression();
     }
 
     public function get_filter()
     {
-        return $this->query_expression->get_filter();
+        return $this->statement_expression->get_filter();
     }
 
     public function get_joins()
     {
-        return $this->query_expression->get_joins();
+        return $this->statement_expression->get_join_expressions();
     }
 
     public function get_order_by()
     {
-        return $this->query_expression->get_order_by();
+        return $this->statement_expression->get_order_by();
     }
 
     public function get_pagination()
     {
-        return $this->query_expression->get_pagination();
-    }
-
-    /// Building expression
-
-    /**
-     * Builds and returns a new Query_Expression.
-     *
-     * @param closure $expression_closure The closure to build the Query_Expression
-     *      using a DSL.
-     * @param object $binding Optional - An optional object to bind the evaluation of the
-     *      $expression_closure.
-     *
-     * @return Query_Expression The built Query_Expression.
-     */
-    public function build( $expression_closure, $binding = null )
-    {
-        $this->query_expression = $this->new_query_expression();
-
-        $this->eval( $expression_closure, $binding );
-
-        return $this->query_expression;
+        return $this->statement_expression->get_pagination();
     }
 
     /**
-     * Evaluates the given $expression_closure with the current $this->query_expression.
-     * This method allows to build the Query_Expression in different times instead of all
-     * at once.
-     *
-     * @param closure $expression_closure The closure to build the Query_Expression
-     *      using a DSL.
-     * @param object $binding Optional - An optional object to bind the evaluation of the
-     *      $expression_closure.
-     *
-     * @return Query_Expression The current $this->query_expression.
-     */
-    public function eval( $expression_closure, $binding = null )
-    {
-        if( $binding === null ) {
-            $binding = $this;
-        }
-
-        $expression_closure->call( $binding, $this );
-
-        return $this->query_expression;
-    }
-
-    /**
-     * Defines the collection name of $this Query_Expression.
+     * Defines the collection name of $this Query_Statement.
      * Returns a CollectionExpressionBuilder to allow further configuration of the
      * Collection_Expression.
      *
@@ -165,7 +71,7 @@ class Query_Expression_Builder
 
         $this->context->set_current_collection( $collection );
 
-        $this->query_expression->set_collection( $collection );
+        $this->statement_expression->set_collection_expression( $collection );
 
         return $this;
     }
@@ -179,10 +85,10 @@ class Query_Expression_Builder
     {
         $alias_expression = $this->new_alias_expression(
             $alias,
-            $this->query_expression->get_collection()
+            $this->statement_expression->get_collection_expression()
         );
 
-        $this->query_expression->set_collection( $alias_expression );
+        $this->statement_expression->set_collection_expression( $alias_expression );
 
         return $alias_expression;
     }
@@ -195,7 +101,7 @@ class Query_Expression_Builder
      */
     public function proyect(...$proyected_expressions)
     {
-        $this->query_expression->set_proyection(
+        $this->statement_expression->set_proyection_expression(
             $this->new_proyection_expression_with_all( $proyected_expressions )
         );
     }
@@ -217,7 +123,7 @@ class Query_Expression_Builder
                     $joined_collection_name
                 );
 
-            $this->query_expression->add_join( $join_expression );
+            $this->statement_expression->add_join_expression( $join_expression );
 
             return $join_expression;
         });
@@ -243,7 +149,7 @@ class Query_Expression_Builder
      */
     public function filter($filter_expression)
     {
-        $this->query_expression->set_filter(
+        $this->statement_expression->set_filter_expression(
             $this->new_filter_expression( $filter_expression )
         );
     }
@@ -259,12 +165,12 @@ class Query_Expression_Builder
         $order_by = $this->new_order_by_expression();
         $order_by->add_all( $order_by_expressions );
 
-        $this->query_expression->set_order_by( $order_by );
+        $this->statement_expression->set_order_by_expression( $order_by );
     }
 
     /**
      * This is just a placerholder to improve DSL expressiveness, but the
-     * $pagination_expression is already set to $this->query_expression.
+     * $pagination_expression is already set to $this->statement_expression.
      */
     public function pagination($pagination_expression)
     {
@@ -275,13 +181,13 @@ class Query_Expression_Builder
 
     public function _pagination_expression()
     {
-        if( ! $this->query_expression->has_pagination() ) {
-            $this->query_expression->set_pagination(
+        if( ! $this->statement_expression->has_pagination_expression() ) {
+            $this->statement_expression->set_pagination_expression(
                 $this->new_pagination_expression()
             );
         }
 
-        return $this->query_expression->get_pagination();
+        return $this->statement_expression->get_pagination_expression();
     }
 
     public function offset($offset)

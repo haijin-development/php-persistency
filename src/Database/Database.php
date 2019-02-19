@@ -54,29 +54,41 @@ abstract class Database
     abstract public function query($query_closure, $named_parameters = []);
 
     /**
+     * Compiles the $create_closure and executes the create record query in the database server.
+     * Returns the id of the created query.
+     *
+     * @param closure $create_closure A closure to construct the record creation.
+     * @param array $named_parameters An associative array of the named parameters values
+     *      referenced in the create_closure.
+     *
+     * @return object The unique id of the created record in the database expression.
+     */
+    abstract public function create_one($create_closure, $named_parameters = []);
+
+    /**
      * Compiles the $query_closure and retunrs the compiled
-     *      Haijin\Persistency\Query_Builder\Query_Expression.
+     *      Haijin\Persistency\Query_Builder\Query_Statement.
      *
      * @param closure $query_closure A closure to construct the database query.
      *
-     * @return Haijin\Persistency\Query_Builder\Query_Expression The Query_Expression compiled from
+     * @return Haijin\Persistency\Query_Builder\Query_Statement The Query_Statement compiled from
      *      the $query_closure evaluation.
      */
-    abstract public function compile_query($query_closure);
+    abstract public function compile_query_statement($query_closure);
 
     /// Executing
 
     /**
-     * Executes the $compiled_query with the database server.
+     * Executes the $compiled_statement with the database server.
      * Returns the result of the execution.
      *
-     * @param Haijin\Persistency\Query_Builder\Query_Expression $compiled_query A Query_Expression.
+     * @param Haijin\Persistency\Query_Builder\Expression $compiled_statement A statement.
      * @param array $named_parameters An associative array of the named parameters values
-     *      referenced in the Query_Expression.
+     *      referenced in the statement.
      *
      * @return array An associative array with the results of the query execution.
      */
-    abstract public function execute($compiled_query, $named_parameters = []);
+    abstract public function execute($compiled_statement, $named_parameters = []);
 
     /// Debugging
 
@@ -86,7 +98,7 @@ abstract class Database
      * sql database one parameter can be the built sql string.
      * This method is intenteded for debugging purposes, not to use in production.
      *
-     * @param $query Query_Expression_Builder The parameter of the query_closure.
+     * @param $query Query_Statement_Builder The parameter of the query_closure.
      * @param closure $closure A closure with the debugging information as its parametets.
      * @param object $binding Optional - An optional object to bind to the evaluation of
      *      the $closure. If none is given the $closure is bound to $this object.

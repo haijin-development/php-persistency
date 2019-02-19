@@ -126,7 +126,7 @@ $spec->describe( "When building the filter statement of a MySql expression", fun
 
     });
 
-    $this->it( "builds a binary opetor expression", function() {
+    $this->it( "builds a binary operator expression", function() {
 
         $rows = $this->database->query( function($query) {
 

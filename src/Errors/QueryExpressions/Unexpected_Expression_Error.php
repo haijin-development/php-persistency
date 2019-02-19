@@ -10,7 +10,7 @@ use Haijin\Persistency\Errors\Persistency_Error;
 class Unexpected_Expression_Error extends Persistency_Error
 {
     /**
-     * The unexpected Query_Expression.
+     * The unexpected Expression.
      */
     protected $expression;
 
@@ -20,7 +20,7 @@ class Unexpected_Expression_Error extends Persistency_Error
      * Initializes $this instance.
      *
      * @param string $error_message The error message.
-     * @param Query_Expression $expression The unexpected Query_Expression.
+     * @param Expression $expression The unexpected Expression.
      */
     public function __construct($error_message, $expression)
     {
@@ -32,9 +32,9 @@ class Unexpected_Expression_Error extends Persistency_Error
     /// Accessing
 
     /**
-     * Returns the unexpected Query_Expression.
+     * Returns the unexpected Expression.
      *
-     * @return Query_Expression The unexpected Query_Expression.
+     * @return Expression The unexpected Expression.
      */
     public function get_expression()
     {

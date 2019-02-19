@@ -3,12 +3,12 @@
 namespace Haijin\Persistency\Sql\Query_Builder;
 
 use Haijin\Instantiator\Create;
-use Haijin\Persistency\Query_Builder\Builders\Query_Expression_Builder;
+use Haijin\Persistency\Query_Builder\Builders\Query_Statement_Builder;
 use Haijin\Persistency\Query_Builder\Visitors\Abstract_Query_Expression_Visitor;
 use Haijin\Persistency\Query_Builder\Visitors\Query_Visitor_Trait;
 use Haijin\Ordered_Collection;
 
-class Sql_Builder extends Abstract_Query_Expression_Visitor
+class Sql_Query_Statement_Builder extends Abstract_Query_Expression_Visitor
 {
     use Query_Visitor_Trait;
     use Sql_Builder_Trait;
@@ -18,51 +18,51 @@ class Sql_Builder extends Abstract_Query_Expression_Visitor
     /**
      * Builds and returns a new SQL string.
      *
-     * @param closure $expression_closure The closure to build the Query_Expression
+     * @param closure $expression_closure The closure to build the Query_Statement
      *      using a DSL.
      * @param object $binding Optional - An optional object to bind the evaluation of the
      *      $expression_closure.
      *
-     * @return Query_Expression The built Query_Expression.
+     * @return Query_Statement The built Query_Statement.
      */
     public function build( $expression_closure, $binding = null )
     {
-        $query_expression = $this->new_query_expression_builder()
+        $query_statement = $this->new_query_statement_builder()
             ->build( $expression_closure, $binding );
 
-        return $this->build_sql_from( $query_expression );
+        return $this->build_sql_from( $query_statement );
     }
 
     /// Visiting
 
     /**
-     * Accepts a Query_Expression.
+     * Accepts a Query_Statement.
      */
-    public function accept_query_expression($query_expression)
+    public function accept_query_statement($query_statement)
     {
         $sql = "";
 
-        $sql .= $this->nested_proyections_sql_from( $query_expression );
+        $sql .= $this->nested_proyections_sql_from( $query_statement );
 
         $sql .= " ";
 
-        $sql .= $this->visit( $query_expression->get_collection() );
+        $sql .= $this->visit( $query_statement->get_collection_expression() );
 
-        $sql .= $this->join_expressions_sql_from( $query_expression );
+        $sql .= $this->join_expressions_sql_from( $query_statement );
 
-        if( $query_expression->has_filter() ) {
+        if( $query_statement->has_filter_expression() ) {
             $sql .= " ";
-            $sql .= $this->visit( $query_expression->get_filter() );
+            $sql .= $this->visit( $query_statement->get_filter_expression() );
         }
 
-        if( $query_expression->has_order_by() ) {
+        if( $query_statement->has_order_by_expression() ) {
             $sql .= " ";
-            $sql .= $this->visit( $query_expression->get_order_by() );
+            $sql .= $this->visit( $query_statement->get_order_by_expression() );
         }
 
-        if( $query_expression->has_pagination() ) {
+        if( $query_statement->has_pagination_expression() ) {
             $sql .= " ";
-            $sql .= $this->visit( $query_expression->get_pagination() );
+            $sql .= $this->visit( $query_statement->get_pagination_expression() );
         }
 
         $sql .= ";";
@@ -81,7 +81,7 @@ class Sql_Builder extends Abstract_Query_Expression_Visitor
 
         $proyected_fields[] = $this->proyected_fields_from( $expression );
 
-        $expression->joins_do( function($join_expression) use($proyected_fields) {
+        $expression->join_expressions_do( function($join_expression) use($proyected_fields) {
             $sql_builder = $this->new_sql_builder( $join_expression );
 
             $proyected_fields[] =
@@ -97,7 +97,7 @@ class Sql_Builder extends Abstract_Query_Expression_Visitor
         $proyection_builder = $this->new_sql_proyection_builder();
 
         return $proyection_builder->proyections_from(
-            $expression->get_proyection()
+            $expression->get_proyection_expression()
         );
     }
 
@@ -119,17 +119,17 @@ class Sql_Builder extends Abstract_Query_Expression_Visitor
             ->build_sql_from( $join_expression );
     }
 
-    protected function join_expressions_sql_from($query_expression)
+    protected function join_expressions_sql_from($query_statement)
     {
-        if( ! $query_expression->has_joins() ) {
+        if( ! $query_statement->has_join_expressions() ) {
             return "";
         }
 
         $joins = Create::an( Ordered_Collection::class )->with();
 
-        $query_expression->joins_do( function($join_expression) use($joins) {
+        $query_statement->join_expressions_do( function($join_expression) use($joins) {
 
-            $join_expression->get_nested_joins()->each_do( function($join_expression) use($joins) {
+            $join_expression->get_nested_join_expressions()->each_do( function($join_expression) use($joins) {
 
                 $joins[] = $this->visit( $join_expression );
 
@@ -183,9 +183,9 @@ class Sql_Builder extends Abstract_Query_Expression_Visitor
 
     //// Query expression
 
-    protected function new_query_expression_builder()
+    protected function new_query_statement_builder()
     {
-        return Create::object( Query_Expression_Builder::class );
+        return Create::object( Query_Statement_Builder::class );
     }
 
     //// Sql builders

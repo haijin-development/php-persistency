@@ -1,11 +1,11 @@
 <?php
 
-use Haijin\Persistency\Sql\Query_Builder\Sql_Builder;
+use Haijin\Persistency\Sql\Query_Builder\Sql_Query_Statement_Builder;
 
 $spec->describe( "When building a sql expression", function() {
 
     $this->let( "query_builder", function() {
-        return new Sql_Builder();
+        return new Sql_Query_Statement_Builder();
     });
 
     $this->it( "builds a complete sql expression", function() {

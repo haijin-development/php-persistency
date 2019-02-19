@@ -17,7 +17,7 @@ class Sql_Filter_Builder extends Filter_Visitor
      */
     public function accept_filter_expression($filter_expression)
     {
-        return "where " . $this->expression_sql_from( $filter_expression->get_filter() );
+        return "where " . $this->expression_sql_from( $filter_expression->get_matching_expression() );
     }
 
 
