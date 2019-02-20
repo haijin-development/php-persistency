@@ -4,6 +4,20 @@ use Haijin\Persistency\Engines\Mysql\Mysql_Database;
 
 $spec->describe( "When stablishing a connection to a Mysql database", function() {
 
+    $this->before_all( function() {
+
+        $this->error_reporting = error_reporting();
+
+        error_reporting( E_ERROR | E_PARSE | E_NOTICE );
+
+    });
+
+    $this->after_all( function() {
+
+        error_reporting( $this->error_reporting );
+
+    });
+
     $this->it( "raises an error when the connection fails", function() {
 
         $database = new Mysql_Database();

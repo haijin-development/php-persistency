@@ -12,8 +12,6 @@ require_once __DIR__ . "/sqlite-methods.php";
 
     $this->before_all( function() {
 
-        error_reporting( E_ERROR | E_PARSE | E_NOTICE );
-
         $this->setup_mysql();
         $this->setup_postgresql();
         $this->setup_sqlite();

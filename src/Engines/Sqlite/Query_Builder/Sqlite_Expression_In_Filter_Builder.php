@@ -4,12 +4,12 @@ namespace Haijin\Persistency\Engines\Sqlite\Query_Builder;
 
 use Haijin\Instantiator\Create;
 use Haijin\Persistency\Engines\Named_Parameter_Placerholder;
-use Haijin\Persistency\Sql\Query_Builder\Expression_Builders\Sql_Expression_In_Filter_Builder;
+use Haijin\Persistency\Sql\Expression_Builders\Sql_Expression_In_Filter_Builder;
 
 /**
  * A Sql_Expression_In_Filter_Builder subclass to handle ValueExpressions and
  * NamedParameterExpressions according to Sqlite queries requirements.
- * See Haijin\Persistency\Sql\Query_Builder\Expression_Builders\Sql_Expression_In_Filter_Builder
+ * See Haijin\Persistency\Sql\Expression_Builders\Sql_Expression_In_Filter_Builder
  * class for the complete protocol of this class.
  */
 class Sqlite_Expression_In_Filter_Builder extends Sql_Expression_In_Filter_Builder

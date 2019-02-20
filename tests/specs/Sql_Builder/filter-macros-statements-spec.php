@@ -1,6 +1,6 @@
 <?php
 
-use Haijin\Persistency\Sql\Query_Builder\Sql_Query_Statement_Builder;
+use Haijin\Persistency\Sql\Sql_Query_Statement_Builder;
 
 $spec->describe( "When using macros in the filter statement of a sql expression", function() {
 

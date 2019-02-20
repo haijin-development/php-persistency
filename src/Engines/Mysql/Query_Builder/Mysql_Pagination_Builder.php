@@ -2,13 +2,13 @@
 
 namespace Haijin\Persistency\Engines\Mysql\Query_Builder;
 
-use Haijin\Persistency\Sql\Query_Builder\Sql_Builder_Trait;
-use Haijin\Persistency\Sql\Query_Builder\Sql_Pagination_Builder;
+use Haijin\Persistency\Sql\Sql_Builder_Trait;
+use Haijin\Persistency\Sql\Sql_Pagination_Builder;
 
 /**
  * A Sql_Pagination_Builder subclass to handle PaginationExpressions according to Mysql queries
  * requirements.
- * See Haijin\Persistency\Sql\Query_Builder\Sql_Pagination_Builder class
+ * See Haijin\Persistency\Sql\Sql_Pagination_Builder class
  * for the complete protocol of this class.
  */
 class Mysql_Pagination_Builder extends Sql_Pagination_Builder

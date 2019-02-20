@@ -4,6 +4,20 @@ use Haijin\Persistency\Engines\Sqlite\Sqlite_Database;
 
 $spec->describe( "When building an invalid Sqlite query", function() {
 
+    $this->before_all( function() {
+
+        $this->error_reporting = error_reporting();
+
+        error_reporting( E_ERROR | E_PARSE | E_NOTICE );
+
+    });
+
+    $this->after_all( function() {
+
+        error_reporting( $this->error_reporting );
+
+    });
+
     $this->let( "database", function() {
 
         $database = new Sqlite_Database();

@@ -6,12 +6,12 @@ use Haijin\Instantiator\Global_Factory;
 use  Haijin\Instantiator\Create;
 use Haijin\Persistency\Errors\Connections\Named_Parameter_Not_Found_Error;
 use Haijin\Persistency\Database\Database;
-use Haijin\Persistency\Sql\Query_Builder\Sql_Query_Statement_Builder;
-use Haijin\Persistency\Sql\Query_Builder\Sql_Pagination_Builder;
-use Haijin\Persistency\Sql\Query_Builder\Expression_Builders\Sql_Expression_In_Filter_Builder;
+use Haijin\Persistency\Sql\Sql_Query_Statement_Builder;
+use Haijin\Persistency\Sql\Sql_Pagination_Builder;
+use Haijin\Persistency\Sql\Expression_Builders\Sql_Expression_In_Filter_Builder;
 use Haijin\Persistency\Engines\Postgresql\Query_Builder\Postgresql_Pagination_Builder;
 use Haijin\Persistency\Engines\Postgresql\Query_Builder\Postgresql_Expression_In_Filter_Builder;
-use Haijin\Persistency\Query_Builder\Builders\Query_Statement_Builder;
+use Haijin\Persistency\Statement_Compiler\Query_Statement_Compiler;
 use Haijin\Dictionary;
 use Haijin\Ordered_Collection;
 
@@ -89,7 +89,7 @@ class Postgresql_Database extends Database
      */
     public function compile_query_statement($query_closure)
     {
-        return $this->new_query_statement_builder()
+        return $this->new_query_statement_compiler()
             ->build( $query_closure );
     }
 
@@ -240,9 +240,9 @@ class Postgresql_Database extends Database
 
     /// Creating instances
 
-    protected function new_query_statement_builder()
+    protected function new_query_statement_compiler()
     {
-        return Create::a( Query_Statement_Builder::class )->with();
+        return Create::a( Query_Statement_Compiler::class )->with();
     }
 
     protected function new_sql_query_statement_builder()
@@ -252,7 +252,7 @@ class Postgresql_Database extends Database
 
     /// Debugging
 
-    public function inspect_query($query_statement_builder, $closure, $binding = null)
+    public function inspect_query($query_statement_compiler, $closure, $binding = null)
     {
         if( $binding === null ) {
             $binding = $this;
@@ -261,7 +261,7 @@ class Postgresql_Database extends Database
         $query_parameters = Create::an( Ordered_Collection::class )->with();
 
         $sql = $this->query_to_sql(
-            $query_statement_builder->get_query_statement(),
+            $query_statement_compiler->get_query_statement(),
             $query_parameters
         );
 

@@ -67,11 +67,11 @@ abstract class Database
 
     /**
      * Compiles the $query_closure and retunrs the compiled
-     *      Haijin\Persistency\Query_Builder\Query_Statement.
+     *      Haijin\Persistency\Statement_Compiler\Query_Statement.
      *
      * @param closure $query_closure A closure to construct the database query.
      *
-     * @return Haijin\Persistency\Query_Builder\Query_Statement The Query_Statement compiled from
+     * @return Haijin\Persistency\Statement_Compiler\Query_Statement The Query_Statement compiled from
      *      the $query_closure evaluation.
      */
     abstract public function compile_query_statement($query_closure);
@@ -82,7 +82,7 @@ abstract class Database
      * Executes the $compiled_statement with the database server.
      * Returns the result of the execution.
      *
-     * @param Haijin\Persistency\Query_Builder\Expression $compiled_statement A statement.
+     * @param Haijin\Persistency\Statement_Compiler\Expression $compiled_statement A statement.
      * @param array $named_parameters An associative array of the named parameters values
      *      referenced in the statement.
      *
@@ -98,7 +98,7 @@ abstract class Database
      * sql database one parameter can be the built sql string.
      * This method is intenteded for debugging purposes, not to use in production.
      *
-     * @param $query Query_Statement_Builder The parameter of the query_closure.
+     * @param $query Query_Statement_Compiler The parameter of the query_closure.
      * @param closure $closure A closure with the debugging information as its parametets.
      * @param object $binding Optional - An optional object to bind to the evaluation of
      *      the $closure. If none is given the $closure is bound to $this object.
