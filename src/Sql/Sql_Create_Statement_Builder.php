@@ -6,6 +6,7 @@ use Haijin\Instantiator\Create;
 use Haijin\Persistency\Statement_Compiler\Create_Statement_Compiler;
 use Haijin\Persistency\Statements_Visitors\Abstract_Query_Expression_Visitor;
 use Haijin\Persistency\Statements_Visitors\Query_Visitor_Trait;
+use Haijin\Persistency\Sql\Expression_Builders\Sql_Expression_In_Filter_Builder;
 use Haijin\Ordered_Collection;
 
 class Sql_Create_Statement_Builder extends Abstract_Query_Expression_Visitor
@@ -44,6 +45,8 @@ class Sql_Create_Statement_Builder extends Abstract_Query_Expression_Visitor
 
         $sql .= $this->visit( $create_statement->get_collection_expression() );
 
+        $sql .= " ";
+
         $sql .= $this->visit( $create_statement->get_records_values_expression() );
 
         $sql .= ";";
@@ -69,7 +72,10 @@ class Sql_Create_Statement_Builder extends Abstract_Query_Expression_Visitor
 
         foreach( $record_values_expression->get_field_values() as $field_value ) {
             $attribute_names[] = $field_value->get_field_name();
-            $attribute_values[] = $this->value_to_sql( $field_value->get_value() );
+
+            $attribute_values[] = $this->new_sql_expression_builder()->build_sql_from(
+                    $field_value->get_value_expression()
+                );
         }
 
         return  "(" . 
@@ -84,5 +90,10 @@ class Sql_Create_Statement_Builder extends Abstract_Query_Expression_Visitor
     protected function new_create_statement_compiler()
     {
         return Create::object( Create_Statement_Compiler::class );
+    }
+
+    protected function new_sql_expression_builder()
+    {
+        return Create::object( Sql_Expression_In_Filter_Builder::class );
     }
 }

@@ -66,8 +66,8 @@ class Create_Statement_Compiler extends Statement_Compiler
         return $this;
     }
 
-    public function field($field_name)
+    public function set($field_name, $value_expression)
     {
-        return $this->new_field_value_expression($field_name);
+        return $this->new_field_value_expression( $field_name, $value_expression );
     }
 }

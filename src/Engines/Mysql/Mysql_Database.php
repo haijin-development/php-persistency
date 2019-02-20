@@ -93,8 +93,8 @@ class Mysql_Database extends Database
     }
 
     /**
-     * Compiles the $query_closure and executes the compiled query in the server.
-     * Returns the rows returned by the query execution.
+     * Compiles the $query_closure.
+     * Returns the compiled Query_Statement.
      */
     public function compile_query_statement($query_closure)
     {
@@ -103,8 +103,8 @@ class Mysql_Database extends Database
     }
 
     /**
-     * Compiles the $create_closure and executes the compiled statement in the server.
-     * Returns the rows returned by the query execution.
+     * Compiles the $create_closure.
+     * Returns the compiled Create_Statement.
      */
     public function compile_create_statement($create_closure)
     {
@@ -221,6 +221,8 @@ class Mysql_Database extends Database
                 $types .= "d";
             elseif( is_int( $value ) )
                 $types .= "i";
+            elseif( $value === null )
+                $types .= "i";
             else
                 $types;
         }
@@ -269,8 +271,6 @@ class Mysql_Database extends Database
     {
         return Global_Factory::with_factory_do( function($factory)
                                     use($create_statement, $query_parameters) {
-
-            $factory->set( Sql_Pagination_Builder::class, Mysql_Pagination_Builder::class );
 
             $factory->set(
                 Sql_Expression_In_Filter_Builder::class,

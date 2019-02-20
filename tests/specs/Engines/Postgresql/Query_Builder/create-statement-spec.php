@@ -1,26 +1,28 @@
 <?php
 
-use Haijin\Persistency\Engines\Mysql\Mysql_Database;
+use Haijin\Persistency\Engines\Postgresql\Postgresql_Database;
 
 $spec->describe( "When evaluating a create statement in a MySql database", function() {
 
     $this->before_each( function() {
 
-        $this->re_populate_mysql_tables();
+        $this->setup_postgresql();
 
     });
 
     $this->after_all( function() {
 
-        $this->re_populate_mysql_tables();
+        $this->setup_postgresql();
 
     });
 
     $this->let( "database", function() {
 
-        $database = new Mysql_Database();
+        $database = new Postgresql_Database();
 
-        $database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
+        $database->connect(
+            "host=localhost port=5432 dbname=haijin-persistency user=haijin password=123456"
+        );
 
         return $database;
 
@@ -30,16 +32,16 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $id = $this->database->create_one( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_with_sequence" );
 
             $query->record(
-                $query->set( "name", $query->value( "Homer" ) ),
+                $query->set( "name", $query->value( "Lisa" ) ),
                 $query->set( "last_name", $query->value( "Simpson" ) )
             );
 
         });
 
-        $this->expect( $id ) ->to() ->equal( 4 );
+        $this->expect( $id ) ->to() ->equal( 1 );
 
     });
 
@@ -47,10 +49,10 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $this->database->create_one( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_with_sequence" );
 
             $query->record(
-                $query->set( "name", $query->value( "Homer" ) ),
+                $query->set( "name", $query->value( "Lisa" ) ),
                 $query->set( "last_name", $query->value( "Simpson" ) )
             );
 
@@ -58,7 +60,7 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_with_sequence" );
 
             $query->order_by(
                 $query->field( "id" ) ->desc()
@@ -72,8 +74,8 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
-                "id" => 4,
-                "name" => "Homer",
+                "id" => 1,
+                "name" => "Lisa",
                 "last_name" => "Simpson"
             ],
         ]);
@@ -84,10 +86,10 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $this->database->create_one( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_with_sequence" );
 
             $query->record(
-                $query->set( "name", $query->concat( "Ho", "mer" ) ),
+                $query->set( "name", $query->concat( "Li", "sa" ) ),
                 $query->set( "last_name", $query->value( "Simpson" ) )
             );
 
@@ -95,7 +97,7 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_with_sequence" );
 
             $query->order_by(
                 $query->field( "id" ) ->desc()
@@ -109,8 +111,8 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
-                "id" => 4,
-                "name" => "Homer",
+                "id" => 1,
+                "name" => "Lisa",
                 "last_name" => "Simpson"
             ],
         ]);
@@ -121,10 +123,10 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $this->database->create_one( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_with_sequence" );
 
             $query->record(
-                $query->set( "name", $query->concat( "Ho", $query->lower( "MER" ) ) ),
+                $query->set( "name", $query->concat( "Li", $query->lower( "SA" ) ) ),
                 $query->set( "last_name", $query->value( "Simpson" ) )
             );
 
@@ -132,7 +134,7 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_with_sequence" );
 
             $query->order_by(
                 $query->field( "id" ) ->desc()
@@ -146,8 +148,8 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
-                "id" => 4,
-                "name" => "Homer",
+                "id" => 1,
+                "name" => "Lisa",
                 "last_name" => "Simpson"
             ],
         ]);
@@ -158,10 +160,10 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $this->database->create_one( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_with_sequence" );
 
             $query->record(
-                $query->set( "name", $query->lower( "HOMER" ) ),
+                $query->set( "name", $query->lower( "LISA" ) ),
                 $query->set( "last_name", $query->value( "Simpson" ) )
             );
 
@@ -169,7 +171,7 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_with_sequence" );
 
             $query->order_by(
                 $query->field( "id" ) ->desc()
@@ -183,8 +185,8 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
-                "id" => 4,
-                "name" => "homer",
+                "id" => 1,
+                "name" => "lisa",
                 "last_name" => "Simpson"
             ],
         ]);
@@ -196,7 +198,7 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $this->database->create_one( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_with_sequence" );
 
             $query->record(
                 $query->set( "name", $query->value( 3 ) ->op( "+" ) ->value( 4 ) ),
@@ -207,7 +209,7 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_with_sequence" );
 
             $query->order_by(
                 $query->field( "id" ) ->desc()
@@ -221,7 +223,7 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
-                "id" => 4,
+                "id" => 1,
                 "name" => "7",
                 "last_name" => "Simpson"
             ],
@@ -233,7 +235,7 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $this->database->create_one( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_with_sequence" );
 
             $query->record(
                 $query->set( "name", $query->brackets(
@@ -247,7 +249,7 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_with_sequence" );
 
             $query->order_by(
                 $query->field( "id" ) ->desc()
@@ -261,7 +263,7 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
-                "id" => 4,
+                "id" => 1,
                 "name" => "7",
                 "last_name" => "Simpson"
             ],
@@ -273,7 +275,7 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $this->database->create_one( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_with_sequence" );
 
             $query->record(
                 $query->set( "name", $query->value( null ) ),
@@ -284,7 +286,7 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_with_sequence" );
 
             $query->order_by(
                 $query->field( "id" ) ->desc()
@@ -298,7 +300,7 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
-                "id" => 4,
+                "id" => 1,
                 "name" => null,
                 "last_name" => "Simpson"
             ],

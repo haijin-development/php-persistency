@@ -135,11 +135,12 @@ trait Expressions_Factory_Trait
         );
     }
 
-    protected function new_field_value_expression($field_name)
+    protected function new_field_value_expression($field_name, $value_expression)
     {
         return Create::a( Field_Value_Expression::class )->with(
             $this->context,
-            $field_name
+            $field_name,
+            $value_expression
         );
     }
 

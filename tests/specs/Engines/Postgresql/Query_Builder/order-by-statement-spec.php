@@ -12,7 +12,7 @@ $spec->describe( "When building the order by statement of a sql expression", fun
 
     $this->after_all( function() {
 
-        $this->re_populate_tables();
+        $this->re_populate_postgres_tables();
 
     });
 
@@ -131,13 +131,6 @@ $spec->describe( "When building the order by statement of a sql expression", fun
         pg_query( $this->postgresql, "INSERT INTO users VALUES ( 1, 'Lisa', 'Simpson' );" );
         pg_query( $this->postgresql, "INSERT INTO users VALUES ( 2, 'Marge', 'Bouvier' );" );
         pg_query( $this->postgresql, "INSERT INTO users VALUES ( 3, 'Maggie', 'Simpson' );" );
-
-    });
-
-    $this->def( "re_populate_tables", function() {
-
-        $this->clear_postgresql_tables();
-        $this->populate_postgresql_tables();
 
     });
 

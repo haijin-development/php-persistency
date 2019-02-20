@@ -8,15 +8,16 @@ use Haijin\Ordered_Collection;
 class Field_Value_Expression extends Expression
 {
     protected $field_name;
-    protected $value;
+    protected $value_expression;
 
     /// Initializing
 
-    public function __construct($expression_context, $field_name)
+    public function __construct($expression_context, $field_name, $value_expression)
     {
         parent::__construct( $expression_context );
 
         $this->field_name = $field_name;
+        $this->value_expression = $value_expression;
     }
 
     /// Accessing
@@ -26,18 +27,9 @@ class Field_Value_Expression extends Expression
         return $this->field_name;
     }
 
-    public function get_value()
+    public function get_value_expression()
     {
-        return $this->value;
-    }
-
-    /// DSL
-
-    public function value($expression)
-    {
-        $this->value = $expression;
-
-        return $this;
+        return $this->value_expression;
     }
 
     /// Visiting

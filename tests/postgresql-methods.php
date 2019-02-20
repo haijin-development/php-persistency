@@ -21,6 +21,13 @@ class Postgresql_Methods
 
         });
 
+        $spec->def( "re_populate_postgres_tables", function() {
+
+            $this->clear_postgresql_tables();
+            $this->populate_postgresql_tables();
+
+        });
+
         $spec->def( "tear_down_postgresql", function() {
 
             $this->drop_postgresql_tables();
@@ -34,6 +41,7 @@ class Postgresql_Methods
             pg_query( $this->postgresql, "DROP TABLE IF EXISTS address_1;" );
             pg_query( $this->postgresql, "DROP TABLE IF EXISTS address_2;" );
             pg_query( $this->postgresql, "DROP TABLE IF EXISTS cities;" );
+            pg_query( $this->postgresql, "DROP TABLE IF EXISTS users_with_sequence;" );
 
         });
 
@@ -42,7 +50,7 @@ class Postgresql_Methods
             pg_query(
                 $this->postgresql, 
                 "CREATE TABLE users (
-                    id INT  PRIMARY KEY,
+                    id INT PRIMARY KEY,
                     name VARCHAR(45) NULL,
                     last_name VARCHAR(45) NULL
                 );"
@@ -51,7 +59,7 @@ class Postgresql_Methods
             pg_query(
                 $this->postgresql, 
                 "CREATE TABLE address_1 (
-                    id INT  PRIMARY KEY,
+                    id INT PRIMARY KEY,
                     id_user INT NOT NULL,
                     id_city INT NOT NULL,
                     street_name VARCHAR(45) NULL,
@@ -61,7 +69,7 @@ class Postgresql_Methods
             pg_query(
                 $this->postgresql, 
                 "CREATE TABLE address_2 (
-                    id INT  PRIMARY KEY,
+                    id INT PRIMARY KEY,
                     id_user INT NOT NULL,
                     id_city INT NOT NULL,
                     street_name VARCHAR(45) NULL,
@@ -71,8 +79,17 @@ class Postgresql_Methods
             pg_query(
                 $this->postgresql, 
                 "CREATE TABLE cities (
-                    id INT  PRIMARY KEY,
+                    id INT PRIMARY KEY,
                     name VARCHAR(45) NULL
+                );"
+            );
+
+            pg_query(
+                $this->postgresql, 
+                "CREATE TABLE users_with_sequence (
+                    id SERIAL PRIMARY KEY,
+                    name VARCHAR(45) NULL,
+                    last_name VARCHAR(45) NULL
                 );"
             );
 
@@ -85,6 +102,7 @@ class Postgresql_Methods
             pg_query( $this->postgresql, "TRUNCATE address_1;" );
             pg_query( $this->postgresql, "TRUNCATE address_2;" );
             pg_query( $this->postgresql, "TRUNCATE cities;" );
+            pg_query( $this->postgresql, "TRUNCATE users_with_sequence;" );
 
         });
 

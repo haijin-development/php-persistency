@@ -9,9 +9,11 @@ use Haijin\Ordered_Collection;
 use Haijin\Persistency\Errors\Connections\Named_Parameter_Not_Found_Error;
 use Haijin\Persistency\Database\Database;
 use Haijin\Persistency\Sql\Sql_Query_Statement_Builder;
+use Haijin\Persistency\Sql\Sql_Create_Statement_Builder;
 use Haijin\Persistency\Sql\Sql_Pagination_Builder;
 use Haijin\Persistency\Sql\Expression_Builders\Sql_Expression_In_Filter_Builder;
 use Haijin\Persistency\Statement_Compiler\Query_Statement_Compiler;
+use Haijin\Persistency\Statement_Compiler\Create_Statement_Compiler;
 use Haijin\Persistency\Engines\Sqlite\Query_Builder\Sqlite_Expression_In_Filter_Builder;
 use Haijin\Persistency\Engines\Sqlite\Query_Builder\Sqlite_Pagination_Builder;
 
@@ -84,17 +86,29 @@ class Sqlite_Database extends Database
      */
     public function create_one($create_closure, $named_parameters = [])
     {
+        $named_parameters = Dictionary::with_all( $named_parameters );
 
+        $compiled_statement = $this->compile_create_statement( $create_closure );
+
+        return $this->execute( $compiled_statement, $named_parameters );
     }
 
     /**
-     * Compiles the $query_closure and executes the compiled query in the server.
-     * Returns the rows returned by the query execution.
+     * Compiles the $query_closure and returns the compiled Query_Statement.
      */
     public function compile_query_statement($query_closure)
     {
         return $this->new_query_statement_compiler()
             ->build( $query_closure );
+    }
+
+    /**
+     * Compiles the $create_closure and returns the compiled Query_Statement.
+     */
+    public function compile_create_statement($create_closure)
+    {
+        return $this->new_create_statement_compiler()
+            ->build( $create_closure );
     }
 
     /// Executing
@@ -111,20 +125,22 @@ class Sqlite_Database extends Database
     }
 
     /**
-     * Executes the $compiled_query.
+     * Executes the $query_statement.
      * Returns the result of the execution.
      */
-    public function execute_query_statement($compiled_query, $named_parameters)
+    public function execute_query_statement($query_statement, $named_parameters)
     {
         $query_parameters = Create::an( Ordered_Collection::class )->with();
 
-        $statement_handle = $this->prepare_statement( $compiled_query, $query_parameters );
+        $sql = $this->query_statement_to_sql( $query_statement, $query_parameters );
+
+        $statement_handle = $this->connection_handle->prepare( $sql );
 
         if( $statement_handle === false ) {
             $this->raise_database_query_error( $this->connection_handle->lastErrorMsg() );
         }
 
-        $result_rows = $this->execute_statement(
+        $result_rows = $this->execute_statement_handle(
             $statement_handle,
             $named_parameters,
             $query_parameters
@@ -134,20 +150,52 @@ class Sqlite_Database extends Database
     }
 
     /**
-     * Creates and returns a rrepared Sqlite statement from a Query_Statement.
+     * Executes the $create_statement.
+     * Returns the result of the execution.
      */
-    protected function prepare_statement($compiled_query, $query_parameters)
+    public function execute_create_statement($create_statement, $named_parameters)
     {
-        $sql = $this->query_to_sql( $compiled_query, $query_parameters );
+        $query_parameters = Create::an( Ordered_Collection::class )->with();
 
-        return $this->connection_handle->prepare( $sql );
+        $sql = $this->create_statement_to_sql( $create_statement, $query_parameters );
+
+        $statement_handle = $this->connection_handle->prepare( $sql );
+
+        if( $statement_handle === false ) {
+            $this->raise_database_query_error( $this->connection_handle->lastErrorMsg() );
+        }
+
+        $this->execute_statement_handle(
+            $statement_handle,
+            $named_parameters,
+            $query_parameters
+        );
+
+        return $this->get_last_created_id();
+    }
+
+    protected function get_last_created_id()
+    {
+        $statement_handle = $this->connection_handle->prepare( "select last_insert_rowid() as id;" );
+
+        if( $statement_handle === false ) {
+            $this->raise_database_query_error( $this->connection_handle->lastErrorMsg() );
+        }
+
+        $result_handle = $statement_handle->execute();
+
+        if( $result_handle === false ) {
+            $this->raise_database_query_error( $this->connection_handle->lastErrorMsg() );
+        }
+
+        return $result_handle->fetchArray( SQLITE3_ASSOC )[ "id" ];
     }
 
     /**
      * Binds the parameters to the Sqlite prepared statement and executes it.
      * Returns an associative array with the results.
      */
-    protected function execute_statement($statement_handle, $named_parameters, $query_parameters)
+    protected function execute_statement_handle($statement_handle, $named_parameters, $query_parameters)
     {
         $this->bind_parameters_to_statement(
             $statement_handle,
@@ -156,6 +204,10 @@ class Sqlite_Database extends Database
         );
 
         $result_handle = $statement_handle->execute();
+
+        if( $result_handle === false ) {
+            $this->raise_database_query_error( $this->connection_handle->lastErrorMsg() );
+        }
 
         $rows = [];
 
@@ -224,12 +276,12 @@ class Sqlite_Database extends Database
     }
 
     /**
-     * Builds the SQL string from the given $compiled_query.
+     * Builds the SQL string from the given $query_statement.
      */
-    protected function query_to_sql($compiled_query, $query_parameters)
+    protected function query_statement_to_sql($query_statement, $query_parameters)
     {
         return Global_Factory::with_factory_do( function($factory)
-                                    use($compiled_query, $query_parameters) {
+                                    use($query_statement, $query_parameters) {
 
             $factory->set( Sql_Pagination_Builder::class, Sqlite_Pagination_Builder::class );
 
@@ -241,8 +293,30 @@ class Sqlite_Database extends Database
                 }
             );
 
-            return $this->new_sql_builder( $query_parameters )
-                ->build_sql_from( $compiled_query );
+            return $this->new_sql_query_statement_builder( $query_parameters )
+                ->build_sql_from( $query_statement );
+
+        }, $this);
+    }
+
+    /**
+     * Builds the SQL string from the given $create_statement.
+     */
+    protected function create_statement_to_sql($create_statement, $query_parameters)
+    {
+        return Global_Factory::with_factory_do( function($factory)
+                                    use($create_statement, $query_parameters) {
+
+            $factory->set(
+                Sql_Expression_In_Filter_Builder::class,
+                function() use($query_parameters) {
+                    return Create::a( Sqlite_Expression_In_Filter_Builder::class )
+                        ->with( $query_parameters );
+                }
+            );
+
+            return $this->new_sql_create_statement_builder( $query_parameters )
+                ->build_sql_from( $create_statement );
 
         }, $this);
     }
@@ -276,9 +350,19 @@ class Sqlite_Database extends Database
         return Create::a( Query_Statement_Compiler::class )->with();
     }
 
-    protected function new_sql_builder()
+    protected function new_create_statement_compiler()
+    {
+        return Create::a( Create_Statement_Compiler::class )->with();
+    }
+
+    protected function new_sql_query_statement_builder()
     {
         return Create::a( Sql_Query_Statement_Builder::class )->with();
+    }
+
+    protected function new_sql_create_statement_builder()
+    {
+        return Create::a( Sql_Create_Statement_Builder::class )->with();
     }
 
     /// Debugging
@@ -291,7 +375,7 @@ class Sqlite_Database extends Database
 
         $query_parameters = Create::a( Ordered_Collection::class )->with();
 
-        $sql = $this->query_to_sql(
+        $sql = $this->query_statement_to_sql(
             $query_statement_compiler->get_query_statement(),
             $query_parameters
         );

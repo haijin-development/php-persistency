@@ -25,6 +25,13 @@ class Sqlite_Methods
 
         });
 
+        $spec->def( "re_populate_sqlite_tables", function() {
+
+            $this->clear_sqlite_tables();
+            $this->populate_sqlite_tables();
+
+        });
+
         $spec->def( "tear_down_sqlite", function() {
 
             $this->drop_sqlite_tables();
@@ -42,6 +49,7 @@ class Sqlite_Methods
             $this->sqlite->query( "DROP TABLE IF EXISTS address_1;" );
             $this->sqlite->query( "DROP TABLE IF EXISTS address_2;" );
             $this->sqlite->query( "DROP TABLE IF EXISTS cities;" );
+            $this->sqlite->query( "DROP TABLE IF EXISTS users_with_sequence;" );
 
         });
 
@@ -49,14 +57,21 @@ class Sqlite_Methods
 
             $this->sqlite->query(
                 "CREATE TABLE `users` (
-                    `id` INT PRIMARY KEY,
+                    `id` INTEGER PRIMARY KEY,
+                    `name` VARCHAR(45) NULL,
+                    `last_name` VARCHAR(45) NULL
+                );"
+            );
+            $this->sqlite->query(
+                "CREATE TABLE `users_with_sequence` (
+                    `id` INTEGER PRIMARY KEY,
                     `name` VARCHAR(45) NULL,
                     `last_name` VARCHAR(45) NULL
                 );"
             );
             $this->sqlite->query(
                 "CREATE TABLE `address_1` (
-                    `id` INT PRIMARY KEY,
+                    `id` INTEGER PRIMARY KEY,
                     `id_user` INT NOT NULL,
                     `id_city` INT NOT NULL,
                     `street_name` VARCHAR(45) NULL,
@@ -65,7 +80,7 @@ class Sqlite_Methods
             );
             $this->sqlite->query(
                 "CREATE TABLE `address_2` (
-                    `id` INT PRIMARY KEY,
+                    `id` INTEGER PRIMARY KEY,
                     `id_user` INT NOT NULL,
                     `id_city` INT NOT NULL,
                     `street_name` VARCHAR(45) NULL,
@@ -74,7 +89,7 @@ class Sqlite_Methods
             );
             $this->sqlite->query(
                 "CREATE TABLE `cities` (
-                    `id` INT PRIMARY KEY,
+                    `id` INTEGER PRIMARY KEY,
                     `name` VARCHAR(45) NULL
                 );"
             );
@@ -88,6 +103,7 @@ class Sqlite_Methods
             $this->sqlite->query( "delete from address_1 where 1 = 1;" );
             $this->sqlite->query( "delete from address_2 where 1 = 1;" );
             $this->sqlite->query( "delete from cities where 1 = 1;" );
+            $this->sqlite->query( "delete from users_with_sequence where 1 = 1;" );
 
         });
 

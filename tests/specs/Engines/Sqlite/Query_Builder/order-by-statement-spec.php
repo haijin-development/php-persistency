@@ -12,7 +12,7 @@ $spec->describe( "When building the order by statement of a sql expression", fun
 
     $this->after_all( function() {
 
-        $this->re_populate_tables();
+        $this->re_populate_sqlite_tables();
 
     });
 
@@ -136,13 +136,6 @@ $spec->describe( "When building the order by statement of a sql expression", fun
         $this->sqlite->query(
             "INSERT INTO users VALUES ( 3, 'Maggie', 'Simpson' );"
         );
-
-    });
-
-    $this->def( "re_populate_tables", function() {
-
-        $this->clear_sqlite_tables();
-        $this->populate_sqlite_tables();
 
     });
 
