@@ -42,7 +42,7 @@ abstract class Database
     /// Querying
 
     /**
-     * Compiles the $query_closure and executes the compiled query in the database server.
+     * Compiles the $query_closure and executes the query statement in the database server.
      * Returns the rows returned by the query execution.
      *
      * @param closure $query_closure A closure to construct the database query.
@@ -54,7 +54,7 @@ abstract class Database
     abstract public function query($query_closure, $named_parameters = []);
 
     /**
-     * Compiles the $create_closure and executes the create record query in the database server.
+     * Compiles the $create_closure and executes the create statement in the database server.
      * Returns the id of the created query.
      *
      * @param closure $create_closure A closure to construct the record creation.
@@ -66,13 +66,22 @@ abstract class Database
     abstract public function create($create_closure, $named_parameters = []);
 
     /**
-     * Compiles the $update_closure and executes the update record query in the database server.
+     * Compiles the $update_closure and executes the update statement in the database server.
      *
      * @param closure $update_closure A closure to construct the record creation.
      * @param array $named_parameters An associative array of the named parameters values
      *      referenced in the update_closure.
      */
     abstract public function update($update_closure, $named_parameters = []);
+
+    /**
+     * Compiles the $delete_closure and executes the delete statement in the database server.
+     *
+     * @param closure $delete_closure A closure to construct the record creation.
+     * @param array $named_parameters An associative array of the named parameters values
+     *      referenced in the delete_closure.
+     */
+    abstract public function delete($delete_closure, $named_parameters = []);
 
     /**
      * Compiles the $query_closure and retunrs the compiled

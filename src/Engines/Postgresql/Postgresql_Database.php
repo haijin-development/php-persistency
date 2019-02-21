@@ -11,6 +11,7 @@ use Haijin\Persistency\Database\Database;
 use Haijin\Persistency\Sql\Sql_Query_Statement_Builder;
 use Haijin\Persistency\Sql\Sql_Create_Statement_Builder;
 use Haijin\Persistency\Sql\Sql_Update_Statement_Builder;
+use Haijin\Persistency\Sql\Sql_Delete_Statement_Builder;
 use Haijin\Persistency\Sql\Sql_Pagination_Builder;
 use Haijin\Persistency\Sql\Expression_Builders\Sql_Expression_In_Filter_Builder;
 use Haijin\Persistency\Engines\Postgresql\Query_Builder\Postgresql_Pagination_Builder;
@@ -18,7 +19,7 @@ use Haijin\Persistency\Engines\Postgresql\Query_Builder\Postgresql_Expression_In
 use Haijin\Persistency\Statement_Compiler\Query_Statement_Compiler;
 use Haijin\Persistency\Statement_Compiler\Create_Statement_Compiler;
 use Haijin\Persistency\Statement_Compiler\Update_Statement_Compiler;
-
+use Haijin\Persistency\Statement_Compiler\Delete_Statement_Compiler;
 
 class Postgresql_Database extends Database
 {
@@ -109,6 +110,22 @@ class Postgresql_Database extends Database
     }
 
     /**
+     * Compiles the $delete_closure and executes the delete statement in the database server.
+     *
+     * @param closure $delete_closure A closure to construct the record creation.
+     * @param array $named_parameters An associative array of the named parameters values
+     *      referenced in the delete_closure.
+     */
+    public function delete($delete_closure, $named_parameters = [])
+    {
+        $named_parameters = Dictionary::with_all( $named_parameters );
+
+        $compiled_statement = $this->compile_delete_statement( $delete_closure );
+
+        return $this->execute( $compiled_statement, $named_parameters );
+    }
+
+    /**
      * Compiles the $query_closure.
      * Returns the compiled Query_Statement.
      */
@@ -136,6 +153,16 @@ class Postgresql_Database extends Database
     {
         return $this->new_update_statement_compiler()
             ->build( $update_closure );
+    }
+
+    /**
+     * Compiles the $delete_closure.
+     * Returns the compiled Create_Statement.
+     */
+    public function compile_delete_statement($delete_closure)
+    {
+        return $this->new_delete_statement_compiler()
+            ->build( $delete_closure );
     }
 
     /// Executing
@@ -210,6 +237,30 @@ class Postgresql_Database extends Database
 
                     return $this->new_sql_update_statement_builder( $query_parameters )
                                 ->build_sql_from( $update_statement );
+
+                });
+
+        $sql_parameters = $this
+            ->collect_query_parameters( $named_parameters, $query_parameters )
+            ->to_array();
+
+        $result_handle = $this->evaluate_sql_string( $sql, $sql_parameters );
+
+        \pg_free_result( $result_handle );
+    }
+
+    /**
+     * Binds the parameters to the Postgresql prepared statement and executes it.
+     */
+    public function execute_delete_statement($delete_statement, $named_parameters)
+    {
+        $query_parameters = Create::an( Ordered_Collection::class )->with();
+
+        $sql = $this->while_building_sql_do($delete_statement, $query_parameters,
+                    function() use($delete_statement, $query_parameters) {
+
+                    return $this->new_sql_delete_statement_builder( $query_parameters )
+                                ->build_sql_from( $delete_statement );
 
                 });
 
@@ -379,6 +430,11 @@ class Postgresql_Database extends Database
         return Create::a( Update_Statement_Compiler::class )->with();
     }
 
+    protected function new_delete_statement_compiler()
+    {
+        return Create::a( Delete_Statement_Compiler::class )->with();
+    }
+
     protected function new_sql_query_statement_builder()
     {
         return Create::a( Sql_Query_Statement_Builder::class )->with();
@@ -392,6 +448,11 @@ class Postgresql_Database extends Database
     protected function new_sql_update_statement_builder()
     {
         return Create::a( Sql_Update_Statement_Builder::class )->with();
+    }
+
+    protected function new_sql_delete_statement_builder()
+    {
+        return Create::a( Sql_Delete_Statement_Builder::class )->with();
     }
 
     /// Debugging
