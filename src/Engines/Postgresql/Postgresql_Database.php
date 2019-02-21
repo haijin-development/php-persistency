@@ -10,12 +10,14 @@ use Haijin\Persistency\Errors\Connections\Named_Parameter_Not_Found_Error;
 use Haijin\Persistency\Database\Database;
 use Haijin\Persistency\Sql\Sql_Query_Statement_Builder;
 use Haijin\Persistency\Sql\Sql_Create_Statement_Builder;
+use Haijin\Persistency\Sql\Sql_Update_Statement_Builder;
 use Haijin\Persistency\Sql\Sql_Pagination_Builder;
 use Haijin\Persistency\Sql\Expression_Builders\Sql_Expression_In_Filter_Builder;
 use Haijin\Persistency\Engines\Postgresql\Query_Builder\Postgresql_Pagination_Builder;
 use Haijin\Persistency\Engines\Postgresql\Query_Builder\Postgresql_Expression_In_Filter_Builder;
 use Haijin\Persistency\Statement_Compiler\Query_Statement_Compiler;
 use Haijin\Persistency\Statement_Compiler\Create_Statement_Compiler;
+use Haijin\Persistency\Statement_Compiler\Update_Statement_Compiler;
 
 
 class Postgresql_Database extends Database
@@ -81,11 +83,27 @@ class Postgresql_Database extends Database
      *
      * @return object The unique id of the created record in the database expression.
      */
-    public function create_one($create_closure, $named_parameters = [])
+    public function create($create_closure, $named_parameters = [])
     {
         $named_parameters = Dictionary::with_all( $named_parameters );
 
         $compiled_statement = $this->compile_create_statement( $create_closure );
+
+        return $this->execute( $compiled_statement, $named_parameters );
+    }
+
+    /**
+     * Compiles the $update_closure and executes the update record query in the database server.
+     *
+     * @param closure $update_closure A closure to construct the record creation.
+     * @param array $named_parameters An associative array of the named parameters values
+     *      referenced in the update_closure.
+     */
+    public function update($update_closure, $named_parameters = [])
+    {
+        $named_parameters = Dictionary::with_all( $named_parameters );
+
+        $compiled_statement = $this->compile_update_statement( $update_closure );
 
         return $this->execute( $compiled_statement, $named_parameters );
     }
@@ -110,6 +128,16 @@ class Postgresql_Database extends Database
             ->build( $create_closure );
     }
 
+    /**
+     * Compiles the $update_closure.
+     * Returns the compiled Create_Statement.
+     */
+    public function compile_update_statement($update_closure)
+    {
+        return $this->new_update_statement_compiler()
+            ->build( $update_closure );
+    }
+
     /// Executing
 
     /**
@@ -131,61 +159,92 @@ class Postgresql_Database extends Database
     {
         $query_parameters = Create::an( Ordered_Collection::class )->with();
 
-        $sql = $this->query_statement_to_sql( $query_statement, $query_parameters );
+        $sql = $this->while_building_sql_do($query_statement, $query_parameters,
+                    function() use($query_statement, $query_parameters) {
 
-        $query_parameters = $this
+                    return $this->new_sql_query_statement_builder( $query_parameters )
+                                ->build_sql_from( $query_statement );
+
+                });
+
+        $sql_parameters = $this
             ->collect_query_parameters( $named_parameters, $query_parameters )
             ->to_array();
 
-        foreach( $query_parameters as $i => $value ) {
+        return $this->execute_sql_string( $sql, $sql_parameters );
+    }
 
-            if( $value === null ) {
-                $value = "null";
-            } elseif( $value === true ) {
-                $value = "true";
-            } elseif( $value === false ) {
-                $value = "false";
-            } elseif( is_int( $value ) || is_double( $value ) ) {
-                $value = $value;
-            } else {
-                $value = \pg_escape_literal( $this->connection_handle, $value );
-            }
+    /**
+     * Binds the parameters to the Postgresql prepared statement and executes it.
+     */
+    public function execute_create_statement($create_statement, $named_parameters)
+    {
+        $query_parameters = Create::an( Ordered_Collection::class )->with();
 
-            $i += 1;
+        $sql = $this->while_building_sql_do($create_statement, $query_parameters,
+                    function() use($create_statement, $query_parameters) {
 
-            $sql = preg_replace( "|\\$$i|", $value, $sql );
+                    return $this->new_sql_create_statement_builder( $query_parameters )
+                                ->build_sql_from( $create_statement );
 
-        }
+                });
 
-        $result_handle = \pg_query( $this->connection_handle, $sql );
+        $sql_parameters = $this
+            ->collect_query_parameters( $named_parameters, $query_parameters )
+            ->to_array();
 
-        if( $result_handle === false ) {
-            $this->raise_database_query_error( \pg_last_error( $this->connection_handle ) );
-        }
+        $result_handle = $this->evaluate_sql_string( $sql, $sql_parameters );
+
+        \pg_free_result( $result_handle );
+    }
+
+    /**
+     * Binds the parameters to the Postgresql prepared statement and executes it.
+     */
+    public function execute_update_statement($update_statement, $named_parameters)
+    {
+        $query_parameters = Create::an( Ordered_Collection::class )->with();
+
+        $sql = $this->while_building_sql_do($update_statement, $query_parameters,
+                    function() use($update_statement, $query_parameters) {
+
+                    return $this->new_sql_update_statement_builder( $query_parameters )
+                                ->build_sql_from( $update_statement );
+
+                });
+
+        $sql_parameters = $this
+            ->collect_query_parameters( $named_parameters, $query_parameters )
+            ->to_array();
+
+        $result_handle = $this->evaluate_sql_string( $sql, $sql_parameters );
+
+        \pg_free_result( $result_handle );
+    }
+
+    /**
+     * Executes the $sql string as it is.
+     * Returns the result of the execution.
+     */
+    public function execute_sql_string($sql, $sql_parameters = [])
+    {
+        $result_handle = $this->evaluate_sql_string( $sql, $sql_parameters );
 
         $rows = pg_fetch_all( $result_handle );
 
         \pg_free_result( $result_handle );
 
-
         return $this->process_result_rows( $rows );
     }
 
     /**
-     * Binds the parameters to the Postgresql prepared statement and executes it.
-     * Returns an associative array with the results.
+     * Evaluates the $sql string as it is.
+     * Returns the result handle the evaluation. The result handle must be released with
+     * .\pg_free_result( $result_handle );
      */
-    public function execute_create_statement($query_statement, $named_parameters)
+    public function evaluate_sql_string($sql, $sql_parameters = [])
     {
-        $query_parameters = Create::an( Ordered_Collection::class )->with();
-
-        $sql = $this->create_statement_to_sql( $query_statement, $query_parameters );
-
-        $query_parameters = $this
-            ->collect_query_parameters( $named_parameters, $query_parameters )
-            ->to_array();
-
-        foreach( $query_parameters as $i => $value ) {
+        foreach( $sql_parameters as $i => $value ) {
 
             if( $value === null ) {
                 $value = "null";
@@ -211,12 +270,10 @@ class Postgresql_Database extends Database
             $this->raise_database_query_error( \pg_last_error( $this->connection_handle ) );
         }
 
-        \pg_free_result( $result_handle );
-
-        return $this->get_last_generated_id();
+        return $result_handle;
     }
 
-    public function get_last_generated_id()
+    public function get_last_created_id()
     {
         $result_handle = pg_query( $this->connection_handle, "select lastval();" );
 
@@ -264,13 +321,9 @@ class Postgresql_Database extends Database
         return $result_rows;
     }
 
-    /**
-     * Builds the SQL string from the given $query_statement.
-     */
-    protected function query_statement_to_sql($query_statement, $query_parameters)
+    protected function while_building_sql_do($statement, $query_parameters, $closure)
     {
-        return Global_Factory::with_factory_do( function($factory)
-                                    use($query_statement, $query_parameters) {
+        return Global_Factory::with_factory_do( function($factory) use($closure, $query_parameters) {
 
             $factory->set( Sql_Pagination_Builder::class, Postgresql_Pagination_Builder::class );
 
@@ -282,34 +335,9 @@ class Postgresql_Database extends Database
                 }
             );
 
-            return $this->new_sql_query_statement_builder( $query_parameters )
-                ->build_sql_from( $query_statement );
+            return $closure->call( $this );
 
-        }, $this );
-
-    }
-
-    /**
-     * Builds the SQL string from the given $create_statement.
-     */
-    protected function create_statement_to_sql($create_statement, $query_parameters)
-    {
-        return Global_Factory::with_factory_do( function($factory)
-                                    use($create_statement, $query_parameters) {
-
-            $factory->set(
-                Sql_Expression_In_Filter_Builder::class,
-                function() use($query_parameters) {
-                    return Create::a( Postgresql_Expression_In_Filter_Builder::class )
-                                ->with( $query_parameters );
-                }
-            );
-
-            return $this->new_sql_create_statement_builder( $query_parameters )
-                ->build_sql_from( $create_statement );
-
-        }, $this );
-
+        }, $this);
     }
 
     /// Validating
@@ -346,6 +374,11 @@ class Postgresql_Database extends Database
         return Create::a( Create_Statement_Compiler::class )->with();
     }
 
+    protected function new_update_statement_compiler()
+    {
+        return Create::a( Update_Statement_Compiler::class )->with();
+    }
+
     protected function new_sql_query_statement_builder()
     {
         return Create::a( Sql_Query_Statement_Builder::class )->with();
@@ -354,6 +387,11 @@ class Postgresql_Database extends Database
     protected function new_sql_create_statement_builder()
     {
         return Create::a( Sql_Create_Statement_Builder::class )->with();
+    }
+
+    protected function new_sql_update_statement_builder()
+    {
+        return Create::a( Sql_Update_Statement_Builder::class )->with();
     }
 
     /// Debugging

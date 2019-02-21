@@ -8,7 +8,7 @@ use Haijin\Persistency\Statements_Visitors\Query_Visitor_Trait;
 use Haijin\Persistency\Sql\Expression_Builders\Sql_Expression_In_Filter_Builder;
 use Haijin\Ordered_Collection;
 
-class Sql_Create_Statement_Builder extends Abstract_Query_Expression_Visitor
+class Sql_Update_Statement_Builder extends Abstract_Query_Expression_Visitor
 {
     use Query_Visitor_Trait;
     use Sql_Builder_Trait;
@@ -38,15 +38,23 @@ class Sql_Create_Statement_Builder extends Abstract_Query_Expression_Visitor
     /**
      * Accepts a Query_Statement.
      */
-    public function accept_create_statement($create_statement)
+    public function accept_update_statement($create_statement)
     {
-        $sql = "insert into ";
+        $sql = "update ";
 
         $sql .= $this->visit( $create_statement->get_collection_expression() );
 
-        $sql .= " ";
+        $sql .= " set ";
 
         $sql .= $this->visit( $create_statement->get_records_values_expression() );
+
+        if( $create_statement->has_filter_expression() ) {
+
+            $sql .= " where ";
+
+            $sql .= $this->visit( $create_statement->get_filter_expression() );
+
+        }
 
         $sql .= ";";
 
@@ -66,28 +74,38 @@ class Sql_Create_Statement_Builder extends Abstract_Query_Expression_Visitor
      */
     public function accept_record_values_expression($record_values_expression)
     {
-        $attribute_names = [];
-        $attribute_values = [];
+        $attribute_updates = [];
 
         foreach( $record_values_expression->get_field_values() as $field_value ) {
-            $attribute_names[] = $field_value->get_field_name();
-
-            $attribute_values[] = $this->new_sql_expression_builder()->build_sql_from(
+            $attribute_updates[] =
+                $field_value->get_field_name() .
+                " = " .
+                $this->new_sql_expression_builder()->build_sql_from(
                     $field_value->get_value_expression()
                 );
         }
 
-        return  "(" . 
-                join( ", ", $attribute_names ) .
-                ") values (" . 
-                join( ", ", $attribute_values ) .
-                ")";
+        return join( ", ", $attribute_updates );
     }
 
-    //// Query expression
+    /**
+     * Accepts a Filter_Expression.
+     */
+    public function accept_filter_expression($filter_expression)
+    {
+        return $this->new_sql_filter_builder()
+            ->build_sql_from( $filter_expression );
+    }
+
+    //// Creating instances
 
     protected function new_sql_expression_builder()
     {
         return Create::object( Sql_Expression_In_Filter_Builder::class );
     }
+
+    protected function new_sql_filter_builder()
+    {
+        return Create::object( Sql_Filter_Builder::class );
+    }   
 }

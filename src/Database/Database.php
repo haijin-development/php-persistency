@@ -63,7 +63,16 @@ abstract class Database
      *
      * @return object The unique id of the created record in the database expression.
      */
-    abstract public function create_one($create_closure, $named_parameters = []);
+    abstract public function create($create_closure, $named_parameters = []);
+
+    /**
+     * Compiles the $update_closure and executes the update record query in the database server.
+     *
+     * @param closure $update_closure A closure to construct the record creation.
+     * @param array $named_parameters An associative array of the named parameters values
+     *      referenced in the update_closure.
+     */
+    abstract public function update($update_closure, $named_parameters = []);
 
     /**
      * Compiles the $query_closure and retunrs the compiled

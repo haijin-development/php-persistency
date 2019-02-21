@@ -3,28 +3,33 @@
 namespace Haijin\Persistency\Statement_Compiler;
 
 use Haijin\Instantiator\Create;
-use Haijin\Persistency\Statements\Create_Statement;
+use Haijin\Persistency\Statements\Update_Statement;
 
 /**
- * Object to build a Create_Statement from a create statement definition closure.
+ * Object to build an Update_Statement from an update statement definition closure.
  */
-class Create_Statement_Compiler extends Statement_Compiler
+class Update_Statement_Compiler extends Statement_Compiler
 {
     /**
      * Returns the concrete statement instance.
      */
     protected function new_statement_expression()
     {
-        return Create::a( Create_Statement::class )->with(
+        return Create::a( Update_Statement::class )->with(
             $this->context
         );
     }
 
     /// Accessing
 
-    public function get_create_expression()
+    public function get_update_expression()
     {
         return $this->statement_expression;
+    }
+
+    public function get_collection_expression()
+    {
+        return $this->statement_expression->get_collection_expression();
     }
 
     /// DSL
@@ -55,6 +60,15 @@ class Create_Statement_Compiler extends Statement_Compiler
         $records_values_expression  = $this->new_record_values_expression( $attribute_values );
 
         $this->statement_expression->set_records_values_expression( $records_values_expression );
+
+        return $this;
+    }
+
+    public function filter($filter_expression)
+    {
+        $this->statement_expression->set_filter_expression(
+            $this->new_filter_expression( $filter_expression )
+        );
 
         return $this;
     }

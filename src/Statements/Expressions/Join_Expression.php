@@ -189,9 +189,11 @@ class Join_Expression extends Expression
 
         $build_closure->call( $binding, $join_query_builder );
 
-        $this->proyection_expression = $join_query_builder->get_proyection();
+        $this->proyection_expression =
+            $join_query_builder->get_query_statement()->get_proyection_expression();
 
-        $this->join_expressions = $join_query_builder->get_joins();
+        $this->join_expressions =
+            $join_query_builder->get_query_statement()->get_join_expressions();
 
         $this->context->add_macro_definitions_from(
             $join_query_builder->get_macros_dictionary()

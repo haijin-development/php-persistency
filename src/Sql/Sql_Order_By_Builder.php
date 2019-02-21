@@ -17,7 +17,7 @@ class Sql_Order_By_Builder extends Order_By_Visitor
      */
     public function accept_order_by_expression($order_by_expression)
     {
-        return "order by " . $this->expressions_list(
+        return $this->expressions_list(
                 $order_by_expression->get_order_by_expressions()
             );
     }

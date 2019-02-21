@@ -6,10 +6,11 @@ use Haijin\Instantiator\Create;
 use Haijin\Ordered_Collection;
 use Haijin\Persistency\Statements\Expressions\Expression;
 
-class Create_Statement extends Expression
+class Update_Statement extends Expression
 {
     protected $collection_expression;
     protected $records_values_expression;
+    protected $filter_expression;
 
     /// Initializing
 
@@ -22,6 +23,7 @@ class Create_Statement extends Expression
 
         $this->collection_expression = null;
         $this->records_values_expression = null;
+        $this->filter_expression = null;
     }
 
     /// Accessing
@@ -53,15 +55,32 @@ class Create_Statement extends Expression
         $this->records_values_expression = $records_values_expression;
     }
 
+    public function get_filter_expression()
+    {
+        return $this->filter_expression;
+    }
+
+    public function set_filter_expression($filter_expression)
+    {
+        $this->filter_expression = $filter_expression;
+    }
+
+    /// Asking
+
+    public function has_filter_expression()
+    {
+        return $this->filter_expression !== null;
+    }
+
     /// Visiting
 
     public function accept_visitor($visitor)
     {
-        return $visitor->accept_create_statement( $this );
+        return $visitor->accept_update_statement( $this );
     }
 
     public function execute_in($database, $named_parameters)
     {
-        return $database->execute_create_statement( $this, $named_parameters );
+        return $database->execute_update_statement( $this, $named_parameters );
     }
 }

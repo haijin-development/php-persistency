@@ -26,35 +26,7 @@ class Query_Statement_Compiler extends Statement_Compiler
         return $this->statement_expression;
     }
 
-    public function get_collection_expression()
-    {
-        return $this->statement_expression->get_collection();
-    }
-
-    public function get_proyection()
-    {
-        return $this->statement_expression->get_proyection_expression();
-    }
-
-    public function get_filter()
-    {
-        return $this->statement_expression->get_filter();
-    }
-
-    public function get_joins()
-    {
-        return $this->statement_expression->get_join_expressions();
-    }
-
-    public function get_order_by()
-    {
-        return $this->statement_expression->get_order_by();
-    }
-
-    public function get_pagination()
-    {
-        return $this->statement_expression->get_pagination();
-    }
+    /// DSL
 
     /**
      * Defines the collection name of $this Query_Statement.

@@ -51,12 +51,12 @@ class Sql_Query_Statement_Builder extends Abstract_Query_Expression_Visitor
         $sql .= $this->join_expressions_sql_from( $query_statement );
 
         if( $query_statement->has_filter_expression() ) {
-            $sql .= " ";
+            $sql .= " where ";
             $sql .= $this->visit( $query_statement->get_filter_expression() );
         }
 
         if( $query_statement->has_order_by_expression() ) {
-            $sql .= " ";
+            $sql .= " order by ";
             $sql .= $this->visit( $query_statement->get_order_by_expression() );
         }
 

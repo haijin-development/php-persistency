@@ -8,12 +8,14 @@ use Haijin\Persistency\Errors\Connections\Named_Parameter_Not_Found_Error;
 use Haijin\Persistency\Database\Database;
 use Haijin\Persistency\Sql\Sql_Query_Statement_Builder;
 use Haijin\Persistency\Sql\Sql_Create_Statement_Builder;
+use Haijin\Persistency\Sql\Sql_Update_Statement_Builder;
 use Haijin\Persistency\Sql\Sql_Pagination_Builder;
 use Haijin\Persistency\Sql\Expression_Builders\Sql_Expression_In_Filter_Builder;
 use Haijin\Persistency\Engines\Mysql\Query_Builder\Mysql_Pagination_Builder;
 use Haijin\Persistency\Engines\Mysql\Query_Builder\Mysql_Expression_In_Filter_Builder;
 use Haijin\Persistency\Statement_Compiler\Query_Statement_Compiler;
 use Haijin\Persistency\Statement_Compiler\Create_Statement_Compiler;
+use Haijin\Persistency\Statement_Compiler\Update_Statement_Compiler;
 use Haijin\Dictionary;
 use Haijin\Ordered_Collection;
 
@@ -83,11 +85,27 @@ class Mysql_Database extends Database
      *
      * @return object The unique id of the created record in the database expression.
      */
-    public function create_one($create_closure, $named_parameters = [])
+    public function create($create_closure, $named_parameters = [])
     {
         $named_parameters = Dictionary::with_all( $named_parameters );
 
         $compiled_statement = $this->compile_create_statement( $create_closure );
+
+        return $this->execute( $compiled_statement, $named_parameters );
+    }
+
+    /**
+     * Compiles the $update_closure and executes the update record query in the database server.
+     *
+     * @param closure $update_closure A closure to construct the record creation.
+     * @param array $named_parameters An associative array of the named parameters values
+     *      referenced in the update_closure.
+     */
+    public function update($update_closure, $named_parameters = [])
+    {
+        $named_parameters = Dictionary::with_all( $named_parameters );
+
+        $compiled_statement = $this->compile_update_statement( $update_closure );
 
         return $this->execute( $compiled_statement, $named_parameters );
     }
@@ -112,6 +130,16 @@ class Mysql_Database extends Database
             ->build( $create_closure );
     }
 
+    /**
+     * Compiles the $update_closure.
+     * Returns the compiled Create_Statement.
+     */
+    public function compile_update_statement($update_closure)
+    {
+        return $this->new_update_expression_compiler()
+            ->build( $update_closure );
+    }
+
     /// Executing
 
     /**
@@ -133,53 +161,74 @@ class Mysql_Database extends Database
     {
         $query_parameters = Create::an( Ordered_Collection::class )->with();
 
-        $sql = $this->query_statement_to_sql( $query_statement, $query_parameters );
+        $sql = $this->while_building_sql_do($query_statement, $query_parameters,
+                    function() use($query_statement, $query_parameters) {
 
-        $statement_handle = $this->connection_handle->prepare( $sql );
+                    return $this->new_sql_query_statement_builder( $query_parameters )
+                                ->build_sql_from( $query_statement );
 
-        if( $statement_handle === false ) {
-            $this->raise_database_query_error( $this->connection_handle->error );
-        }
+                });
 
-        $this->_bind_parameters_to_statement(
-            $statement_handle,
-            $named_parameters,
-            $query_parameters
-        );
+        $sql_parameters = $this->collect_parameters_from( $named_parameters, $query_parameters );
 
-        $result = $statement_handle->execute();
-
-        $result_handle = $statement_handle->get_result();
-        if( $result_handle === false ) {
-            $this->raise_database_query_error( $statement_handle->error );
-        }
-
-        $result_rows = $result_handle->fetch_all( MYSQLI_ASSOC );
-
-        return $this->process_result_rows( $result_rows );
+        return $this->execute_sql_string( $sql, $sql_parameters );
     }
 
     /**
      * Executes the $create_statement.
      * Returns the result of the execution.
      */
-    public function execute_create_statement($create_statement, $named_parameters, $query_parameters = [])
+    public function execute_create_statement($create_statement, $named_parameters)
     {
-        $query_parameters = Create::an( Ordered_Collection::class )->with( $query_parameters );
+        $query_parameters = Create::an( Ordered_Collection::class )->with();
 
-        $sql = $this->create_statement_to_sql( $create_statement, $query_parameters );
+        $sql = $this->while_building_sql_do($create_statement, $query_parameters,
+                    function() use($create_statement, $query_parameters) {
 
+                    return $this->new_sql_create_statement_builder( $query_parameters )
+                                ->build_sql_from( $create_statement );
+
+                });
+
+        $sql_parameters = $this->collect_parameters_from( $named_parameters, $query_parameters );
+
+        $this->evaluate_sql_string( $sql, $sql_parameters );
+    }
+
+    /**
+     * Executes the $update_statement.
+     * Returns the result of the execution.
+     */
+    public function execute_update_statement($update_statement, $named_parameters)
+    {
+        $query_parameters = Create::an( Ordered_Collection::class )->with();
+
+        $sql = $this->while_building_sql_do($update_statement, $query_parameters,
+                    function() use($update_statement, $query_parameters) {
+
+                    return $this->new_sql_update_statement_builder( $query_parameters )
+                                ->build_sql_from( $update_statement );
+
+                });
+
+        $sql_parameters = $this->collect_parameters_from( $named_parameters, $query_parameters );
+
+        $this->evaluate_sql_string( $sql, $sql_parameters );
+    }
+
+    /**
+     * Executes the $sql string as it is.
+     * Returns the result of the execution.
+     */
+    public function execute_sql_string($sql, $sql_parameters = [])
+    {
         $statement_handle = $this->connection_handle->prepare( $sql );
 
         if( $statement_handle === false ) {
             $this->raise_database_query_error( $this->connection_handle->error );
         }
 
-        $this->_bind_parameters_to_statement(
-            $statement_handle,
-            $named_parameters,
-            $query_parameters
-        );
+        $this->bind_parameters_to_statement( $statement_handle, $sql_parameters );
 
         $result = $statement_handle->execute();
 
@@ -187,33 +236,51 @@ class Mysql_Database extends Database
             $this->raise_database_query_error( $statement_handle->error );
         }
 
+        $result_handle = $statement_handle->get_result();
+
+        $result_rows = $result_handle->fetch_all( MYSQLI_ASSOC );
+
+        return $this->process_result_rows( $result_rows );
+    }
+
+    /**
+     * Evaluates the $sql string as it is.
+     * Returns nothing.
+     */
+    public function evaluate_sql_string($sql, $sql_parameters = [])
+    {
+        $statement_handle = $this->connection_handle->prepare( $sql );
+
+        if( $statement_handle === false ) {
+            $this->raise_database_query_error( $this->connection_handle->error );
+        }
+
+        $this->bind_parameters_to_statement( $statement_handle, $sql_parameters );
+
+        $result = $statement_handle->execute();
+
+        if( $result === false ) {
+            $this->raise_database_query_error( $statement_handle->error );
+        }
+    }
+
+    public function get_last_created_id()
+    {
         return $this->connection_handle->insert_id;
     }
 
     /**
      * Binds the parameters to the Mysql prepared statement.
      */
-    protected function _bind_parameters_to_statement($statement_handle, $named_parameters, $query_parameters)
+    protected function bind_parameters_to_statement($statement_handle, $sql_parameters)
     {
-        if( $query_parameters->is_empty() ) {
+        if( empty( $sql_parameters ) ) {
             return;
         }
 
-        $parameters_array = $query_parameters->to_array();
-
         $types = "";
-        foreach( $parameters_array as $i => $value ) {
 
-            if( method_exists( $value, "get_parameter_name" ) ) {
-                $value = $named_parameters->at_if_absent(
-                    $value->get_parameter_name(), function() use($value) {
-                        $this->raise_named_parameter_not_found_error(
-                            $value->get_parameter_name()
-                        );
-                }, $this );
-
-                $parameters_array[ $i ] = $value;
-            }
+        foreach( $sql_parameters as $i => $value ) {
 
             if( is_string( $value ) )
                 $types .= "s";
@@ -227,7 +294,33 @@ class Mysql_Database extends Database
                 $types;
         }
 
-        $statement_handle->bind_param( $types, ...$parameters_array );
+        $statement_handle->bind_param( $types, ...$sql_parameters );
+    }
+
+    protected function collect_parameters_from($named_parameters, $query_parameters)
+    {
+        $sql_parameters = [];
+
+        foreach( $query_parameters->to_array() as $i => $value ) {
+
+            if( method_exists( $value, "get_parameter_name" ) ) {
+
+                $value = $named_parameters->at_if_absent(
+
+                    $value->get_parameter_name(), function() use($value) {
+                        $this->raise_named_parameter_not_found_error(
+                            $value->get_parameter_name()
+                        );
+
+                }, $this );
+
+            }
+
+            $sql_parameters[] = $value;
+
+        }
+
+        return $sql_parameters;
     }
 
     /**
@@ -240,13 +333,9 @@ class Mysql_Database extends Database
         return $result_rows;
     }
 
-    /**
-     * Builds the SQL string from the given $compiled_query.
-     */
-    protected function query_statement_to_sql($query_statement, $query_parameters)
+    protected function while_building_sql_do($statement, $query_parameters, $closure)
     {
-        return Global_Factory::with_factory_do( function($factory)
-                                    use($query_statement, $query_parameters) {
+        return Global_Factory::with_factory_do( function($factory) use($closure, $query_parameters) {
 
             $factory->set( Sql_Pagination_Builder::class, Mysql_Pagination_Builder::class );
 
@@ -258,30 +347,7 @@ class Mysql_Database extends Database
                 }
             );
 
-            return $this->new_query_statement_sql_builder( $query_parameters )
-                ->build_sql_from( $query_statement );
-
-        }, $this);
-    }
-
-    /**
-     * Builds the SQL string from the given $create_statement.
-     */
-    protected function create_statement_to_sql($create_statement, $query_parameters)
-    {
-        return Global_Factory::with_factory_do( function($factory)
-                                    use($create_statement, $query_parameters) {
-
-            $factory->set(
-                Sql_Expression_In_Filter_Builder::class,
-                function() use($query_parameters) {
-                    return Create::a( Mysql_Expression_In_Filter_Builder::class )
-                                ->with( $query_parameters );
-                }
-            );
-
-            return $this->new_create_statement_sql_builder( $query_parameters )
-                ->build_sql_from( $create_statement );
+            return $closure->call( $this );
 
         }, $this);
     }
@@ -320,14 +386,24 @@ class Mysql_Database extends Database
         return Create::a( Create_Statement_Compiler::class )->with();
     }
 
-    protected function new_query_statement_sql_builder()
+    protected function new_update_expression_compiler()
+    {
+        return Create::a( Update_Statement_Compiler::class )->with();
+    }
+
+    protected function new_sql_query_statement_builder()
     {
         return Create::a( Sql_Query_Statement_Builder::class )->with();
     }
 
-    protected function new_create_statement_sql_builder()
+    protected function new_sql_create_statement_builder()
     {
         return Create::a( Sql_Create_Statement_Builder::class )->with();
+    }
+
+    protected function new_sql_update_statement_builder()
+    {
+        return Create::a( Sql_Update_Statement_Builder::class )->with();
     }
 
     /// Debugging

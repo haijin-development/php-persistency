@@ -2,7 +2,7 @@
 
 use Haijin\Persistency\Engines\Sqlite\Sqlite_Database;
 
-$spec->describe( "When evaluating a create statement in a MySql database", function() {
+$spec->describe( "When evaluating a create statement in a Sqlite database", function() {
 
     $this->before_each( function() {
 
@@ -28,7 +28,7 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
     $this->it( "returns the created id", function() {
 
-        $id = $this->database->create_one( function($query) {
+        $this->database->create( function($query) {
 
             $query->collection( "users_with_sequence" );
 
@@ -39,13 +39,15 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         });
 
+        $id = $this->database->get_last_created_id();
+
         $this->expect( $id ) ->to() ->equal( 2 );
 
     });
 
     $this->it( "creates a record with constant values", function() {
 
-        $this->database->create_one( function($query) {
+        $this->database->create( function($query) {
 
             $query->collection( "users_with_sequence" );
 
@@ -82,7 +84,7 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
     $this->it( "creates a record with a function", function() {
 
-        $this->database->create_one( function($query) {
+        $this->database->create( function($query) {
 
             $query->collection( "users_with_sequence" );
 
@@ -119,7 +121,7 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
     $this->it( "creates a record with a nested function", function() {
 
-        $this->database->create_one( function($query) {
+        $this->database->create( function($query) {
 
             $query->collection( "users_with_sequence" );
 
@@ -156,7 +158,7 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
     $this->it( "creates a record with a unary function", function() {
 
-        $this->database->create_one( function($query) {
+        $this->database->create( function($query) {
 
             $query->collection( "users_with_sequence" );
 
@@ -194,7 +196,7 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
     $this->it( "creates a record with a binary operator", function() {
 
-        $this->database->create_one( function($query) {
+        $this->database->create( function($query) {
 
             $query->collection( "users_with_sequence" );
 
@@ -231,7 +233,7 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
     $this->it( "creates a record with a brackets", function() {
 
-        $this->database->create_one( function($query) {
+        $this->database->create( function($query) {
 
             $query->collection( "users_with_sequence" );
 
@@ -271,7 +273,7 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
     $this->it( "creates a record with a null value", function() {
 
-        $this->database->create_one( function($query) {
+        $this->database->create( function($query) {
 
             $query->collection( "users_with_sequence" );
 
