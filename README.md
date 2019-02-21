@@ -22,6 +22,10 @@ If you like it a lot you may contribute by [financing](https://github.com/haijin
         2. [Using semantic expressions](#c-2-1-2)
         3. [Calling query functions](#c-2-1-3)
         4. [Debugging the query](#c-2-1-4)
+        5. [Creating records in a database](#c-2-1-5)
+        6. [Updating records in a database](#c-2-1-6)
+        7. [Deleting records in a database](#c-2-1-7)
+        8. [Implemented databases](#c-2-1-8)
     2. [Mapping objects](#c-2-2)
     3. [Migrations](#c-2-3)
 3. [Running the tests](#c-3)
@@ -108,7 +112,7 @@ $database->query( function($query) {
 
 });
 ```
-It may seem that the constant values are appended as strings to a query string, which is unsafe. It is not the case, it is actually safe. Under the hood the DSL does quite a few things for each database engine to make the values safe.
+It may seem that the constant values are appended as strings to a query string, which is unsafe. It is not the case, it is actually safe. Under the hood the DSL uses each database engine to make the values safe.
 
 <a name="c-2-1-2"></a>
 #### Using semantic expressions
@@ -200,7 +204,7 @@ the `concat(...)` function was not declared anywhere in the DSL for Mysql nor fo
 <a name="c-2-1-4"></a>
 #### Debugging the query
 
-Inspect the query and its constant values with `inspect_query`:
+The functions `query`, `create`, `update` and `delete` accepts another closure as its third parameter to debug the statement:
 
 ```php
 $database = new Mysql_Database();
@@ -263,12 +267,139 @@ $database->query( function($query) use($database) {
             ->limit( 10 )
     );
 
-    $database->inspect_query( $query, function($sql, $query_parameters) {
+}, function($sql, $query_parameters) {
         var_dump( $sql );
         var_dump( $query_parameters );
-    });
+});
+```
+
+<a name="c-2-1-5"></a>
+#### Creating records in a database
+
+Create a record in a database with:
+
+```php
+$database = new Mysql_Database();
+$database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
+
+$this->database->create( function($query) {
+
+    $query->collection( "users" );
+
+    $query->record(
+        $query->set( "name", $query->value( "Lisa" ) ),
+        $query->set( "last_name", $query->value( "Simpson" ) )
+    );
 
 });
+```
+
+It is possible to use the functions supported by each database engine:
+
+```php
+$database = new Mysql_Database();
+$database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
+
+$this->database->create( function($query) {
+
+    $query->collection( "users" );
+
+    $query->record(
+        $query->set( "name",
+            $query->lower( $query->value( "Lisa" ) )
+        ),
+        $query->set( "last_name",
+            $query->value( "Simpson" )->lower()
+        )
+    );
+
+});
+```
+
+Get the id assigned by the database engine to the created record with:
+
+```php
+$database = new Mysql_Database();
+$database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
+
+$this->database->create( function($query) {
+
+    $query->collection( "users" );
+
+    $query->record(
+        $query->set( "name", $query->lower( $query->value( "Lisa" ) ) ),
+        $query->set( "last_name", $query->value( "Simpson" )->lower() )
+    );
+
+});
+
+$id = $this->database->get_last_created_id();
+```
+
+<a name="c-2-1-6"></a>
+#### Updating records in a database
+
+Update recods in a database with:
+
+```php
+$database = new Mysql_Database();
+$database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
+
+$this->database->update( function($query) {
+
+    $query->collection( "users" );
+
+    $query->record(
+        $query->set( "name", $query->value( "Margaret" ) ),
+        $query->set( "last_name", $query->value( "Simpson" ) )
+    );
+
+    $query->filter(
+        $query->field( "name" ) ->op( "=" ) ->value( "Maggie" )
+    );
+
+});
+```
+
+<a name="c-2-1-7"></a>
+#### Deleting records in a database
+
+Delete recods from a database with:
+
+```php
+$database = new Mysql_Database();
+$database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
+
+$this->database->delete( function($query) {
+
+    $query->collection( "users" );
+
+    $query->filter(
+        $query->field( "name" ) ->op( "=" ) ->value( "Maggie" )
+    );
+
+});
+```
+
+<a name="c-2-1-8"></a>
+#### Implemented databases
+
+haijin/persistency implements its current functionality for the following databases:
+
+1. Haijin\Persistency\Engines\Mysql\Mysql_Database
+2. Haijin\Persistency\Engines\Postgresql\Postgresql_Database
+3. Haijin\Persistency\Engines\Sqlite\Sqlite_Database
+
+All of these databases can also execute and evaluate SQL string statements with:
+
+```php
+$records = $database->execute_sql_string( "select * from  users where name = ?;", [ "Lisa" ] );
+
+$database->evaluate( "CREATE TABLE `users` (
+    `id` INTEGER PRIMARY KEY,
+    `name` VARCHAR(45) NULL,
+    `last_name` VARCHAR(45) NULL
+);" );
 ```
 
 <a name="c-2-2"></a>
