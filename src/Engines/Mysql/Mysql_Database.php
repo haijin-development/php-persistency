@@ -62,6 +62,35 @@ class Mysql_Database extends Database
         }
     }
 
+    /// Transactions
+
+    public function begin_transaction()
+    {
+        $result = $this->connection_handle->query( "begin;" );
+
+        if( $result === false ) {
+            $this->raise_database_query_error( $this->connection_handle->error );
+        }
+    }
+
+    public function commit_transaction()
+    {
+        $result = $this->connection_handle->query( "commit;" );
+
+        if( $result === false ) {
+            $this->raise_database_query_error( $this->connection_handle->error );
+        }
+    }
+
+    public function rollback_transaction()
+    {
+        $result = $this->connection_handle->query( "rollback;" );
+
+        if( $result === false ) {
+            $this->raise_database_query_error( $this->connection_handle->error );
+        }
+    }
+
     /// Querying
 
     /**

@@ -25,7 +25,8 @@ If you like it a lot you may contribute by [financing](https://github.com/haijin
         5. [Creating records in a database](#c-2-1-5)
         6. [Updating records in a database](#c-2-1-6)
         7. [Deleting records in a database](#c-2-1-7)
-        8. [Implemented databases](#c-2-1-8)
+        8. [Transactions](#c-2-1-8)
+        9. [Implemented databases](#c-2-1-9)
     2. [Mapping objects](#c-2-2)
     3. [Migrations](#c-2-3)
 3. [Running the tests](#c-3)
@@ -382,6 +383,40 @@ $this->database->delete( function($query) {
 ```
 
 <a name="c-2-1-8"></a>
+#### Transactions
+
+If the database engine supports it commit or rollback transactions with:
+
+```php
+$database->begin_transaction();
+$database->commit_transaction();
+$database->rollback_transaction();
+```
+
+or with a closure that commits at the end of the evaluation or rolls it back if an `\Exception` is thrown:
+
+```php
+$database->during_transaction_do( function($database) {
+
+    $database->update( function($query) {
+
+        $query->collection( "users" );
+
+        $query->record(
+            $query->set( "name", $query->value( "Marjorie" ) ),
+            $query->set( "last_name", $query->value( "simpson" ) )
+        );
+
+        $query->filter(
+            $query->field( "id" ) ->op( "=" ) ->value( 3 )
+        );
+
+    });
+
+}, $this );
+```
+
+<a name="c-2-1-9"></a>
 #### Implemented databases
 
 haijin/persistency implements its current functionality for the following databases:

@@ -59,6 +59,41 @@ class Postgresql_Database extends Database
         }
     }
 
+    /// Transactions
+
+    public function begin_transaction()
+    {
+        $result_handle = \pg_query( $this->connection_handle, "begin;" );
+
+        if( $result_handle === false ) {
+            $this->raise_database_query_error( \pg_last_error( $this->connection_handle ) );
+        }
+
+        \pg_free_result( $result_handle );
+    }
+
+    public function commit_transaction()
+    {
+        $result_handle = \pg_query( $this->connection_handle, "commit;" );
+
+        if( $result_handle === false ) {
+            $this->raise_database_query_error( \pg_last_error( $this->connection_handle ) );
+        }
+
+        \pg_free_result( $result_handle );
+    }
+
+    public function rollback_transaction()
+    {
+        $result_handle = \pg_query( $this->connection_handle, "rollback;" );
+
+        if( $result_handle === false ) {
+            $this->raise_database_query_error( \pg_last_error( $this->connection_handle ) );
+        }
+
+        \pg_free_result( $result_handle );
+    }
+
     /// Querying
 
     /**

@@ -96,6 +96,40 @@ abstract class Database
 
     /// Executing
 
+    public function during_transaction_do($closure, $binding = null)
+    {
+        if( $binding === null ) {
+            $binding = $this;
+        }
+
+        $commit = true;
+        $this->begin_transaction();
+
+        try {
+
+            $closure->call( $binding, $this );
+
+        } catch( \Exception $e ) {
+
+            $this->rollback_transaction();
+
+            $commit = false;
+
+            throw $e;
+            
+        } finally {
+
+            if( $commit ) {
+                $this->commit_transaction();
+            }
+
+        }
+    }
+
+    abstract public function begin_transaction();
+    abstract public function commit_transaction();
+    abstract public function rollback_transaction();
+
     /**
      * Executes the $compiled_statement with the database server.
      * Returns the result of the execution.
