@@ -4,6 +4,9 @@ require_once __DIR__ . "/mysql-methods.php";
 require_once __DIR__ . "/postgresql-methods.php";
 require_once __DIR__ . "/sqlite-methods.php";
 
+require_once __DIR__ . "/sample-models/User.php";
+require_once __DIR__ . "/sample-models/Users_Collection.php";
+
 \Haijin\Specs\Specs_Runner::configure( function($specs) {
 
     Mysql_Methods::add_to( $this );

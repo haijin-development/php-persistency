@@ -41,7 +41,7 @@ $spec->describe( "When evaluating a create statement in a Sqlite database", func
 
         $id = $this->database->get_last_created_id();
 
-        $this->expect( $id ) ->to() ->equal( 2 );
+        $this->expect( $id ) ->to() ->equal( 1 );
 
     });
 
@@ -74,7 +74,7 @@ $spec->describe( "When evaluating a create statement in a Sqlite database", func
 
         $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
-                "id" => 2,
+                "id" => 1,
                 "name" => "Lisa",
                 "last_name" => "Simpson"
             ],
@@ -111,7 +111,7 @@ $spec->describe( "When evaluating a create statement in a Sqlite database", func
 
         $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
-                "id" => 2,
+                "id" => 1,
                 "name" => "LISA",
                 "last_name" => "Simpson"
             ],
@@ -148,7 +148,7 @@ $spec->describe( "When evaluating a create statement in a Sqlite database", func
 
         $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
-                "id" => 2,
+                "id" => 1,
                 "name" => "LISA",
                 "last_name" => "Simpson"
             ],
@@ -185,7 +185,7 @@ $spec->describe( "When evaluating a create statement in a Sqlite database", func
 
         $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
-                "id" => 2,
+                "id" => 1,
                 "name" => "lisa",
                 "last_name" => "Simpson"
             ],
@@ -223,7 +223,7 @@ $spec->describe( "When evaluating a create statement in a Sqlite database", func
 
         $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
-                "id" => 2,
+                "id" => 1,
                 "name" => "7",
                 "last_name" => "Simpson"
             ],
@@ -263,7 +263,7 @@ $spec->describe( "When evaluating a create statement in a Sqlite database", func
 
         $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
-                "id" => 2,
+                "id" => 1,
                 "name" => "7",
                 "last_name" => "Simpson"
             ],
@@ -300,8 +300,97 @@ $spec->describe( "When evaluating a create statement in a Sqlite database", func
 
         $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
-                "id" => 2,
+                "id" => 1,
                 "name" => null,
+                "last_name" => "Simpson"
+            ],
+        ]);
+
+    });
+
+    $this->it( "creates a record with named parameters", function() {
+
+        $this->database->create( function($query) {
+
+            $query->collection( "users_with_sequence" );
+
+            $query->record(
+                $query->set( "name", $query->param( "name" ) ),
+                $query->set( "last_name", $query->param( "last_name" ) )
+            );
+
+        }, [
+            "name" => "Homer",
+            "last_name" => "Simpson"
+        ]);
+
+        $rows = $this->database->query( function($query) {
+
+            $query->collection( "users_with_sequence" );
+
+            $query->order_by(
+                $query->field( "id" ) ->desc()
+            );
+
+            $query->pagination(
+                $query->limit( 1 )
+            );
+
+        });
+
+        $this->expect( $rows ) ->to() ->be() ->exactly_like([
+            [
+                "id" => 1,
+                "name" => "Homer",
+                "last_name" => "Simpson"
+            ],
+        ]);
+
+    });
+
+    $this->it( "creates records with a compiled statement", function() {
+
+        $compiled_statement = $this->database->compile_create_statement( function($query) {
+
+            $query->collection( "users_with_sequence" );
+
+            $query->record(
+                $query->set( "name", $query->param( "name" ) ),
+                $query->set( "last_name", $query->param( "last_name" ) )
+            );
+
+        });
+
+        $this->database->execute( $compiled_statement, [
+            "name" => "Homer",
+            "last_name" => "Simpson"
+        ]);
+
+
+        $this->database->execute( $compiled_statement, [
+            "name" => "Marge",
+            "last_name" => "Simpson"
+        ]);
+
+        $rows = $this->database->query( function($query) {
+
+            $query->collection( "users_with_sequence" );
+
+            $query->order_by(
+                $query->field( "id" ) ->desc()
+            );
+
+        });
+
+        $this->expect( $rows ) ->to() ->be() ->exactly_like([
+            [
+                "id" => 2,
+                "name" => "Marge",
+                "last_name" => "Simpson"
+            ],
+            [
+                "id" => 1,
+                "name" => "Homer",
                 "last_name" => "Simpson"
             ],
         ]);

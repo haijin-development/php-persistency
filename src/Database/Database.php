@@ -51,7 +51,7 @@ abstract class Database
      *
      * @return array An associative array with the results of the query execution.
      */
-    abstract public function query($query_closure, $named_parameters = []);
+    abstract public function query($query_closure, $named_parameters = [], $binding = null);
 
     /**
      * Compiles the $create_closure and executes the create statement in the database server.
@@ -63,7 +63,7 @@ abstract class Database
      *
      * @return object The unique id of the created record in the database expression.
      */
-    abstract public function create($create_closure, $named_parameters = []);
+    abstract public function create($create_closure, $named_parameters = [], $binding = null);
 
     /**
      * Compiles the $update_closure and executes the update statement in the database server.
@@ -72,7 +72,7 @@ abstract class Database
      * @param array $named_parameters An associative array of the named parameters values
      *      referenced in the update_closure.
      */
-    abstract public function update($update_closure, $named_parameters = []);
+    abstract public function update($update_closure, $named_parameters = [], $binding = null);
 
     /**
      * Compiles the $delete_closure and executes the delete statement in the database server.
@@ -81,18 +81,51 @@ abstract class Database
      * @param array $named_parameters An associative array of the named parameters values
      *      referenced in the delete_closure.
      */
-    abstract public function delete($delete_closure, $named_parameters = []);
+    abstract public function delete($delete_closure, $named_parameters = [], $binding = null);
 
     /**
      * Compiles the $query_closure and retunrs the compiled
      *      Haijin\Persistency\Statement_Compiler\Query_Statement.
      *
-     * @param closure $query_closure A closure to construct the database query.
+     * @param closure $query_closure A closure to construct the database statement.
      *
-     * @return Haijin\Persistency\Statement_Compiler\Query_Statement The Query_Statement compiled from
-     *      the $query_closure evaluation.
+     * @return Haijin\Persistency\Statement_Compiler\Query_Statement The Query_Statement
+     *      compiled from the $query_closure evaluation.
      */
-    abstract public function compile_query_statement($query_closure);
+    abstract public function compile_query_statement($query_closure, $binding = null);
+
+    /**
+     * Compiles the $create_closure and retunrs the compiled
+     *      Haijin\Persistency\Statement_Compiler\Create_Statement.
+     *
+     * @param closure $create_closure A closure to construct the database statement.
+     *
+     * @return Haijin\Persistency\Statement_Compiler\Create_Statement The Create_Statement 
+     *      compiled from the $create_closure evaluation.
+     */
+    abstract public function compile_create_statement($create_closure, $binding = null);
+
+    /**
+     * Compiles the $update_closure and retunrs the compiled
+     *      Haijin\Persistency\Statement_Compiler\Update_Statement.
+     *
+     * @param closure $update_closure A closure to construct the database statement.
+     *
+     * @return Haijin\Persistency\Statement_Compiler\Update_Statement The Update_Statement 
+     *      compiled from the $update_closure evaluation.
+     */
+    abstract public function compile_update_statement($update_closure, $binding = null);
+
+    /**
+     * Compiles the $delete_closure and retunrs the compiled
+     *      Haijin\Persistency\Statement_Compiler\Delete_Statement.
+     *
+     * @param closure $delete_closure A closure to construct the database statement.
+     *
+     * @return Haijin\Persistency\Statement_Compiler\Delete_Statement The Delete_Statement 
+     *      compiled from the $delete_closure evaluation.
+     */
+    abstract public function compile_delete_statement($delete_closure, $binding = null);
 
     /// Executing
 

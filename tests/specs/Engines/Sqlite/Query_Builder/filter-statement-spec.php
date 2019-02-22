@@ -365,4 +365,42 @@ $spec->describe( "When building the filter statement of a Sqlite expression", fu
 
     });
 
+    $this->describe( "when compiling the statement once and evaluating it many times", function() {
+
+        $this->it( "get the results for each evaluation", function() {
+
+            $compiled_statement = $this->database->compile_query_statement( function($query) {
+
+                $query->collection( "users" );
+
+                $query->filter(
+                    $query ->field( "name" ) ->op( "=" ) ->param( "name" )
+                );
+
+            });
+
+            $rows = $this->database->execute( $compiled_statement, [ "name" => "Lisa" ] );
+
+            $this->expect( $rows ) ->to() ->be() ->exactly_like([
+                [
+                    "id" => 1,
+                    "name" => "Lisa",
+                    "last_name" => "Simpson"
+                ]
+            ]);
+
+            $rows = $this->database->execute( $compiled_statement, [ "name" => "Maggie" ] );
+
+            $this->expect( $rows ) ->to() ->be() ->exactly_like([
+                [
+                    "id" => 3,
+                    "name" => "Maggie",
+                    "last_name" => "Simpson"
+                ]
+            ]);
+
+        });
+
+    });
+
 });

@@ -98,11 +98,9 @@ class Sqlite_Database extends Database
      * Compiles the $query_closure and executes the compiled query in the server.
      * Returns the rows returned by the query execution.
      */
-    public function query($query_closure, $named_parameters = [])
+    public function query($query_closure, $named_parameters = [], $binding = null)
     {
-        $named_parameters = Dictionary::with_all( $named_parameters );
-
-        $compiled_query = $this->compile_query_statement( $query_closure );
+        $compiled_query = $this->compile_query_statement( $query_closure, $binding );
 
         return $this->execute( $compiled_query, $named_parameters );
     }
@@ -117,11 +115,9 @@ class Sqlite_Database extends Database
      *
      * @return object The unique id of the created record in the database expression.
      */
-    public function create($create_closure, $named_parameters = [])
+    public function create($create_closure, $named_parameters = [], $binding = null)
     {
-        $named_parameters = Dictionary::with_all( $named_parameters );
-
-        $compiled_statement = $this->compile_create_statement( $create_closure );
+        $compiled_statement = $this->compile_create_statement( $create_closure, $binding );
 
         return $this->execute( $compiled_statement, $named_parameters );
     }
@@ -133,11 +129,9 @@ class Sqlite_Database extends Database
      * @param array $named_parameters An associative array of the named parameters values
      *      referenced in the update_closure.
      */
-    public function update($update_closure, $named_parameters = [])
+    public function update($update_closure, $named_parameters = [], $binding = null)
     {
-        $named_parameters = Dictionary::with_all( $named_parameters );
-
-        $compiled_statement = $this->compile_update_statement( $update_closure );
+        $compiled_statement = $this->compile_update_statement( $update_closure, $binding );
 
         return $this->execute( $compiled_statement, $named_parameters );
     }
@@ -149,49 +143,71 @@ class Sqlite_Database extends Database
      * @param array $named_parameters An associative array of the named parameters values
      *      referenced in the delete_closure.
      */
-    public function delete($delete_closure, $named_parameters = [])
+    public function delete($delete_closure, $named_parameters = [], $binding = null)
     {
-        $named_parameters = Dictionary::with_all( $named_parameters );
-
-        $compiled_statement = $this->compile_delete_statement( $delete_closure );
+        $compiled_statement = $this->compile_delete_statement( $delete_closure, $binding );
 
         return $this->execute( $compiled_statement, $named_parameters );
     }
 
     /**
-     * Compiles the $query_closure and returns the compiled Query_Statement.
+     * Compiles the $query_closure and retunrs the compiled
+     *      Haijin\Persistency\Statement_Compiler\Query_Statement.
+     *
+     * @param closure $query_closure A closure to construct the database statement.
+     *
+     * @return Haijin\Persistency\Statement_Compiler\Query_Statement The Query_Statement
+     *      compiled from the $query_closure evaluation.
      */
-    public function compile_query_statement($query_closure)
+    public function compile_query_statement($query_closure, $binding = null)
     {
         return $this->new_query_statement_compiler()
-            ->build( $query_closure );
+            ->build( $query_closure, $binding );
     }
 
     /**
-     * Compiles the $create_closure and returns the compiled Query_Statement.
+     * Compiles the $create_closure and retunrs the compiled
+     *      Haijin\Persistency\Statement_Compiler\Create_Statement.
+     *
+     * @param closure $create_closure A closure to construct the database statement.
+     *
+     * @return Haijin\Persistency\Statement_Compiler\Create_Statement The Create_Statement 
+     *      compiled from the $create_closure evaluation.
      */
-    public function compile_create_statement($create_closure)
+    public function compile_create_statement($create_closure, $binding = null)
     {
         return $this->new_create_statement_compiler()
-            ->build( $create_closure );
+            ->build( $create_closure, $binding );
     }
 
     /**
-     * Compiles the $update_closure and returns the compiled Query_Statement.
+     * Compiles the $update_closure and retunrs the compiled
+     *      Haijin\Persistency\Statement_Compiler\Update_Statement.
+     *
+     * @param closure $update_closure A closure to construct the database statement.
+     *
+     * @return Haijin\Persistency\Statement_Compiler\Update_Statement The Update_Statement 
+     *      compiled from the $update_closure evaluation.
      */
-    public function compile_update_statement($update_closure)
+    public function compile_update_statement($update_closure, $binding = null)
     {
         return $this->new_update_statement_compiler()
-            ->build( $update_closure );
+            ->build( $update_closure, $binding );
     }
 
     /**
-     * Compiles the $delete_closure and returns the compiled Query_Statement.
+     * Compiles the $delete_closure and retunrs the compiled
+     *      Haijin\Persistency\Statement_Compiler\Delete_Statement.
+     *
+     * @param closure $delete_closure A closure to construct the database statement.
+     *
+     * @return Haijin\Persistency\Statement_Compiler\Delete_Statement The Delete_Statement 
+     *      compiled from the $delete_closure evaluation.
      */
-    public function compile_delete_statement($delete_closure)
+    public function compile_delete_statement($delete_closure, $binding = null)
     {
         return $this->new_delete_statement_compiler()
-            ->build( $delete_closure );
+            ->build( $delete_closure, $binding );
     }
 
     /// Executing
@@ -314,7 +330,15 @@ class Sqlite_Database extends Database
      */
     public function execute_sql_string($sql, $sql_parameters = [])
     {
-        $result_rows = $this->evaluate_sql_string( $sql, $sql_parameters );
+        $result_handle = $this->evaluate_sql_string( $sql, $sql_parameters );
+
+        $rows = [];
+
+        while( $row = $result_handle->fetchArray( SQLITE3_ASSOC ) ) {
+            $rows[] = $row;
+        }
+
+        return $rows;
 
         return $this->process_result_rows( $result_rows );
     }
@@ -339,13 +363,7 @@ class Sqlite_Database extends Database
             $this->raise_database_query_error( $this->connection_handle->lastErrorMsg() );
         }
 
-        $rows = [];
-
-        while( $row = $result_handle->fetchArray( SQLITE3_ASSOC ) ) {
-            $rows[] = $row;
-        }
-
-        return $rows;
+        return $result_handle;
     }
 
     /**
@@ -367,6 +385,8 @@ class Sqlite_Database extends Database
 
     protected function collect_parameters_from($named_parameters, $query_parameters)
     {
+        $named_parameters = Dictionary::with_all( $named_parameters );
+
         $sql_parameters = [];
 
         foreach( $query_parameters->to_array() as $i => $value ) {
