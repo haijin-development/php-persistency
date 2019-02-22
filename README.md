@@ -422,8 +422,38 @@ $database->during_transaction_do( function($database) {
 haijin/persistency implements its current functionality for the following databases:
 
 1. Haijin\Persistency\Engines\Mysql\Mysql_Database
+
+Connect with the same parameters as [mysqli_connect](http://php.net/manual/en/function.mysqli-connect.php):
+
+```php
+$database = new Mysql_Database();
+
+// host, user, password, database
+$database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
+```
+
 2. Haijin\Persistency\Engines\Postgresql\Postgresql_Database
+
+Connect with the same parameters as [pg_connect](http://php.net/manual/en/function.pg-connect.php):
+
+```php
+$database = new Postgresql_Database();
+
+$database->connect(
+    "host=localhost port=5432 dbname=haijin-persistency user=haijin password=123456"
+);
+```
+
 3. Haijin\Persistency\Engines\Sqlite\Sqlite_Database
+
+Connect with the same parameters as [SQLite3](http://php.net/manual/en/sqlite3.construct.php):
+
+```php
+$database = new Sqlite_Database();
+
+$database->connect( "/a_filename.sqlite" );
+```
+
 
 All of these databases can also execute and evaluate SQL string statements with:
 
