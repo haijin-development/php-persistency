@@ -25,9 +25,22 @@ class Persistent_Collection
 
     protected function initialize_definition()
     {
+        $this->define( function($config) {
+
+            $this->definition( $config );
+
+        }, $this );
+    }
+
+    public function define($closure, $binding = null)
+    {
+        if( $binding === null ) {
+            $binding = $this;
+        }
+
         $definition_dsl = Create::a( Persistent_Collection_DSL::class )->with( $this );
 
-        $this->definition( $definition_dsl );
+        $closure->call($binding, $definition_dsl);
     }
 
     public function definition($definition_dsl)
@@ -56,9 +69,9 @@ class Persistent_Collection
         $this->collection_name = $collection_name;
     }
 
-    public function set_objects_class($class_name)
+    public function set_objects_instantiator($class_name_or_block)
     {
-        $this->objects_instantiator = $class_name;
+        $this->objects_instantiator = $class_name_or_block;
     }
 
     public function add_field_mapping($field_mapping)
@@ -180,7 +193,7 @@ class Persistent_Collection
     /**
      * Maps an array of records to an array of objects.
      */
-    public function records_to_objects($records)
+    protected function records_to_objects($records)
     {
         $objects = [];
 
@@ -194,14 +207,48 @@ class Persistent_Collection
     /**
      * Maps a single record to a object.
      */
-    public function record_to_object($record)
+    protected function record_to_object($raw_record)
     {
-        $object = Create::a( $this->objects_instantiator )->with();
+        $mapped_record = [];
 
         foreach( $this->field_mappings as $field_mapping ) {
-            $field_mapping->write_value_to( $object, $record );
+
+            $mapped_record[ $field_mapping->get_field_name() ] =
+                $field_mapping->get_mapped_value( $raw_record );
+
+        }
+
+        $object = $this->instantiate_object( $raw_record, $mapped_record );
+
+        foreach( $this->field_mappings as $field_mapping ) {
+
+            $field_mapping->write_value_to(
+                $object,
+                $mapped_record[ $field_mapping->get_field_name() ]
+            );
+
         }
 
         return $object;
+    }
+
+    /**
+     * Maps a single record to a object.
+     */
+    protected function instantiate_object($raw_record, $mapped_record)
+    {
+        if( is_string( $this->objects_instantiator ) ) {
+            return Create::a( $this->objects_instantiator )->with();
+        }
+
+        if( is_a( $this->objects_instantiator, \Closure::class ) ) {
+            return $this->objects_instantiator->call( $this, $mapped_record, $raw_record );
+        }
+
+        if( $this->objects_instantiator === null ) {
+            return $mapped_record;
+        }
+
+        throw new \RuntimeException( "Unkown instantiator." );
     }
 }

@@ -22,6 +22,16 @@ class Field_Mapping
 
     /// Accessing
 
+    public function get_field_name()
+    {
+        return $this->field_name;
+    }
+
+    public function set_field_name($field_name)
+    {
+        $this->field_name = $field_name;
+    }
+
     public function set_value_reader($value_reader)
     {
         $this->value_reader = $value_reader;
@@ -34,15 +44,20 @@ class Field_Mapping
 
     /// Field values
 
-    /**
-     * Writtes the value from the $record to the $object.
-     * It receives the whole record instead of just a single attribute value
-     * since the convertion between field attributes and object properties may involve
-     * more than one record attribute, for instance if it contains a value and a unit, such
-     * as 10 'kb'.
-     */
-    public function write_value_to( $object, $record )
+    public function get_mapped_value($raw_record)
     {
-        $this->value_writter->write_value_to( $object, $record, $this->field_name );
+        return $raw_record[ $this->field_name ];
+    }
+
+    /**
+     * Writtes the value to the $object.
+     */
+    public function write_value_to($object, $value)
+    {
+        if( $this->value_writter === null ) {
+            return;
+        }
+
+        $this->value_writter->write_value_to( $object, $value );
     }
 }

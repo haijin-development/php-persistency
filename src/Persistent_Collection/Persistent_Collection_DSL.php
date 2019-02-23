@@ -29,9 +29,18 @@ class Persistent_Collection_DSL
         $this->persistent_collection->set_collection_name( $collection_name );
     }
 
-    public function objects_class($class)
+    public function instantiate_objects_with($class_name_or_closure)
     {
-        $this->persistent_collection->set_objects_class( $class );
+        if( $class_name_or_closure !== null
+            &&
+            ! is_string( $class_name_or_closure )
+            &&
+            ! is_a( $class_name_or_closure, \Closure::class )
+          ) {
+            $this->raise_unexpected_instantiator_error();
+        }
+
+        $this->persistent_collection->set_objects_instantiator( $class_name_or_closure );
     }
 
     public function field_mappings($closure)
@@ -51,8 +60,8 @@ class Persistent_Collection_DSL
             return;
         }
 
-       if( $attribute_name == 'objects_class' ) {
-            $this->objects_class( $value );
+       if( $attribute_name == 'instantiate_objects_with' ) {
+            $this->instantiate_objects_with( $value );
             return;
         }
 
@@ -84,6 +93,8 @@ class Persistent_Collection_DSL
 
     public function write_with($value_writter)
     {
+        $value_accessor = null;
+
         if( is_string( $value_writter) ) {
 
             if( $method_accessor = $this->is_method_accessor( $value_writter ) ) {
@@ -112,6 +123,12 @@ class Persistent_Collection_DSL
     protected function raise_unexpected_definition_error($attribute_name)
     {
         throw Create::a( \RuntimeException::class )
-                ->with( "Unexexpected definition '{$attribute_name}'." );
+                ->with( "Unexpected definition '{$attribute_name}'." );
+    }
+
+    protected function raise_unexpected_instantiator_error()
+    {
+        throw Create::a( \RuntimeException::class )
+                ->with( "Unexpected instantiator." );
     }
 }

@@ -10,7 +10,7 @@ class Users_Persistent_Collection extends Persistent_Collection
 
         $collection->collection_name = "users";
 
-        $collection->objects_class = User::class;
+        $collection->instantiate_objects_with = User::class;
 
         $collection->field_mappings = function($mapping) {
 

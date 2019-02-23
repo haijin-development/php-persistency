@@ -6,11 +6,11 @@ class User
     protected $name;
     protected $last_name;
 
-    public function __construct()
+    public function __construct($name = null, $last_name = null)
     {
         $this->id = null;
-        $this->name = null;
-        $this->last_name = null;
+        $this->name = $name;
+        $this->last_name = $last_name;
     }
 
     public function get_id()

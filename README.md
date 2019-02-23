@@ -30,7 +30,9 @@ If you like it a lot you may contribute by [financing](https://github.com/haijin
         10. [Implemented databases](#c-2-1-10)
     2. [Mapping objects](#c-2-2)
         1. [Models](#c-2-2-1)
-        2. [Persisten_Collections](#c-2-2-2)
+        2. [Persistent_Collections](#c-2-2-2)
+        3. [Persistent_Collection singleton pattern](#c-2-2-3)
+        4. [Persistent_Collection definition](#c-2-2-4)
     3. [Migrations](#c-2-3)
 3. [Running the tests](#c-3)
 4. [Developing with Vagrant](#c-4)
@@ -538,7 +540,7 @@ It can persist native PHP objects or classes defined in third party libraries th
 <a name="c-2-2-2"></a>
 ### Persistent_Collections
 
-A Persistent_Collection is a collection of persisted objects.
+A `Persistent_Collection` is a collection of persisted objects.
 
 It has a protocol to create, update, delete and query objects and a simple DSL to define the mappings between objects and records in a database.
 
@@ -549,9 +551,11 @@ class Users_Persistent_Collection extends Persistent_Collection
 {
     public function definition($collection)
     {
-        $collection->database = GlobalMysql::get_instance();
+        $collection->database = Application::get_instance()->get_mysql_db();
 
-        $collection->objects_class = User::class;
+        $collection->collection_name = "users";
+
+        $collection->instantiate_objects_with = User::class;
 
         $collection->field_mappings = function($mapping) {
 
@@ -582,6 +586,248 @@ $all_users = $users_collection->all();
 $first_user = $users_collection->first();
 
 $last_user = $users_collection->last();
+```
+
+<a name="c-2-2-3"></a>
+### Persistent_Collections singleton pattern
+
+`Persistent_Collection` subclasses are not singletons and this library does not assume all developers will want to treat them as singletons in every context. `Persistent_Collection` subclasses are regular classes.
+
+However the previous example could be improved in the context of an application making the `Users_Persistent_Collection` a singleton. That would have the advantage of evaluating its definition only once and would improve expressiveness.
+
+The recomended pattern to treat `Persistent_Collection` subclasses as singletons is to declare a second class with the only purpose of making each `Persistent_Collection` subclass a singleton class.
+
+Here is an example:
+
+
+```php
+class Users_Persistent_Collection extends Persistent_Collection
+{
+    public function definition($collection)
+    {
+        $collection->database = Application::get_instance()->get_mysql_db();
+
+        $collection->collection_name = "users";
+
+        $collection->instantiate_objects_with = User::class;
+
+        $collection->field_mappings = function($mapping) {
+
+            $mapping->field( "id" ) ->is_primary_key()
+                ->read_with( "get_id()" )
+                ->write_with( "set_id()" );
+
+            $mapping->field( "name" )
+                ->read_with( "get_name()" )
+                ->write_with( "set_name()" );
+
+            $mapping->field( "last_name" )
+                ->read_with( "get_last_name()" )
+                ->write_with( "set_last_name()" );
+        };
+
+    }
+}
+
+class Users_Collection
+{
+    static public $instance;
+
+    static public function get()
+    {
+        return self::$instance;
+    }
+
+    static public function do()
+    {
+        return self::$instance;
+    }
+}
+
+Users_Collection::$instance = new Users_Persistent_Collection();
+```
+
+to be used like:
+
+```php
+$all_users = Users_Collection::get()->all();
+
+$first_user = Users_Collection::get()->first();
+
+Users_Collection::do()->create( $user );
+Users_Collection::do()->update( $user );
+Users_Collection::do()->delete( $user );
+```
+
+From now on this documentation will follow this pattern.
+
+<a name="c-2-2-4"></a>
+### Persistent_Collection definition
+
+Define each `Persistent_Collection` subclass in a method named `definition`:
+
+```php
+class Users_Persistent_Collection extends Persistent_Collection
+{
+    public function definition($collection)
+    {
+        $collection->database = Application::get_instance()->get_mysql_db();
+
+        $collection->collection_name = "users";
+
+        $collection->instantiate_objects_with = User::class;
+
+        $collection->field_mappings = function($mapping) {
+
+            $mapping->field( "id" ) ->is_primary_key()
+                ->read_with( "get_id()" )
+                ->write_with( "set_id()" );
+
+            $mapping->field( "name" )
+                ->read_with( "get_name()" )
+                ->write_with( "set_name()" );
+
+            $mapping->field( "last_name" )
+                ->read_with( "get_last_name()" )
+                ->write_with( "set_last_name()" );
+        };
+
+    }
+}
+```
+
+The definition has the following parts:
+
+<a name="c-2-2-4-1"></a>
+#### database
+
+Defines the database for the `Persistent_Collection`.
+
+It can be defined in the definition at instantiation time of the `Persistent_Collection` with
+
+```php
+public function definition($collection)
+{
+    $collection->database = Application::get_instance()->get_mysql_db();
+}
+```
+
+or at any other time with
+
+```php
+Users_Collection::do()->set_database(
+    Application::get_instance()->get_mysql_db()
+);
+```
+
+<a name="c-2-2-4-2"></a>
+#### collection_name
+
+Defines the name for the `Persistent_Collection`. That would be the table name in sql databases like Postgres and Mysql, the index name in indexers like Sphinx, Elastichsearch and Solr or the schema name in document databases like MongoDB.
+
+It can be defined in the definition at instantiation time of the `Persistent_Collection` with
+
+```php
+public function definition($collection)
+{
+    $collection->collection_name = "users";
+}
+```
+
+or at any other time with
+
+```php
+Users_Collection::do()->set_collection_name( "users" );
+```
+
+<a name="c-2-2-4-3"></a>
+#### objects_instantiator
+
+Defines how to instantiate new objects after reading records from the database and mapping them to objects.
+
+Since this library makes no assumptions on the type or protocol of the mapped objects there are several ways to instantiate new objects.
+
+##### class instantiator
+
+A class instantiator is the most simple instantiator. It assumes that mapped objects can be created with a `new` statement taking no parameters in its `__constructor()`
+
+```php
+public function definition($collection)
+{
+    $collection->instantiate_objects_with = User::class;
+
+    $collection->field_mappings = function($mapping) {
+
+        $mapping->field( "id" ) ->is_primary_key()
+            ->read_with( "get_id()" )
+            ->write_with( "set_id()" );
+
+        $mapping->field( "name" )
+            ->read_with( "get_name()" )
+            ->write_with( "set_name()" );
+
+        $mapping->field( "last_name" )
+            ->read_with( "get_last_name()" )
+            ->write_with( "set_last_name()" );
+    };
+}
+```
+
+##### closure instantiator
+
+Some classes may take parameters in their constructor or may require additional initialization
+and configuration.
+
+In such cases use a `closure` to instantiate objects. The closure receives the `$mapped_record` as its first parameter to make its values avaialable for the initialization in case they are required.
+
+The `$mapped_record` contains only the mapped fields values and it already applied the conversions defined for each field, if any.
+
+Optionaly the closure also receives the raw record as it was read from the database as a second parameter.
+
+```php
+public function definition($collection)
+{
+    $collection->instantiate_objects_with = function($mapped_record, $raw_record) {
+        return new User( $mapped_record[ "name" ], $mapped_record[ "last_name" ] );
+    }
+
+    $collection->field_mappings = function($mapping) {
+
+        $mapping->field( "id" ) ->is_primary_key()
+            ->read_with( "get_id()" )
+            ->write_with( "set_id()" );
+
+        $mapping->field( "name" )
+            ->read_with( "get_name()" );
+
+        $mapping->field( "last_name" )
+            ->read_with( "get_last_name()" );
+    };
+}
+```
+
+##### null instantiator
+
+When no instantiator is defined the `Persistent_Collection` returns an associative array with the mapped fields instead of an object.
+
+```php
+public function definition($collection)
+{
+    $collection->instantiate_objects_with = null;
+
+    $collection->field_mappings = function($mapping) {
+
+        $mapping->field( "id" ) ->is_primary_key()
+            ->read_with( "[id]" );
+
+        $mapping->field( "name" )
+            ->read_with( "[name]" );
+
+        $mapping->field( "last_name" )
+            ->read_with( "[last_name]" );
+
+    };
+}
 ```
 
 <a name="c-3"></a>
