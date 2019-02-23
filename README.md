@@ -33,6 +33,13 @@ If you like it a lot you may contribute by [financing](https://github.com/haijin
         2. [Persistent_Collections](#c-2-2-2)
         3. [Persistent_Collection singleton pattern](#c-2-2-3)
         4. [Persistent_Collection definition](#c-2-2-4)
+            1. [database](c-2-2-4-1)
+            2. [collection_name](c-2-2-4-2)
+            3. [objects_instantiator](c-2-2-4-3)
+                1. [class instantiator](c-2-2-4-3-1)
+                2. [closure instantiator](c-2-2-4-3-2)
+                3. [null instantiator](c-2-2-4-3-3)
+            4. [field_mappings](c-2-2-4-4)
     3. [Migrations](#c-2-3)
 3. [Running the tests](#c-3)
 4. [Developing with Vagrant](#c-4)
@@ -747,7 +754,8 @@ Defines how to instantiate new objects after reading records from the database a
 
 Since this library makes no assumptions on the type or protocol of the mapped objects there are several ways to instantiate new objects.
 
-##### class instantiator
+<a name="c-2-2-4-3-1"></a>
+###### class instantiator
 
 A class instantiator is the most simple instantiator. It assumes that mapped objects can be created with a `new` statement taking no parameters in its `__constructor()`
 
@@ -772,8 +780,8 @@ public function definition($collection)
     };
 }
 ```
-
-##### closure instantiator
+<a name="c-2-2-4-3-2"></a>
+###### closure instantiator
 
 Some classes may take parameters in their constructor or may require additional initialization
 and configuration.
@@ -805,8 +813,8 @@ public function definition($collection)
     };
 }
 ```
-
-##### null instantiator
+<a name="c-2-2-4-3-3"></a>
+###### null instantiator
 
 When no instantiator is defined the `Persistent_Collection` returns an associative array with the mapped fields instead of an object.
 
@@ -826,6 +834,278 @@ public function definition($collection)
         $mapping->field( "last_name" )
             ->read_with( "[last_name]" );
 
+    };
+}
+```
+
+<a name="c-2-2-4-4"></a>
+#### field_mappings
+
+This closure defines each field mapped from and to the database engine.
+
+<a name="c-2-2-4-4-1"></a>
+##### field
+
+Defines the name of the field in the database engine, not in the model.
+
+```php
+public function definition($collection)
+{
+    $collection->field_mappings = function($mapping) {
+
+        $mapping->field( "id" );
+
+        $mapping->field( "name" );
+
+        $mapping->field( "last_name" );
+
+    };
+}
+```
+
+<a name="c-2-2-4-4-2"></a>
+##### is_primary_key
+
+The `Persistent_Collection` needs to know which field is the primary key to create, update and delete single records. This definition flags the record primary key. Currently `Persistent_Collection` supports only one field as a primary key. That is, currently it does not support compound fields as primary keys.
+
+```php
+public function definition($collection)
+{
+    $collection->field_mappings = function($mapping) {
+
+        $mapping->field( "id" ) ->is_primary_key();
+
+        $mapping->field( "name" );
+
+        $mapping->field( "last_name" );
+
+    };
+}
+```
+
+<a name="c-2-2-4-4-3"></a>
+##### read_with
+
+Defines how to read the value from the object to persist it in the database.
+
+Valid values are:
+
+###### an object method
+
+```php
+public function definition($collection)
+{
+    $collection->field_mappings = function($mapping) {
+
+        $mapping->field( "id" ) ->is_primary_key()
+            ->read_with( "get_id()" );
+
+        $mapping->field( "name" )
+            ->read_with( "get_name()" );
+
+        $mapping->field( "last_name" )
+            ->read_with( "get_last_name()" );
+
+    };
+}
+```
+
+###### an object property
+
+```php
+public function definition($collection)
+{
+    $collection->field_mappings = function($mapping) {
+
+        $mapping->field( "id" ) ->is_primary_key()
+            ->read_with( "->id" );
+
+        $mapping->field( "name" )
+            ->read_with( "->name" );
+
+        $mapping->field( "last_name" )
+            ->read_with( "->last_name" );
+
+    };
+}
+```
+
+###### an array key
+
+```php
+public function definition($collection)
+{
+    $collection->field_mappings = function($mapping) {
+
+        $mapping->field( "id" ) ->is_primary_key()
+            ->read_with( "[id]" );
+
+        $mapping->field( "name" )
+            ->read_with( "[name]" );
+
+        $mapping->field( "last_name" )
+            ->read_with( "[last_name]" );
+
+    };
+}
+```
+
+###### a closure
+
+```php
+public function definition($collection)
+{
+    $collection->field_mappings = function($mapping) {
+
+        $mapping->field( "id" ) ->is_primary_key()
+            ->read_with( function($object) {
+                return $object->get_id();
+            });
+
+        $mapping->field( "name" )
+            ->read_with( function($object) {
+                return strtolower( trim( $object->get_name() ) );
+            });
+
+        $mapping->field( "last_name" )
+            ->read_with( function($object) {
+                return strtolower( trim( $object->get_last_name() ) );
+            });
+
+        $mapping->field( "last_modification_time" )
+            ->read_with( function($object) {
+                return time();
+            });
+    };
+}
+```
+
+`read_with` might be absent, in which case the field will not be written to the database (`read_with` reads from the object to the database).
+
+<a name="c-2-2-4-4-4"></a>
+##### write_with
+
+Defines how to write the value from the database to the object.
+
+Valid values are:
+
+###### an object method
+
+```php
+public function definition($collection)
+{
+    $collection->field_mappings = function($mapping) {
+
+        $mapping->field( "id" ) ->is_primary_key()
+            ->write_with( "get_id()" );
+
+        $mapping->field( "name" )
+            ->write_with( "get_name()" );
+
+        $mapping->field( "last_name" )
+            ->write_with( "get_last_name()" );
+
+    };
+}
+```
+
+###### an object property
+
+```php
+public function definition($collection)
+{
+    $collection->field_mappings = function($mapping) {
+
+        $mapping->field( "id" ) ->is_primary_key()
+            ->write_with( "->id" );
+
+        $mapping->field( "name" )
+            ->write_with( "->name" );
+
+        $mapping->field( "last_name" )
+            ->write_with( "->last_name" );
+
+    };
+}
+```
+
+###### an array key
+
+```php
+public function definition($collection)
+{
+    $collection->field_mappings = function($mapping) {
+
+        $mapping->field( "id" ) ->is_primary_key()
+            ->write_with( "[id]" );
+
+        $mapping->field( "name" )
+            ->write_with( "[name]" );
+
+        $mapping->field( "last_name" )
+            ->write_with( "[last_name]" );
+
+    };
+}
+```
+
+###### a closure
+
+```php
+public function definition($collection)
+{
+    $collection->field_mappings = function($mapping) {
+
+        $mapping->field( "id" ) ->is_primary_key()
+            ->write_with( function($object, $mapped_record, $raw_record) {
+                $object->set_id( $mapped_record[ "id"] );
+            });
+
+        $mapping->field( "name" )
+            ->write_with( function($object, $mapped_record, $raw_record) {
+                $object->set_id( $mapped_record[ "name"] );
+             });
+
+        $mapping->field( "last_name" )
+            ->write_with( function($object, $mapped_record, $raw_record) {
+                $object->set_id( $mapped_record[ "last_name"] );
+            });
+    };
+}
+```
+
+The `write_with` closure receives 3 parameters: the object being mapped, the record with the values convereted according to the mapping definitions and the raw record as it came from the database.
+
+`write_with` might be absent, in which case the field will not be read from database.
+
+
+Using closures it is possible to map multiple fields into a single object attribute or multiple object attributes into a single field:
+
+```php
+public function definition($collection)
+{
+    $collection->field_mappings = function($mapping) {
+
+        $mapping->field( "file_size_amount" )
+
+            ->read_with( function($object)) {
+                $object->get_file_size()->get_amount();
+            })
+
+            ->write_with( function($object, $mapped_record, $raw_record) {
+                $object->set_file_size(
+                    new SizeMeasurement(
+                        $mapped_record[ "file_size_amount" ],
+                        $mapped_record[ "file_size_unit" ]
+                    )
+                );
+             });
+
+        $mapping->field( "file_size_unit" )
+
+            ->read_with( function($object)) {
+                $object->get_file_size()->get_amount()->get_unit()->to_string();
+            });
     };
 }
 ```
