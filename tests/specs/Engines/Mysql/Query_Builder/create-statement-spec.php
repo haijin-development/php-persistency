@@ -308,4 +308,96 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
     });
 
+    $this->it( "creates a record with named parameters", function() {
+
+        $this->database->create( function($query) {
+
+            $query->collection( "users" );
+
+            $query->record(
+                $query->set( "name", $query->param( "name" ) ),
+                $query->set( "last_name", $query->param( "last_name" ) )
+            );
+
+        }, [
+            "name" => "Homer",
+            "last_name" => "Simpson"
+        ]);
+
+        $rows = $this->database->query( function($query) {
+
+            $query->collection( "users" );
+
+            $query->order_by(
+                $query->field( "id" ) ->desc()
+            );
+
+            $query->pagination(
+                $query->limit( 1 )
+            );
+
+        });
+
+        $this->expect( $rows ) ->to() ->be() ->exactly_like([
+            [
+                "id" => 4,
+                "name" => "Homer",
+                "last_name" => "Simpson"
+            ],
+        ]);
+
+    });
+
+    $this->it( "creates records with a compiled statement", function() {
+
+        $compiled_statement = $this->database->compile_create_statement( function($query) {
+
+            $query->collection( "users" );
+
+            $query->record(
+                $query->set( "name", $query->param( "name" ) ),
+                $query->set( "last_name", $query->param( "last_name" ) )
+            );
+
+        });
+
+        $this->database->execute( $compiled_statement, [
+            "name" => "Homer",
+            "last_name" => "Simpson"
+        ]);
+
+        $this->database->execute( $compiled_statement, [
+            "name" => "Marge",
+            "last_name" => "Simpson"
+        ]);
+
+        $rows = $this->database->query( function($query) {
+
+            $query->collection( "users" );
+
+            $query->order_by(
+                $query->field( "id" ) ->desc()
+            );
+
+            $query->pagination(
+                $query->limit( 2 )
+            );
+
+        });
+
+        $this->expect( $rows ) ->to() ->be() ->exactly_like([
+            [
+                "id" => 5,
+                "name" => "Marge",
+                "last_name" => "Simpson"
+            ],
+            [
+                "id" => 4,
+                "name" => "Homer",
+                "last_name" => "Simpson"
+            ],
+        ]);
+
+    });
+
 });

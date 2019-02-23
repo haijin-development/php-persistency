@@ -109,11 +109,14 @@ abstract class Statement_Compiler
      *
      * @return Statement_Expression The current $this->statement_expression.
      */
-    public function eval( $expression_closure, $binding = null )
+    public function eval($expression_closure, $binding = null)
     {
         if( $binding === null ) {
             $binding = $this;
         }
+
+        // temporary using $this instead of $binding because of an error
+        $binding = $this;
 
         $expression_closure->call( $binding, $this );
 

@@ -7,7 +7,7 @@ A simple, complete, adaptable and independent query builder and ORM for PHP.
 [![Build Status](https://travis-ci.org/haijin-development/php-persistency.svg?branch=v0.0.2)](https://travis-ci.org/haijin-development/php-persistency)
 [![License](https://poser.pugx.org/haijin/persistency/license)](https://packagist.org/packages/haijin/persistency)
 
-### Version 0.0.1
+### Version 0.0.3
 
 This library is under active development and no stable version was released yet.
 
@@ -20,14 +20,19 @@ If you like it a lot you may contribute by [financing](https://github.com/haijin
     1. [Querying a database](#c-2-1)
         1. [A direct query to a database](#c-2-1-1)
         2. [Using semantic expressions](#c-2-1-2)
-        3. [Calling query functions](#c-2-1-3)
-        4. [Debugging the query](#c-2-1-4)
-        5. [Creating records in a database](#c-2-1-5)
-        6. [Updating records in a database](#c-2-1-6)
-        7. [Deleting records in a database](#c-2-1-7)
-        8. [Transactions](#c-2-1-8)
-        9. [Implemented databases](#c-2-1-9)
+        3. [Using named parameters](#c-2-1-3)
+        4. [Calling query functions](#c-2-1-4)
+        5. [Debugging the query](#c-2-1-5)
+        6. [Creating records in a database](#c-2-1-6)
+        7. [Updating records in a database](#c-2-1-7)
+        8. [Deleting records in a database](#c-2-1-8)
+        9. [Transactions](#c-2-1-9)
+        10. [Implemented databases](#c-2-1-10)
     2. [Mapping objects](#c-2-2)
+        1. [Models](#c-2-2-1)
+        2. [Persistent_Collections](#c-2-2-2)
+        3. [Persistent_Collection singleton pattern](#c-2-2-3)
+        4. [Persistent_Collection definition](#c-2-2-4)
     3. [Migrations](#c-2-3)
 3. [Running the tests](#c-3)
 4. [Developing with Vagrant](#c-4)
@@ -43,7 +48,7 @@ Include this library in your project `composer.json` file:
 
     "require": {
         ...
-        "haijin/persistency": "^0.0.1",
+        "haijin/persistency": "^0.0.3",
         ...
     },
 
@@ -141,22 +146,22 @@ $database->query( function($query) {
             ) ->as( "address" )
         );
 
-        $query->let( "matches_address", function($query) { return
-            $query->brackets(
+        $query->let( "matches_address", function($query) {
+            return $query->brackets(
                 $query ->field( "street_name" ) ->op( "like" ) ->value( "%Evergreen%" )
             );
         });
 
     });
 
-    $query->let( "matches_name", function($query) { return
-        $query->brackets(
+    $query->let( "matches_name", function($query) {
+        return $query->brackets(
             $query ->field( "name" ) ->op( "=" ) ->value( "Lisa" )
         );
     });
 
-    $query->let( "matches_last_name", function($query) { return
-        $query->brackets(
+    $query->let( "matches_last_name", function($query) {
+        return $query->brackets(
             $query ->field( "last_name" ) ->op( "=" ) ->value( "Simpson" )
         );
     });
@@ -184,11 +189,64 @@ $database->query( function($query) {
 ```
 
 <a name="c-2-1-3"></a>
+#### Using named parameters
+
+It is possible to use parametrized values instead of values in a query using the `param()` statement and provinding its value in an extra parameter to the query:
+
+```php
+$database = new Mysql_Database();
+$database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
+
+$database->compile_query_statement( function($query) {
+
+    $query->collection( "users" );
+
+    $query->filter(
+        $query ->field( "name" ) ->op( "=" ) ->param( "q" )
+    );
+
+}, [ "q" => "Lisa" ] );
+```
+
+Or compile the query once and execute many times with different values:
+
+```php
+$database = new Mysql_Database();
+$database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
+
+$compiled_statement = $database->compile_query_statement( function($query) {
+
+    $query->collection( "users" );
+
+    $query->filter(
+        $query ->field( "name" ) ->op( "=" ) ->param( "q" )
+    );
+
+});
+
+$rows = $database->execute( $compiled_statement, [ "q" => "Lisa" ] );
+
+$rows = $database->execute( $compiled_statement, [ "q" => "Bart" ] );
+```
+
+To compile statements call:
+
+```php
+$compiled_statement = $database->compile_query_statement($query_closure);
+
+$compiled_statement = $database->compile_create_statement($create_closure);
+
+$compiled_statement = $database->compile_update_statement($update_closure);
+
+$compiled_statement = $database->compile_delete_statement($delete_closure);
+```
+
+<a name="c-2-1-4"></a>
 #### Calling query functions
 
 Each database engine defines and allows different functions, sometimes specific to that engine alone.
 
-Just call any function the query, there is no need to declare it. The DSL uses a dynamic method to accept function calls.
+Just call any function in the query, there is no need to declare it. The DSL uses a dynamic method to accept function calls.
 
 For instance in the example above:
 
@@ -202,7 +260,7 @@ $query->proyect(
 
 the `concat(...)` function was not declared anywhere in the DSL for Mysql nor for any other engine.
 
-<a name="c-2-1-4"></a>
+<a name="c-2-1-5"></a>
 #### Debugging the query
 
 The functions `query`, `create`, `update` and `delete` accepts another closure as its third parameter to debug the statement:
@@ -229,21 +287,21 @@ $database->query( function($query) use($database) {
                 ) ->as( "address" )
             );
 
-            $query->let( "matches_address", function($query) { return
-                $query->brackets(
+            $query->let( "matches_address", function($query) {
+                return $query->brackets(
                     $query ->field( "street_name" ) ->op( "like" ) ->value( "%Evergreen%" )
                 );
             });
     });
 
-    $query->let( "matches_name", function($query) { return
-        $query->brackets(
+    $query->let( "matches_name", function($query) {
+        return $query->brackets(
             $query ->field( "name" ) ->op( "=" ) ->value( "Lisa" )
         );
     });
 
-    $query->let( "matches_last_name", function($query) { return
-        $query->brackets(
+    $query->let( "matches_last_name", function($query) {
+        return $query->brackets(
             $query ->field( "last_name" ) ->op( "=" ) ->value( "Simpson" )
         );
     });
@@ -274,7 +332,7 @@ $database->query( function($query) use($database) {
 });
 ```
 
-<a name="c-2-1-5"></a>
+<a name="c-2-1-6"></a>
 #### Creating records in a database
 
 Create a record in a database with:
@@ -337,7 +395,7 @@ $this->database->create( function($query) {
 $id = $this->database->get_last_created_id();
 ```
 
-<a name="c-2-1-6"></a>
+<a name="c-2-1-7"></a>
 #### Updating records in a database
 
 Update recods in a database with:
@@ -362,7 +420,7 @@ $this->database->update( function($query) {
 });
 ```
 
-<a name="c-2-1-7"></a>
+<a name="c-2-1-8"></a>
 #### Deleting records in a database
 
 Delete recods from a database with:
@@ -382,7 +440,7 @@ $this->database->delete( function($query) {
 });
 ```
 
-<a name="c-2-1-8"></a>
+<a name="c-2-1-9"></a>
 #### Transactions
 
 If the database engine supports it commit or rollback transactions with:
@@ -416,14 +474,44 @@ $database->during_transaction_do( function($database) {
 }, $this );
 ```
 
-<a name="c-2-1-9"></a>
+<a name="c-2-1-10"></a>
 #### Implemented databases
 
 haijin/persistency implements its current functionality for the following databases:
 
 1. Haijin\Persistency\Engines\Mysql\Mysql_Database
+
+Connect with the same parameters as [mysqli_connect](http://php.net/manual/en/function.mysqli-connect.php):
+
+```php
+$database = new Mysql_Database();
+
+// host, user, password, database
+$database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
+```
+
 2. Haijin\Persistency\Engines\Postgresql\Postgresql_Database
+
+Connect with the same parameters as [pg_connect](http://php.net/manual/en/function.pg-connect.php):
+
+```php
+$database = new Postgresql_Database();
+
+$database->connect(
+    "host=localhost port=5432 dbname=haijin-persistency user=haijin password=123456"
+);
+```
+
 3. Haijin\Persistency\Engines\Sqlite\Sqlite_Database
+
+Connect with the same parameters as [SQLite3](http://php.net/manual/en/sqlite3.construct.php):
+
+```php
+$database = new Sqlite_Database();
+
+$database->connect( "/a_filename.sqlite" );
+```
+
 
 All of these databases can also execute and evaluate SQL string statements with:
 
@@ -440,6 +528,307 @@ $database->evaluate( "CREATE TABLE `users` (
 <a name="c-2-2"></a>
 ### Mapping objects
 
+<a name="c-2-2-1"></a>
+### Models
+
+The library allows almost any object to be persisted.
+
+As such it does not require the persisted object to inherit from any class nor to implement any interface nor protocol.
+
+It can persist native PHP objects or classes defined in third party libraries that can not be modified.
+
+<a name="c-2-2-2"></a>
+### Persistent_Collections
+
+A `Persistent_Collection` is a collection of persisted objects.
+
+It has a protocol to create, update, delete and query objects and a simple DSL to define the mappings between objects and records in a database.
+
+A simple mapping definition example:
+
+```php
+class Users_Persistent_Collection extends Persistent_Collection
+{
+    public function definition($collection)
+    {
+        $collection->database = Application::get_instance()->get_mysql_db();
+
+        $collection->collection_name = "users";
+
+        $collection->instantiate_objects_with = User::class;
+
+        $collection->field_mappings = function($mapping) {
+
+            $mapping->field( "id" ) ->is_primary_key()
+                ->read_with( "get_id()" )
+                ->write_with( "set_id()" );
+
+            $mapping->field( "name" )
+                ->read_with( "get_name()" )
+                ->write_with( "set_name()" );
+
+            $mapping->field( "last_name" )
+                ->read_with( "get_last_name()" )
+                ->write_with( "set_last_name()" );
+        };
+
+    }
+}
+```
+
+and a simple usage example:
+
+```php
+$users_collection = new Users_Persistent_Collection();
+
+$all_users = $users_collection->all();
+
+$first_user = $users_collection->first();
+
+$last_user = $users_collection->last();
+```
+
+<a name="c-2-2-3"></a>
+### Persistent_Collections singleton pattern
+
+`Persistent_Collection` subclasses are not singletons and this library does not assume all developers will want to treat them as singletons in every context. `Persistent_Collection` subclasses are regular classes.
+
+However the previous example could be improved in the context of an application making the `Users_Persistent_Collection` a singleton. That would have the advantage of evaluating its definition only once and would improve expressiveness.
+
+The recomended pattern to treat `Persistent_Collection` subclasses as singletons is to declare a second class with the only purpose of making each `Persistent_Collection` subclass a singleton class.
+
+Here is an example:
+
+
+```php
+class Users_Persistent_Collection extends Persistent_Collection
+{
+    public function definition($collection)
+    {
+        $collection->database = Application::get_instance()->get_mysql_db();
+
+        $collection->collection_name = "users";
+
+        $collection->instantiate_objects_with = User::class;
+
+        $collection->field_mappings = function($mapping) {
+
+            $mapping->field( "id" ) ->is_primary_key()
+                ->read_with( "get_id()" )
+                ->write_with( "set_id()" );
+
+            $mapping->field( "name" )
+                ->read_with( "get_name()" )
+                ->write_with( "set_name()" );
+
+            $mapping->field( "last_name" )
+                ->read_with( "get_last_name()" )
+                ->write_with( "set_last_name()" );
+        };
+
+    }
+}
+
+class Users_Collection
+{
+    static public $instance;
+
+    static public function get()
+    {
+        return self::$instance;
+    }
+
+    static public function do()
+    {
+        return self::$instance;
+    }
+}
+
+Users_Collection::$instance = new Users_Persistent_Collection();
+```
+
+to be used like:
+
+```php
+$all_users = Users_Collection::get()->all();
+
+$first_user = Users_Collection::get()->first();
+
+Users_Collection::do()->create( $user );
+Users_Collection::do()->update( $user );
+Users_Collection::do()->delete( $user );
+```
+
+From now on this documentation will follow this pattern.
+
+<a name="c-2-2-4"></a>
+### Persistent_Collection definition
+
+Define each `Persistent_Collection` subclass in a method named `definition`:
+
+```php
+class Users_Persistent_Collection extends Persistent_Collection
+{
+    public function definition($collection)
+    {
+        $collection->database = Application::get_instance()->get_mysql_db();
+
+        $collection->collection_name = "users";
+
+        $collection->instantiate_objects_with = User::class;
+
+        $collection->field_mappings = function($mapping) {
+
+            $mapping->field( "id" ) ->is_primary_key()
+                ->read_with( "get_id()" )
+                ->write_with( "set_id()" );
+
+            $mapping->field( "name" )
+                ->read_with( "get_name()" )
+                ->write_with( "set_name()" );
+
+            $mapping->field( "last_name" )
+                ->read_with( "get_last_name()" )
+                ->write_with( "set_last_name()" );
+        };
+
+    }
+}
+```
+
+The definition has the following parts:
+
+<a name="c-2-2-4-1"></a>
+#### database
+
+Defines the database for the `Persistent_Collection`.
+
+It can be defined in the definition at instantiation time of the `Persistent_Collection` with
+
+```php
+public function definition($collection)
+{
+    $collection->database = Application::get_instance()->get_mysql_db();
+}
+```
+
+or at any other time with
+
+```php
+Users_Collection::do()->set_database(
+    Application::get_instance()->get_mysql_db()
+);
+```
+
+<a name="c-2-2-4-2"></a>
+#### collection_name
+
+Defines the name for the `Persistent_Collection`. That would be the table name in sql databases like Postgres and Mysql, the index name in indexers like Sphinx, Elastichsearch and Solr or the schema name in document databases like MongoDB.
+
+It can be defined in the definition at instantiation time of the `Persistent_Collection` with
+
+```php
+public function definition($collection)
+{
+    $collection->collection_name = "users";
+}
+```
+
+or at any other time with
+
+```php
+Users_Collection::do()->set_collection_name( "users" );
+```
+
+<a name="c-2-2-4-3"></a>
+#### objects_instantiator
+
+Defines how to instantiate new objects after reading records from the database and mapping them to objects.
+
+Since this library makes no assumptions on the type or protocol of the mapped objects there are several ways to instantiate new objects.
+
+##### class instantiator
+
+A class instantiator is the most simple instantiator. It assumes that mapped objects can be created with a `new` statement taking no parameters in its `__constructor()`
+
+```php
+public function definition($collection)
+{
+    $collection->instantiate_objects_with = User::class;
+
+    $collection->field_mappings = function($mapping) {
+
+        $mapping->field( "id" ) ->is_primary_key()
+            ->read_with( "get_id()" )
+            ->write_with( "set_id()" );
+
+        $mapping->field( "name" )
+            ->read_with( "get_name()" )
+            ->write_with( "set_name()" );
+
+        $mapping->field( "last_name" )
+            ->read_with( "get_last_name()" )
+            ->write_with( "set_last_name()" );
+    };
+}
+```
+
+##### closure instantiator
+
+Some classes may take parameters in their constructor or may require additional initialization
+and configuration.
+
+In such cases use a `closure` to instantiate objects. The closure receives the `$mapped_record` as its first parameter to make its values avaialable for the initialization in case they are required.
+
+The `$mapped_record` contains only the mapped fields values and it already applied the conversions defined for each field, if any.
+
+Optionaly the closure also receives the raw record as it was read from the database as a second parameter.
+
+```php
+public function definition($collection)
+{
+    $collection->instantiate_objects_with = function($mapped_record, $raw_record) {
+        return new User( $mapped_record[ "name" ], $mapped_record[ "last_name" ] );
+    }
+
+    $collection->field_mappings = function($mapping) {
+
+        $mapping->field( "id" ) ->is_primary_key()
+            ->read_with( "get_id()" )
+            ->write_with( "set_id()" );
+
+        $mapping->field( "name" )
+            ->read_with( "get_name()" );
+
+        $mapping->field( "last_name" )
+            ->read_with( "get_last_name()" );
+    };
+}
+```
+
+##### null instantiator
+
+When no instantiator is defined the `Persistent_Collection` returns an associative array with the mapped fields instead of an object.
+
+```php
+public function definition($collection)
+{
+    $collection->instantiate_objects_with = null;
+
+    $collection->field_mappings = function($mapping) {
+
+        $mapping->field( "id" ) ->is_primary_key()
+            ->read_with( "[id]" );
+
+        $mapping->field( "name" )
+            ->read_with( "[name]" );
+
+        $mapping->field( "last_name" )
+            ->read_with( "[last_name]" );
+
+    };
+}
+```
 
 <a name="c-3"></a>
 ## Running the tests

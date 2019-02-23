@@ -408,4 +408,141 @@ $spec->describe( "When evaluating an update statement in a Postgresql database",
 
     });
 
+    $this->it( "updates a record with parameters", function() {
+
+        $this->database->update( function($query) {
+
+            $query->collection( "users" );
+
+            $query->record(
+                $query->set( "name", $query->param( "name" ) ),
+                $query->set( "last_name", $query->param( "last_name" ) )
+            );
+
+            $query->filter(
+                $query->field( "id" ) ->op( "=" ) ->value( 3 )
+            );
+
+        }, [
+            "name" => "Margaret",
+            "last_name" => "simpson"
+        ]);
+
+        $rows = $this->database->query( function($query) {
+
+            $query->collection( "users" );
+
+            $query->order_by(
+                $query->field( "id" )
+            );
+
+        });
+
+        $this->expect( $rows ) ->to() ->be() ->exactly_like([
+            [
+                "id" => 1,
+                "name" => "Lisa",
+                "last_name" => "Simpson"
+            ],
+            [
+                "id" => 2,
+                "name" => "Bart",
+                "last_name" => "Simpson"
+            ],
+            [
+                "id" => 3,
+                "name" => "Margaret",
+                "last_name" => "simpson"
+            ],
+        ]);
+
+    });
+
+    $this->it( "updates a record with a compiled statement", function() {
+
+        $compiled_statement = $this->database->compile_update_statement( function($query) {
+
+            $query->collection( "users" );
+
+            $query->record(
+                $query->set( "name", $query->param( "name" ) ),
+                $query->set( "last_name", $query->param( "last_name" ) )
+            );
+
+            $query->filter(
+                $query->field( "id" ) ->op( "=" ) ->value( 3 )
+            );
+
+        });
+
+        $this->database->execute( $compiled_statement, [
+            "name" => "Margaret",
+            "last_name" => "simpson"
+        ]);
+
+        $rows = $this->database->query( function($query) {
+
+            $query->collection( "users" );
+
+            $query->order_by(
+                $query->field( "id" )
+            );
+
+        });
+
+        $this->expect( $rows ) ->to() ->be() ->exactly_like([
+            [
+                "id" => 1,
+                "name" => "Lisa",
+                "last_name" => "Simpson"
+            ],
+            [
+                "id" => 2,
+                "name" => "Bart",
+                "last_name" => "Simpson"
+            ],
+            [
+                "id" => 3,
+                "name" => "Margaret",
+                "last_name" => "simpson"
+            ],
+        ]);
+
+
+
+        $this->database->execute( $compiled_statement, [
+            "name" => "margaret",
+            "last_name" => "simpson"
+        ]);
+
+        $rows = $this->database->query( function($query) {
+
+            $query->collection( "users" );
+
+            $query->order_by(
+                $query->field( "id" )
+            );
+
+        });
+
+        $this->expect( $rows ) ->to() ->be() ->exactly_like([
+            [
+                "id" => 1,
+                "name" => "Lisa",
+                "last_name" => "Simpson"
+            ],
+            [
+                "id" => 2,
+                "name" => "Bart",
+                "last_name" => "Simpson"
+            ],
+            [
+                "id" => 3,
+                "name" => "margaret",
+                "last_name" => "simpson"
+            ],
+        ]);
+
+    });
+
 });
