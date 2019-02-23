@@ -84,9 +84,41 @@ class Persistent_Collection_DSL
         return $this;
     }
 
+    public function is_primary_key()
+    {
+        $this->current_field_mapping->set_is_primary_key( true );
+
+        return $this;
+    }
+
     public function read_with($value_reader)
     {
-        $this->current_field_mapping->set_value_reader( $value_reader );
+        $value_accessor = null;
+
+        if( is_string( $value_reader) ) {
+
+            if( $method_accessor = $this->is_method_accessor( $value_reader ) ) {
+                $value_accessor = Create::a( Method_Accessor::class )->with( $method_accessor );
+            }
+
+            if( $property_accessor = $this->is_property_accessor( $value_reader ) ) {
+                $value_accessor = Create::a( Property_Accessor::class )->with( $property_accessor );
+            }
+
+            if( $array_accessor = $this->is_array_accessor( $value_reader ) ) {
+                $value_accessor = Create::a( Array_Accessor::class )->with( $array_accessor );
+            }
+        }
+
+        if( is_a( $value_reader, \Closure::class ) ) {
+            $value_accessor = Create::a( Closure_Accessor::class )->with( $value_reader );
+        }
+
+        if( $value_accessor === null ) {
+            $this->raise_unexpected_read_with_value_error( $value_reader );
+        }
+
+        $this->current_field_mapping->set_value_reader( $value_accessor );
 
         return $this;
     }
@@ -100,6 +132,22 @@ class Persistent_Collection_DSL
             if( $method_accessor = $this->is_method_accessor( $value_writter ) ) {
                 $value_accessor = Create::a( Method_Accessor::class )->with( $method_accessor );
             }
+
+            if( $property_accessor = $this->is_property_accessor( $value_writter ) ) {
+                $value_accessor = Create::a( Property_Accessor::class )->with( $property_accessor );
+            }
+
+            if( $array_accessor = $this->is_array_accessor( $value_writter ) ) {
+                $value_accessor = Create::a( Array_Accessor::class )->with( $array_accessor );
+            }
+        }
+
+        if( is_a( $value_writter, \Closure::class ) ) {
+            $value_accessor = Create::a( Closure_Accessor::class )->with( $value_writter );
+        }
+
+        if( $value_accessor === null ) {
+            $this->raise_unexpected_write_with_value_error( $value_writter );
         }
 
         $this->current_field_mapping->set_value_writter( $value_accessor );
@@ -107,11 +155,33 @@ class Persistent_Collection_DSL
         return $this;
     }
 
-    protected function is_method_accessor($value_writter)
+    protected function is_method_accessor($accessor)
     {
         $matches = [];
 
-        if( ! \preg_match( "/^(.*)\(.*\)$/", $value_writter, $matches ) ) {
+        if( ! \preg_match( "/^(.*)\(.*\)$/", $accessor, $matches ) ) {
+            return null;
+        }
+
+        return $matches[ 1 ];
+    }
+
+    protected function is_property_accessor($accessor)
+    {
+        $matches = [];
+
+        if( ! \preg_match( "/^->(.*)$/", $accessor, $matches ) ) {
+            return null;
+        }
+
+        return $matches[ 1 ];
+    }
+
+    protected function is_array_accessor($accessor)
+    {
+        $matches = [];
+
+        if( ! \preg_match( "/^\[(.*)\]$/", $accessor, $matches ) ) {
             return null;
         }
 
@@ -130,5 +200,17 @@ class Persistent_Collection_DSL
     {
         throw Create::a( \RuntimeException::class )
                 ->with( "Unexpected instantiator." );
+    }
+
+    protected function raise_unexpected_read_with_value_error($value_reader)
+    {
+        throw Create::a( \RuntimeException::class )
+                ->with( "The read_with value '$value_reader' is not defined. Should be one of '->value', '[value]' or 'value()'." );
+    }
+
+    protected function raise_unexpected_write_with_value_error($value_writter)
+    {
+        throw Create::a( \RuntimeException::class )
+                ->with( "The write_with value '$value_writter' is not defined. Should be one of '->value', '[value]' or 'value()'." );
     }
 }

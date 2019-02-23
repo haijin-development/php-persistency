@@ -32,6 +32,8 @@ class Persistent_Collection
         }, $this );
     }
 
+    /// Definition
+
     public function define($closure, $binding = null)
     {
         if( $binding === null ) {
@@ -77,6 +79,39 @@ class Persistent_Collection
     public function add_field_mapping($field_mapping)
     {
         $this->field_mappings[] = $field_mapping;
+    }
+
+    public function get_id_field()
+    {
+        return $this->get_primary_key_field_mapping()->get_field_name();
+    }
+
+    public function get_id_of($object)
+    {
+        return $this->get_primary_key_field_mapping()->read_value_from( $object );
+    }
+
+    public function get_primary_key_field_mapping()
+    {
+        foreach( $this->field_mappings as $field_mapping ) {
+            if( $field_mapping->is_primary_key() ) {
+                return $field_mapping;
+            }
+        }
+
+        throw new \RuntimeException( "Missing a primary key field in the definition." );
+    }
+
+    public function get_object_values_from($object)
+    {
+        $values = [];
+
+        foreach( $this->field_mappings as $field_mapping ) {
+            $values[ $field_mapping->get_field_name() ] =
+                $field_mapping->read_value_from( $object );
+        }
+
+        return $values;
     }
 
     /// Querying
@@ -188,6 +223,36 @@ class Persistent_Collection
         return $this->record_to_object( $records[ 0 ] );
     }
 
+    /// Updating
+
+    public function update($object)
+    {
+        $field_id = $this->get_id_field();
+        $id = $this->get_id_of( $object );
+        $record_values = $this->get_object_values_from( $object );
+
+        $collection_name = $this->collection_name;
+
+        $this->get_database()->update( function($query)
+                                    use($collection_name, $field_id, $id, $record_values) {
+
+            $query->collection( $collection_name );
+
+            $expressions = [];
+            foreach( $record_values as $field => $value ) {
+                $expressions[] = $query->set( $field, $query->value( $value ) );
+            }
+
+            $query->record( ...$expressions );
+
+            $query->filter(
+                $query ->field( $field_id ) ->op( "=" ) ->value( $id )
+            );
+
+        });
+
+    }
+
     /// Converting
 
     /**
@@ -224,7 +289,9 @@ class Persistent_Collection
 
             $field_mapping->write_value_to(
                 $object,
-                $mapped_record[ $field_mapping->get_field_name() ]
+                $mapped_record[ $field_mapping->get_field_name() ],
+                $mapped_record,
+                $raw_record
             );
 
         }
