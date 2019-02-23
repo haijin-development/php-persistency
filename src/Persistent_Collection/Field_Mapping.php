@@ -7,6 +7,7 @@ use Haijin\Instantiator\Create;
 class Field_Mapping
 {
     protected $field_name;
+    protected $is_primary_key;
     protected $value_reader;
     protected $value_writter;
 
@@ -15,7 +16,7 @@ class Field_Mapping
     public function __construct($field_name)
     {
         $this->field_name = $field_name;
-
+        $this->is_primary_key = false;
         $this->value_reader = null;
         $this->value_writter = null;
     }
@@ -30,6 +31,16 @@ class Field_Mapping
     public function set_field_name($field_name)
     {
         $this->field_name = $field_name;
+    }
+
+    public function is_primary_key()
+    {
+        return $this->is_primary_key;
+    }
+
+    public function set_is_primary_key($boolean)
+    {
+        $this->is_primary_key = $boolean;
     }
 
     public function set_value_reader($value_reader)
@@ -50,14 +61,26 @@ class Field_Mapping
     }
 
     /**
+     * Reads the value from the $object.
+     */
+    public function read_value_from($object)
+    {
+        if( $this->value_writter === null ) {
+            throw new \RuntimeException( "Field mapping '{$this->field_name}' is missing the object value reader in its definition." );
+        }
+
+        return $this->value_reader->read_value_from( $object );
+    }
+
+    /**
      * Writtes the value to the $object.
      */
-    public function write_value_to($object, $value)
+    public function write_value_to(&$object, $value, $mapped_record, $raw_record)
     {
         if( $this->value_writter === null ) {
             return;
         }
 
-        $this->value_writter->write_value_to( $object, $value );
+        $this->value_writter->write_value_to( $object, $value, $mapped_record, $raw_record );
     }
 }

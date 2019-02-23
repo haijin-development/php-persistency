@@ -4,13 +4,13 @@ namespace Haijin\Persistency\Persistent_Collection;
 
 use Haijin\Instantiator\Create;
 
-class Method_Accessor
+class Property_Accessor
 {
-    protected $method_name;
+    protected $property_name;
 
-    public function __construct($method_name)
+    public function __construct($property_name)
     {
-        $this->method_name = $method_name;
+        $this->property_name = $property_name;
     }
 
     /**
@@ -18,9 +18,9 @@ class Method_Accessor
      */
     public function read_value_from($object)
     {
-        $method_name = $this->method_name;
+        $property_name = $this->property_name;
 
-        return $object->$method_name();
+        return $object->$property_name;
     }
 
     /**
@@ -28,8 +28,8 @@ class Method_Accessor
      */
     public function write_value_to($object, $value)
     {
-        $method_name = $this->method_name;
+        $property_name = $this->property_name;
 
-        $object->$method_name( $value );
+        $object->$property_name = $value;
     }
 }
