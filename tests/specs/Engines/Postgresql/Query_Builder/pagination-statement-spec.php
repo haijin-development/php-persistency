@@ -20,7 +20,7 @@ $spec->describe( "When building the pagination statement of a Postgresql express
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->pagination(
                 $query->offset( 2 )
@@ -42,7 +42,7 @@ $spec->describe( "When building the pagination statement of a Postgresql express
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->pagination(
                 $query->limit( 1 )
@@ -64,7 +64,7 @@ $spec->describe( "When building the pagination statement of a Postgresql express
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->pagination(
                 $query
@@ -90,7 +90,7 @@ $spec->describe( "When building the pagination statement of a Postgresql express
 
             $this->database->query( function($query) {
 
-                $query->collection( "users" );
+                $query->collection( "users_read_only" );
 
                 $query->pagination(
                     $query->page( 1 )
@@ -116,7 +116,7 @@ $spec->describe( "When building the pagination statement of a Postgresql express
 
             $this->database->query( function($query) {
 
-                $query->collection( "users" );
+                $query->collection( "users_read_only" );
 
                 $query->pagination(
                     $query->page_size( 10 )
@@ -140,7 +140,7 @@ $spec->describe( "When building the pagination statement of a Postgresql express
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->pagination(
                 $query

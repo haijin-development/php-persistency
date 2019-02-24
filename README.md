@@ -1074,7 +1074,7 @@ public function definition($collection)
 }
 ```
 
-The `write_with` closure receives 3 parameters: the object being mapped, the record with the values convereted according to the mapping definitions and the raw record as it came from the database.
+The `write_with` closure receives 3 parameters: the object being mapped, the record with the values converted according to the mapping definitions and the raw record as it came from the database.
 
 `write_with` might be absent, in which case the field will not be read from database.
 

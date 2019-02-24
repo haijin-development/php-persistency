@@ -14,13 +14,13 @@ $spec->describe( "When accessing object values", function() {
 
     $this->before_each( function() {
 
-        $this->re_populate_mysql_tables();
+        $this->clear_mysql_tables();
 
     });
 
     $this->after_all( function() {
 
-        $this->re_populate_mysql_tables();
+        $this->clear_mysql_tables();
 
     });
 
@@ -61,18 +61,18 @@ $spec->describe( "When accessing object values", function() {
 
             $user = new User();
 
-            $user->set_id( 3 );
+            $user->set_id( 1 );
             $user->set_name( "Margaret" );
             $user->set_last_name( "Simpson" );
 
-            $this->users_collection->update( $user );
+            $this->users_collection->create( $user );
 
             $user = $this->users_collection->last();
 
             $this->expect( $user ) ->to() ->be() ->a( User::class );
 
             $this->expect( $user ) ->to() ->be() ->exactly_like([
-                "get_id()" => 3,
+                "get_id()" => 1,
                 "get_name()" => "Margaret",
                 "get_last_name()" => "Simpson"
             ]);
@@ -114,18 +114,18 @@ $spec->describe( "When accessing object values", function() {
 
             $user = new \stdclass;
 
-            $user->id = 3;
+            $user->id = 1;
             $user->name = "Margaret";
             $user->last_name =  "Simpson";
 
-            $this->users_collection->update( $user );
+            $this->users_collection->create( $user );
 
             $user = $this->users_collection->last();
 
             $this->expect( $user ) ->to() ->be() ->a( \stdclass::class );
 
             $this->expect( $user ) ->to() ->be() ->exactly_like([
-                "id" => 3,
+                "id" => 1,
                 "name" => "Margaret",
                 "last_name" => "Simpson"
             ]);
@@ -168,19 +168,19 @@ $spec->describe( "When accessing object values", function() {
             });
 
             $user = [
-                "id" => 3,
+                "id" => 1,
                 "name" => "Margaret",
                 "last_name" => "Simpson"
             ];
 
-            $this->users_collection->update( $user );
+            $this->users_collection->create( $user );
 
             $user = $this->users_collection->last();
 
             $this->expect( $user ) ->to() ->be() ->array();
 
             $this->expect( $user ) ->to() ->be() ->exactly_like([
-                "id" => 3,
+                "id" => 1,
                 "name" => "Margaret",
                 "last_name" => "Simpson"
             ]);
@@ -216,13 +216,13 @@ $spec->describe( "When accessing object values", function() {
                             $object->set_id( $mapped_record[ "id" ] );
 
                             $spec->expect( $mapped_record ) ->to() ->be() ->exactly_like([
-                                "id" => 3,
+                                "id" => 1,
                                 "name" => "Margaret",
                                 "last_name" => "Simpson"
                             ]);
 
                             $spec->expect( $raw_record ) ->to() ->be() ->exactly_like([
-                                "id" => 3,
+                                "id" => 1,
                                 "name" => "Margaret",
                                 "last_name" => "Simpson"
                             ]);
@@ -257,18 +257,18 @@ $spec->describe( "When accessing object values", function() {
 
             $user = new User();
 
-            $user->set_id( 3 );
+            $user->set_id( 1 );
             $user->set_name( "Margaret" );
             $user->set_last_name( "Simpson" );
 
-            $this->users_collection->update( $user );
+            $this->users_collection->create( $user );
 
             $user = $this->users_collection->last();
 
             $this->expect( $user ) ->to() ->be() ->a( User::class );
 
             $this->expect( $user ) ->to() ->be() ->exactly_like([
-                "get_id()" => 3,
+                "get_id()" => 1,
                 "get_name()" => "margaret",
                 "get_last_name()" => "SIMPSON"
             ]);

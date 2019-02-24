@@ -18,7 +18,7 @@ $spec->describe( "When building a MySql expression", function() {
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->proyect(
                 $query->field( "name" ),
@@ -56,8 +56,8 @@ $spec->describe( "When building a MySql expression", function() {
             );
 
             $query->order_by(
-                $query->field( "users.last_name" ) ->desc(),
-                $query->field( "users.name" ) ->desc(),
+                $query->field( "users_read_only.last_name" ) ->desc(),
+                $query->field( "users_read_only.name" ) ->desc(),
                 $query->field( "address" ) ->desc()
             );
 
@@ -90,7 +90,7 @@ $spec->describe( "When building a MySql expression", function() {
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->proyect(
                 $query->field( "name" ),
@@ -137,8 +137,8 @@ $spec->describe( "When building a MySql expression", function() {
             );
 
             $query->order_by(
-                $query->field( "users.last_name" ) ->desc(),
-                $query->field( "users.name" ) ->desc(),
+                $query->field( "users_read_only.last_name" ) ->desc(),
+                $query->field( "users_read_only.name" ) ->desc(),
                 $query->field( "address" ) ->desc()
             );
 

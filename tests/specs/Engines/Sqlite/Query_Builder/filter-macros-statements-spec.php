@@ -18,7 +18,7 @@ $spec->describe( "When using macros in the filter statement of a Sqlite expressi
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->let( "matches_name", function($query) { return $query
                 ->field( "name" ) ->op( "=" ) ->value( "Lisa" );
@@ -44,7 +44,7 @@ $spec->describe( "When using macros in the filter statement of a Sqlite expressi
         $db = $this->database;
         $rows = $this->database->query( function($query) use($db) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->let( "matches_name", function($query) { return $query
                 ->field( "name" ) ->op( "=" ) ->value( "Lisa" );
@@ -76,7 +76,7 @@ $spec->describe( "When using macros in the filter statement of a Sqlite expressi
 
             $this->database->query( function($query) {
 
-                $query->collection( "users" );
+                $query->collection( "users_read_only" );
 
                 $query->let( "matches_name", function($query) { $query
                     ->field( "name" ) ->op( "=" ) ->value( "Lisa" );

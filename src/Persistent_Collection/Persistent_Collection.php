@@ -223,6 +223,31 @@ class Persistent_Collection
         return $this->record_to_object( $records[ 0 ] );
     }
 
+    /// Creating
+
+    public function create($object)
+    {
+        $field_id = $this->get_id_field();
+        $record_values = $this->get_object_values_from( $object );
+
+        $collection_name = $this->collection_name;
+
+        $this->get_database()->create( function($query)
+                                    use($collection_name, $field_id, $record_values) {
+
+            $query->collection( $collection_name );
+
+            $expressions = [];
+            foreach( $record_values as $field => $value ) {
+                $expressions[] = $query->set( $field, $query->value( $value ) );
+            }
+
+            $query->record( ...$expressions );
+
+        });
+
+    }
+
     /// Updating
 
     public function update($object)

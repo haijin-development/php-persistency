@@ -26,7 +26,7 @@ $spec->describe( "When instantiating objects from a MySql database", function() 
 
                 $collection->database = $db;
 
-                $collection->collection_name = "users";
+                $collection->collection_name = "users_read_only";
 
                 $collection->instantiate_objects_with = User::class;
 
@@ -69,7 +69,7 @@ $spec->describe( "When instantiating objects from a MySql database", function() 
 
                 $collection->database = $db;
 
-                $collection->collection_name = "users";
+                $collection->collection_name = "users_read_only";
 
                 $collection->instantiate_objects_with =
                                         function($mapped_record, $raw_record) use($spec) {
@@ -140,7 +140,7 @@ $spec->describe( "When instantiating objects from a MySql database", function() 
 
                 $collection->database = $db;
 
-                $collection->collection_name = "users";
+                $collection->collection_name = "users_read_only";
 
                 $collection->instantiate_objects_with = null;
 

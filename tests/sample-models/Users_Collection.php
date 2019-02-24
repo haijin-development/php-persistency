@@ -8,7 +8,7 @@ class Users_Persistent_Collection extends Persistent_Collection
     {
         $collection->database = null;
 
-        $collection->collection_name = "users";
+        $collection->collection_name = "users_read_only";
 
         $collection->instantiate_objects_with = User::class;
 

@@ -6,13 +6,13 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
     $this->before_each( function() {
 
-        $this->re_populate_mysql_tables();
+        $this->clear_mysql_tables();
 
     });
 
     $this->after_all( function() {
 
-        $this->re_populate_mysql_tables();
+        $this->clear_mysql_tables();
 
     });
 
@@ -26,14 +26,14 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
     });
 
-    $this->it( "gets the created id", function() {
+    $this->it( "returns the created id", function() {
 
         $this->database->create( function($query) {
 
             $query->collection( "users" );
 
             $query->record(
-                $query->set( "name", $query->value( "Homer" ) ),
+                $query->set( "name", $query->value( "Lisa" ) ),
                 $query->set( "last_name", $query->value( "Simpson" ) )
             );
 
@@ -41,7 +41,7 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $id = $this->database->get_last_created_id();
 
-        $this->expect( $id ) ->to() ->equal( 4 );
+        $this->expect( $id ) ->to() ->equal( 1 );
 
     });
 
@@ -52,7 +52,7 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
             $query->collection( "users" );
 
             $query->record(
-                $query->set( "name", $query->value( "Homer" ) ),
+                $query->set( "name", $query->value( "Lisa" ) ),
                 $query->set( "last_name", $query->value( "Simpson" ) )
             );
 
@@ -74,8 +74,8 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
-                "id" => 4,
-                "name" => "Homer",
+                "id" => 1,
+                "name" => "Lisa",
                 "last_name" => "Simpson"
             ],
         ]);
@@ -89,7 +89,7 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
             $query->collection( "users" );
 
             $query->record(
-                $query->set( "name", $query->concat( "Ho", "mer" ) ),
+                $query->set( "name", $query->concat( "Li", "sa" ) ),
                 $query->set( "last_name", $query->value( "Simpson" ) )
             );
 
@@ -111,8 +111,8 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
-                "id" => 4,
-                "name" => "Homer",
+                "id" => 1,
+                "name" => "Lisa",
                 "last_name" => "Simpson"
             ],
         ]);
@@ -126,7 +126,7 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
             $query->collection( "users" );
 
             $query->record(
-                $query->set( "name", $query->concat( "Ho", $query->lower( "MER" ) ) ),
+                $query->set( "name", $query->concat( "Li", $query->lower( "SA" ) ) ),
                 $query->set( "last_name", $query->value( "Simpson" ) )
             );
 
@@ -148,8 +148,8 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
-                "id" => 4,
-                "name" => "Homer",
+                "id" => 1,
+                "name" => "Lisa",
                 "last_name" => "Simpson"
             ],
         ]);
@@ -163,7 +163,7 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
             $query->collection( "users" );
 
             $query->record(
-                $query->set( "name", $query->lower( "HOMER" ) ),
+                $query->set( "name", $query->lower( "LISA" ) ),
                 $query->set( "last_name", $query->value( "Simpson" ) )
             );
 
@@ -185,8 +185,8 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
-                "id" => 4,
-                "name" => "homer",
+                "id" => 1,
+                "name" => "lisa",
                 "last_name" => "Simpson"
             ],
         ]);
@@ -223,7 +223,7 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
-                "id" => 4,
+                "id" => 1,
                 "name" => "7",
                 "last_name" => "Simpson"
             ],
@@ -263,7 +263,7 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
-                "id" => 4,
+                "id" => 1,
                 "name" => "7",
                 "last_name" => "Simpson"
             ],
@@ -300,7 +300,7 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
-                "id" => 4,
+                "id" => 1,
                 "name" => null,
                 "last_name" => "Simpson"
             ],
@@ -340,7 +340,7 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
-                "id" => 4,
+                "id" => 1,
                 "name" => "Homer",
                 "last_name" => "Simpson"
             ],
@@ -387,12 +387,12 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
         $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
-                "id" => 5,
+                "id" => 2,
                 "name" => "Marge",
                 "last_name" => "Simpson"
             ],
             [
-                "id" => 4,
+                "id" => 1,
                 "name" => "Homer",
                 "last_name" => "Simpson"
             ],

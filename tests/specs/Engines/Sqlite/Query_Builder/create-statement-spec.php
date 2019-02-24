@@ -30,7 +30,7 @@ $spec->describe( "When evaluating a create statement in a Sqlite database", func
 
         $this->database->create( function($query) {
 
-            $query->collection( "users_with_sequence" );
+            $query->collection( "users" );
 
             $query->record(
                 $query->set( "name", $query->value( "Lisa" ) ),
@@ -49,7 +49,7 @@ $spec->describe( "When evaluating a create statement in a Sqlite database", func
 
         $this->database->create( function($query) {
 
-            $query->collection( "users_with_sequence" );
+            $query->collection( "users" );
 
             $query->record(
                 $query->set( "name", $query->value( "Lisa" ) ),
@@ -60,7 +60,7 @@ $spec->describe( "When evaluating a create statement in a Sqlite database", func
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users_with_sequence" );
+            $query->collection( "users" );
 
             $query->order_by(
                 $query->field( "id" ) ->desc()
@@ -86,7 +86,7 @@ $spec->describe( "When evaluating a create statement in a Sqlite database", func
 
         $this->database->create( function($query) {
 
-            $query->collection( "users_with_sequence" );
+            $query->collection( "users" );
 
             $query->record(
                 $query->set( "name", $query->upper( "lisa" ) ),
@@ -97,7 +97,7 @@ $spec->describe( "When evaluating a create statement in a Sqlite database", func
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users_with_sequence" );
+            $query->collection( "users" );
 
             $query->order_by(
                 $query->field( "id" ) ->desc()
@@ -123,7 +123,7 @@ $spec->describe( "When evaluating a create statement in a Sqlite database", func
 
         $this->database->create( function($query) {
 
-            $query->collection( "users_with_sequence" );
+            $query->collection( "users" );
 
             $query->record(
                 $query->set( "name", $query->upper( $query->lower( "LiSa" ) ) ),
@@ -134,7 +134,7 @@ $spec->describe( "When evaluating a create statement in a Sqlite database", func
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users_with_sequence" );
+            $query->collection( "users" );
 
             $query->order_by(
                 $query->field( "id" ) ->desc()
@@ -160,7 +160,7 @@ $spec->describe( "When evaluating a create statement in a Sqlite database", func
 
         $this->database->create( function($query) {
 
-            $query->collection( "users_with_sequence" );
+            $query->collection( "users" );
 
             $query->record(
                 $query->set( "name", $query->lower( "LISA" ) ),
@@ -171,7 +171,7 @@ $spec->describe( "When evaluating a create statement in a Sqlite database", func
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users_with_sequence" );
+            $query->collection( "users" );
 
             $query->order_by(
                 $query->field( "id" ) ->desc()
@@ -198,7 +198,7 @@ $spec->describe( "When evaluating a create statement in a Sqlite database", func
 
         $this->database->create( function($query) {
 
-            $query->collection( "users_with_sequence" );
+            $query->collection( "users" );
 
             $query->record(
                 $query->set( "name", $query->value( 3 ) ->op( "+" ) ->value( 4 ) ),
@@ -209,7 +209,7 @@ $spec->describe( "When evaluating a create statement in a Sqlite database", func
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users_with_sequence" );
+            $query->collection( "users" );
 
             $query->order_by(
                 $query->field( "id" ) ->desc()
@@ -235,7 +235,7 @@ $spec->describe( "When evaluating a create statement in a Sqlite database", func
 
         $this->database->create( function($query) {
 
-            $query->collection( "users_with_sequence" );
+            $query->collection( "users" );
 
             $query->record(
                 $query->set( "name", $query->brackets(
@@ -249,7 +249,7 @@ $spec->describe( "When evaluating a create statement in a Sqlite database", func
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users_with_sequence" );
+            $query->collection( "users" );
 
             $query->order_by(
                 $query->field( "id" ) ->desc()
@@ -275,7 +275,7 @@ $spec->describe( "When evaluating a create statement in a Sqlite database", func
 
         $this->database->create( function($query) {
 
-            $query->collection( "users_with_sequence" );
+            $query->collection( "users" );
 
             $query->record(
                 $query->set( "name", $query->value( null ) ),
@@ -286,7 +286,7 @@ $spec->describe( "When evaluating a create statement in a Sqlite database", func
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users_with_sequence" );
+            $query->collection( "users" );
 
             $query->order_by(
                 $query->field( "id" ) ->desc()
@@ -312,7 +312,7 @@ $spec->describe( "When evaluating a create statement in a Sqlite database", func
 
         $this->database->create( function($query) {
 
-            $query->collection( "users_with_sequence" );
+            $query->collection( "users" );
 
             $query->record(
                 $query->set( "name", $query->param( "name" ) ),
@@ -326,7 +326,7 @@ $spec->describe( "When evaluating a create statement in a Sqlite database", func
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users_with_sequence" );
+            $query->collection( "users" );
 
             $query->order_by(
                 $query->field( "id" ) ->desc()
@@ -352,7 +352,7 @@ $spec->describe( "When evaluating a create statement in a Sqlite database", func
 
         $compiled_statement = $this->database->compile_create_statement( function($query) {
 
-            $query->collection( "users_with_sequence" );
+            $query->collection( "users" );
 
             $query->record(
                 $query->set( "name", $query->param( "name" ) ),
@@ -374,7 +374,7 @@ $spec->describe( "When evaluating a create statement in a Sqlite database", func
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users_with_sequence" );
+            $query->collection( "users" );
 
             $query->order_by(
                 $query->field( "id" ) ->desc()

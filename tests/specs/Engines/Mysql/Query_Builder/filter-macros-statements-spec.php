@@ -18,7 +18,7 @@ $spec->describe( "When using macros in the filter statement of a Mysql expressio
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->let( "matches_name", function($query) { return $query
                 ->field( "name" ) ->op( "=" ) ->value( "Lisa" );
@@ -43,7 +43,7 @@ $spec->describe( "When using macros in the filter statement of a Mysql expressio
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->let( "matches_name", function($query) { return $query
                 ->field( "name" ) ->op( "=" ) ->value( "Lisa" );
@@ -75,7 +75,7 @@ $spec->describe( "When using macros in the filter statement of a Mysql expressio
 
             $this->database->query( function($query) {
 
-                $query->collection( "users" );
+                $query->collection( "users_read_only" );
 
                 $query->let( "matches_name", function($query) { $query
                     ->field( "name" ) ->op( "=" ) ->value( "Lisa" );

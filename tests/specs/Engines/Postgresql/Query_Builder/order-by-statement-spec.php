@@ -6,13 +6,28 @@ $spec->describe( "When building the order by statement of a sql expression", fun
 
     $this->before_all( function() {
 
-        $this->sort_users();
+        $this->clear_postgresql_tables();
+
+        pg_query(
+            $this->postgresql,
+            "INSERT INTO users VALUES ( 1, 'Lisa', 'Simpson' );"
+        );
+
+        pg_query(
+            $this->postgresql,
+            "INSERT INTO users VALUES ( 2, 'Marge', 'Bouvier' );"
+        );
+
+        pg_query(
+            $this->postgresql,
+            "INSERT INTO users VALUES ( 3, 'Maggie', 'Simpson' );"
+        );
 
     });
 
     $this->after_all( function() {
 
-        $this->re_populate_postgres_tables();
+        $this->clear_postgresql_tables();
 
     });
 
@@ -122,15 +137,6 @@ $spec->describe( "When building the order by statement of a sql expression", fun
                 "last_name" => "Bouvier"
             ]
         ]);
-
-    });
-
-    $this->def( "sort_users", function() {
-
-        pg_query( $this->postgresql, "TRUNCATE users;" );
-        pg_query( $this->postgresql, "INSERT INTO users VALUES ( 1, 'Lisa', 'Simpson' );" );
-        pg_query( $this->postgresql, "INSERT INTO users VALUES ( 2, 'Marge', 'Bouvier' );" );
-        pg_query( $this->postgresql, "INSERT INTO users VALUES ( 3, 'Maggie', 'Simpson' );" );
 
     });
 

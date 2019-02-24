@@ -35,7 +35,7 @@ $spec->describe( "When stablishing a connection to a Mysql database", function()
         $this->expect( function() use($database) {
 
             $database->query( function($query) {
-                $query->collection( "users" );
+                $query->collection( "users_read_only" );
             });
 
         }) ->to() ->raise(

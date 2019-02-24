@@ -6,13 +6,23 @@ $spec->describe( "When evaluating an update statement in a MySql database", func
 
     $this->before_each( function() {
 
-        $this->re_populate_mysql_tables();
+        $this->clear_mysql_tables();
+
+        $this->mysql->query(
+            "INSERT INTO users VALUES ( 1, 'Lisa', 'Simpson' );"
+        );
+        $this->mysql->query(
+            "INSERT INTO users VALUES ( 2, 'Bart', 'Simpson' );"
+        );
+        $this->mysql->query(
+            "INSERT INTO users VALUES ( 3, 'Maggie', 'Simpson' );"
+        );
 
     });
 
     $this->after_all( function() {
 
-        $this->re_populate_mysql_tables();
+        $this->clear_mysql_tables();
 
     });
 

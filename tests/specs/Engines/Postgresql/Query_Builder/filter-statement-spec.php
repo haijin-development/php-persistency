@@ -20,7 +20,7 @@ $spec->describe( "When building the filter statement of a Postgresql expression"
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->filter(
                 $query ->field( "name" ) ->op( "=" ) ->value( "Lisa" )
@@ -42,7 +42,7 @@ $spec->describe( "When building the filter statement of a Postgresql expression"
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" ) ->as( "u" );
+            $query->collection( "users_read_only" ) ->as( "u" );
 
             $query->filter(
                 $query ->field( "u.name" ) ->op( "=" ) ->value( "Lisa" )
@@ -64,7 +64,7 @@ $spec->describe( "When building the filter statement of a Postgresql expression"
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->filter(
                 $query ->field( "name" ) ->op( "=" ) ->value( "Lisa" )
@@ -86,7 +86,7 @@ $spec->describe( "When building the filter statement of a Postgresql expression"
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->filter(
                 $query ->field( "name" ) ->op( "=" ) ->concat( "Lis", "a" )
@@ -108,7 +108,7 @@ $spec->describe( "When building the filter statement of a Postgresql expression"
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->filter(
                 $query ->field( "name" )
@@ -132,7 +132,7 @@ $spec->describe( "When building the filter statement of a Postgresql expression"
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->filter(
                 $query ->field( "id" )
@@ -156,7 +156,7 @@ $spec->describe( "When building the filter statement of a Postgresql expression"
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->filter(
                 $query ->field( "id" ) ->is_null()
@@ -172,7 +172,7 @@ $spec->describe( "When building the filter statement of a Postgresql expression"
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->filter(
                 $query ->field( "id" ) ->is_not_null()
@@ -204,7 +204,7 @@ $spec->describe( "When building the filter statement of a Postgresql expression"
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->filter(
                 $query->field( "name" )->upper() ->op( "=" ) ->value( "LISA" )
@@ -226,7 +226,7 @@ $spec->describe( "When building the filter statement of a Postgresql expression"
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->filter(
                 $query->field( "id" )
@@ -256,7 +256,7 @@ $spec->describe( "When building the filter statement of a Postgresql expression"
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->filter(
                 $query->field( "last_name" ) ->op( "=" ) ->value( "Simpson" )
@@ -280,7 +280,7 @@ $spec->describe( "When building the filter statement of a Postgresql expression"
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->filter(
                 $query->field( "name" ) ->op( "=" ) ->value( "Lisa" )
@@ -309,7 +309,7 @@ $spec->describe( "When building the filter statement of a Postgresql expression"
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->filter(
                 $query->field( "name" ) ->op( "=" ) ->value( "Lisa" )
@@ -342,7 +342,7 @@ $spec->describe( "When building the filter statement of a Postgresql expression"
 
             $this->database->query( function($query) {
 
-                $query->collection( "users" );
+                $query->collection( "users_read_only" );
 
                 $query->filter(
                     $query->field( "name" ) ->op( "=" ) ->value( "Lisa" )
@@ -373,7 +373,7 @@ $spec->describe( "When building the filter statement of a Postgresql expression"
 
             $compiled_statement = $this->database->compile_query_statement( function($query) {
 
-                $query->collection( "users" );
+                $query->collection( "users_read_only" );
 
                 $query->filter(
                     $query ->field( "name" ) ->op( "=" ) ->param( "name" )

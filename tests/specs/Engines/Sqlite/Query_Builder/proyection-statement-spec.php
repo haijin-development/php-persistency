@@ -18,7 +18,7 @@ $spec->describe( "When building the proyection statement of a Sqlite expression"
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->proyect(
                 $query->all()
@@ -50,7 +50,7 @@ $spec->describe( "When building the proyection statement of a Sqlite expression"
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->proyect(
                 $query->field( "name" ),
@@ -80,7 +80,7 @@ $spec->describe( "When building the proyection statement of a Sqlite expression"
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->proyect(
                 $query->field( "name" ) ->as( "n" ),
@@ -110,7 +110,7 @@ $spec->describe( "When building the proyection statement of a Sqlite expression"
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->proyect(
                 $query ->value( 1 ),
@@ -140,7 +140,7 @@ $spec->describe( "When building the proyection statement of a Sqlite expression"
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->proyect(
                 $query->value( 1 ) ->as( "v1" ),
@@ -170,7 +170,7 @@ $spec->describe( "When building the proyection statement of a Sqlite expression"
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->proyect(
                 $query ->lower( "Lisa" ) ->as( "s" )
@@ -196,7 +196,7 @@ $spec->describe( "When building the proyection statement of a Sqlite expression"
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->proyect(
                 $query->lower(
@@ -224,7 +224,7 @@ $spec->describe( "When building the proyection statement of a Sqlite expression"
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->proyect(
                 $query->lower( $query->upper( "a" ) ) ->as( "s" )
@@ -250,7 +250,7 @@ $spec->describe( "When building the proyection statement of a Sqlite expression"
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->proyect(
                 $query->brackets(

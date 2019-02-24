@@ -17,14 +17,7 @@ class Postgresql_Methods
 
             $this->drop_postgresql_tables();
             $this->create_postgresql_tables();
-            $this->populate_postgresql_tables();
-
-        });
-
-        $spec->def( "re_populate_postgres_tables", function() {
-
-            $this->clear_postgresql_tables();
-            $this->populate_postgresql_tables();
+            $this->populate_postgresql_read_only_tables();
 
         });
 
@@ -37,11 +30,21 @@ class Postgresql_Methods
 
         $spec->def( "drop_postgresql_tables", function() {
 
-            pg_query( $this->postgresql, "DROP TABLE IF EXISTS users;" );
+            pg_query( $this->postgresql, "DROP TABLE IF EXISTS users_read_only;" );
             pg_query( $this->postgresql, "DROP TABLE IF EXISTS address_1;" );
             pg_query( $this->postgresql, "DROP TABLE IF EXISTS address_2;" );
             pg_query( $this->postgresql, "DROP TABLE IF EXISTS cities;" );
-            pg_query( $this->postgresql, "DROP TABLE IF EXISTS users_with_sequence;" );
+            pg_query( $this->postgresql, "DROP TABLE IF EXISTS users;" );
+
+        });
+
+        $spec->def( "clear_postgresql_tables", function() {
+
+            pg_query( $this->postgresql, "TRUNCATE users;" );
+            pg_query(
+                $this->postgresql,
+                "SELECT setval('users_id_seq', 1, false);"
+            );
 
         });
 
@@ -49,7 +52,7 @@ class Postgresql_Methods
 
             pg_query(
                 $this->postgresql, 
-                "CREATE TABLE users (
+                "CREATE TABLE users_read_only (
                     id INT PRIMARY KEY,
                     name VARCHAR(45) NULL,
                     last_name VARCHAR(45) NULL
@@ -86,7 +89,7 @@ class Postgresql_Methods
 
             pg_query(
                 $this->postgresql, 
-                "CREATE TABLE users_with_sequence (
+                "CREATE TABLE users (
                     id SERIAL PRIMARY KEY,
                     name VARCHAR(45) NULL,
                     last_name VARCHAR(45) NULL
@@ -96,30 +99,19 @@ class Postgresql_Methods
         });
 
 
-        $spec->def( "clear_postgresql_tables", function() {
-
-            pg_query( $this->postgresql, "TRUNCATE users;" );
-            pg_query( $this->postgresql, "TRUNCATE address_1;" );
-            pg_query( $this->postgresql, "TRUNCATE address_2;" );
-            pg_query( $this->postgresql, "TRUNCATE cities;" );
-            pg_query( $this->postgresql, "TRUNCATE users_with_sequence;" );
-
-        });
-
-        $spec->def( "populate_postgresql_tables", function() {
+        $spec->def( "populate_postgresql_read_only_tables", function() {
 
             pg_query(
                 $this->postgresql, 
-                "INSERT INTO users VALUES ( 1, 'Lisa', 'Simpson' );"
-            );
-
-            pg_query(
-                $this->postgresql, 
-                "INSERT INTO users VALUES ( 2, 'Bart', 'Simpson' );"
+                "INSERT INTO users_read_only VALUES ( 1, 'Lisa', 'Simpson' );"
             );
             pg_query(
                 $this->postgresql, 
-                "INSERT INTO users VALUES ( 3, 'Maggie', 'Simpson' );"
+                "INSERT INTO users_read_only VALUES ( 2, 'Bart', 'Simpson' );"
+            );
+            pg_query(
+                $this->postgresql, 
+                "INSERT INTO users_read_only VALUES ( 3, 'Maggie', 'Simpson' );"
             );
             pg_query(
                 $this->postgresql, 
@@ -133,7 +125,6 @@ class Postgresql_Methods
                 $this->postgresql, 
                 "INSERT INTO address_1 VALUES ( 30, 3, 1, 'Evergreen', '742' );"
             );
-
             pg_query(
                 $this->postgresql, 
                 "INSERT INTO address_2 VALUES ( 100, 1, 1, 'Evergreen 742', '' );"
@@ -146,12 +137,10 @@ class Postgresql_Methods
                 $this->postgresql, 
                 "INSERT INTO address_2 VALUES ( 300, 3, 1, 'Evergreen 742', '' );"
             );
-
             pg_query(
                 $this->postgresql, 
                 "INSERT INTO cities VALUES ( 1, 'Springfield' );"
             );
-
             pg_query(
                 $this->postgresql, 
                 "INSERT INTO cities VALUES ( 2, 'Springfield_' );"
