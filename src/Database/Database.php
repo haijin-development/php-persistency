@@ -65,6 +65,8 @@ abstract class Database
      */
     abstract public function create($create_closure, $named_parameters = [], $binding = null);
 
+    abstract public function get_last_created_id();
+
     /**
      * Compiles the $update_closure and executes the update statement in the database server.
      *
@@ -82,6 +84,8 @@ abstract class Database
      *      referenced in the delete_closure.
      */
     abstract public function delete($delete_closure, $named_parameters = [], $binding = null);
+
+    abstract public function clear_all($collection_name);
 
     /**
      * Compiles the $query_closure and retunrs the compiled

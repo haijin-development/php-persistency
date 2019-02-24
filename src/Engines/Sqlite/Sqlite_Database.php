@@ -150,6 +150,11 @@ class Sqlite_Database extends Database
         return $this->execute( $compiled_statement, $named_parameters );
     }
 
+    public function clear_all($collection_name)
+    {
+        $this->evaluate_sql_string( "delete from {$collection_name};" );
+    }
+
     /**
      * Compiles the $query_closure and retunrs the compiled
      *      Haijin\Persistency\Statement_Compiler\Query_Statement.

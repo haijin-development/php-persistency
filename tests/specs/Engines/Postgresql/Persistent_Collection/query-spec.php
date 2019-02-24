@@ -1,15 +1,17 @@
 <?php
 
-use Haijin\Persistency\Engines\Mysql\Mysql_Database;
+use Haijin\Persistency\Engines\Postgresql\Postgresql_Database;
 use Haijin\Persistency\Persistent_Collection\Persistent_Collection;
 
-$spec->describe( "When querying a Persistent_Collection stored in a MySql database", function() {
+$spec->describe( "When querying a Persistent_Collection stored in a Postgresql database", function() {
 
     $this->before_all( function() {
 
-        $this->database = new Mysql_Database();
+        $this->database = new Postgresql_Database();
 
-        $this->database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
+        $this->database->connect(
+            "host=localhost port=5432 dbname=haijin-persistency user=haijin password=123456"
+        );
 
         Users_Collection::get()->set_database( $this->database );
 

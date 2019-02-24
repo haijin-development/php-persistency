@@ -40,11 +40,7 @@ class Postgresql_Methods
 
         $spec->def( "clear_postgresql_tables", function() {
 
-            pg_query( $this->postgresql, "TRUNCATE users;" );
-            pg_query(
-                $this->postgresql,
-                "SELECT setval('users_id_seq', 1, false);"
-            );
+            pg_query( $this->postgresql, "truncate users restart identity;" );
 
         });
 

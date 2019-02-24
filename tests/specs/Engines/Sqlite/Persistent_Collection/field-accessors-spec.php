@@ -1,15 +1,15 @@
 <?php
 
-use Haijin\Persistency\Engines\Mysql\Mysql_Database;
+use Haijin\Persistency\Engines\Sqlite\Sqlite_Database;
 use Haijin\Persistency\Persistent_Collection\Persistent_Collection;
 
 $spec->describe( "When accessing object values", function() {
 
     $this->before_all( function() {
 
-        $this->database = new Mysql_Database();
+        $this->database = new Sqlite_Database();
 
-        $this->database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
+        $this->database->connect( $this->sqlite_file );
 
         Users_Collection::get()->set_database( $this->database );
 
