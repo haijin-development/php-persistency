@@ -3,8 +3,8 @@
 namespace Haijin\Persistency\Statement_Compiler;
 
 use Haijin\Dictionary;
-use Haijin\Persistency\Errors\QueryExpressions\Macro_Expression_Not_Found_Error;
-use Haijin\Persistency\Errors\QueryExpressions\Macro_Expression_Evaluated_To_Null_Error;
+use Haijin\Persistency\Errors\Query_Expressions\Macro_Expression_Not_Found_Error;
+use Haijin\Persistency\Errors\Query_Expressions\Macro_Expression_Evaluated_To_Null_Error;
 
 /**
  * This object holds all the necessary context any Expression needs.

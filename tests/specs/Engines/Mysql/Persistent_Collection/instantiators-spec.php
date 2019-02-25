@@ -13,10 +13,6 @@ $spec->describe( "When instantiating objects from a MySql database", function() 
 
         Users_Collection::get()->set_database( $this->database );
 
-    });
-
-    $this->before_each( function() {
-
         Users_Collection::do()->clear_all();
 
         Users_Collection::do()->create_from_attributes([

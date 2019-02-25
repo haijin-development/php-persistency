@@ -1,6 +1,6 @@
 <?php
 
-namespace Haijin\Persistency\Persistent_Collection;
+namespace Haijin\Persistency\Persistent_Collection\Object_Accessors;
 
 use Haijin\Instantiator\Create;
 

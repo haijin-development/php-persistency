@@ -3,6 +3,10 @@
 namespace Haijin\Persistency\Persistent_Collection;
 
 use Haijin\Instantiator\Create;
+use \Haijin\Persistency\Persistent_Collection\Object_Accessors\Method_Accessor;
+use \Haijin\Persistency\Persistent_Collection\Object_Accessors\Property_Accessor;
+use \Haijin\Persistency\Persistent_Collection\Object_Accessors\Array_Accessor;
+use \Haijin\Persistency\Persistent_Collection\Object_Accessors\Closure_Accessor;
 
 class Persistent_Collection_DSL
 {

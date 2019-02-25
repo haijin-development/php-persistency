@@ -4,7 +4,7 @@ namespace Haijin\Persistency\Statement_Compiler;
 
 use Haijin\Instantiator\Create;
 use Haijin\Persistency\Statements\Query_Statement;
-use Haijin\Persistency\Errors\QueryExpressions\Macro_Expression_Evaluated_To_Null_Error;
+use Haijin\Persistency\Errors\Query_Expressions\Macro_Expression_Evaluated_To_Null_Error;
 
 /**
  * Object to build a Query_Statement from a query definition closure.

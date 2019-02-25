@@ -89,7 +89,7 @@ $spec->describe( "When using macros in the filter statement of a Sqlite expressi
             });
 
         }) ->to() ->raise(
-            \Haijin\Persistency\Errors\QueryExpressions\Macro_Expression_Evaluated_To_Null_Error::class,
+            \Haijin\Persistency\Errors\Query_Expressions\Macro_Expression_Evaluated_To_Null_Error::class,
             function($error) {
                 $this->expect( $error->getMessage() ) ->to() ->equal(
                     "The macro expression 'matches_name' evaluated to null. Probably it is missing the return statement."

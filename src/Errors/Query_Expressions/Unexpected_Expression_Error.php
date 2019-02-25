@@ -1,6 +1,6 @@
 <?php
 
-namespace Haijin\Persistency\Errors\QueryExpressions;
+namespace Haijin\Persistency\Errors\Query_Expressions;
 
 use Haijin\Persistency\Errors\Persistency_Error;
 

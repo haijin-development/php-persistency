@@ -3,9 +3,9 @@
 namespace Haijin\Persistency\Sql;
 
 use Haijin\Instantiator\Create;
-use Haijin\Persistency\Errors\QueryExpressions\Missing_Limit_Expression_Error;
-use Haijin\Persistency\Errors\QueryExpressions\Missing_Page_Number_Expression_Error;
-use Haijin\Persistency\Errors\QueryExpressions\Missing_Page_Size_Expression_Error;
+use Haijin\Persistency\Errors\Query_Expressions\Missing_Limit_Expression_Error;
+use Haijin\Persistency\Errors\Query_Expressions\Missing_Page_Number_Expression_Error;
+use Haijin\Persistency\Errors\Query_Expressions\Missing_Page_Size_Expression_Error;
 use Haijin\Persistency\Statements_Visitors\Expressions\Pagination_Visitor;
 
 class Sql_Pagination_Builder extends Pagination_Visitor

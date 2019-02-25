@@ -3,6 +3,7 @@
 namespace Haijin\Persistency\Persistent_Collection;
 
 use Haijin\Instantiator\Create;
+use Haijin\Persistency\Errors\Persistency_Error;
 
 class Persistent_Collection
 {
@@ -125,17 +126,82 @@ class Persistent_Collection
 
     public function find_by_id($id)
     {
-        $id_field = $this->get_id_field();
+        return $this->find_by([
+            $this->get_id_field() => $id
+        ]);
+    }
 
-        return $this->first( function($query) use($id_field, $id) {
+    public function find_by_id_if_absent($id, $absent_closure, $binding = null)
+    {
+        $object = $this->find_by_id( $id );
 
-            $this->filter(
+        if( $object !== null ) {
+            return $object;
+        }
 
-                $query->field( $id_field ) ->op( "=" ) ->value( $id )
+        if( $binding === null ) {
+            $binding = $this;
+        }
 
-            );
+        return $absent_closure->call( $binding, $id );
+    }
+
+    public function find_by($field_values)
+    {
+        $found_objects = $this->all( function($query) use($field_values) {
+
+            $first_expression = true;
+            $expression = null;
+
+            foreach( $field_values as $field_name => $value ) {
+
+                if( $first_expression === true ) {
+
+                    $expression = $query ->brackets(
+                        $query ->field( $field_name ) ->op( "=" ) ->value( $value )
+                    );
+
+                    $first_expression = false;
+
+                } else {
+
+                    $expression = $expression ->and() ->brackets(
+                        $query ->field( $field_name ) ->op( "=" ) ->value( $value )
+                    );
+
+                }
+            }
+
+            $this->filter( $expression );
 
         });
+
+        $found_count = count( $found_objects );
+
+        if( $found_count == 0 ) {
+            return null;
+        }
+
+        if( $found_count == 1 ) {
+            return $found_objects[ 0 ];
+        }
+
+        throw new Persistency_Error( "find_by found {$found_count} records." );
+    }
+
+    public function find_by_if_absent($field_values, $absent_closure, $binding = null)
+    {
+        $object = $this->find_by( $field_values );
+
+        if( $object !== null ) {
+            return $object;
+        }
+
+        if( $binding === null ) {
+            $binding = $this;
+        }
+
+        return $absent_closure->call( $binding, $field_values );
     }
 
     /// Querying
