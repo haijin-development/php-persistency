@@ -4,7 +4,7 @@ namespace Haijin\Persistency\Sql;
 
 use Haijin\Instantiator\Create;
 use Haijin\Persistency\Factory\Factory;
-use Haijin\Persistency\Errors\QueryExpressions\Unexpected_Expression_Error;
+use Haijin\Persistency\Errors\Query_Expressions\Unexpected_Expression_Error;
 
 trait Sql_Builder_Trait
 {

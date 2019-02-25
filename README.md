@@ -55,6 +55,11 @@ If you like it a lot you may contribute by [financing](https://github.com/haijin
             1. [delete](#c-2-2-7-1)
             2. [delete_all](#c-2-2-7-2)
             3. [clear_all](#c-2-2-7-3)
+        8. [Finding objects](#c-2-2-8)
+            1. [find_by_id](#c-2-2-8-1)
+            2. [find_by_id_if_absent](#c-2-2-8-2)
+            3. [find_by](#c-2-2-8-3)
+            4. [find_by_if_absent](#c-2-2-8-4)
     3. [Migrations](#c-2-3)
 3. [Running the tests](#c-3)
 4. [Developing with Vagrant](#c-4)
@@ -1311,6 +1316,71 @@ $this->after_all( function() {
 ```
 
 but it is not meant to be used in real applications. That's why it is a different method from `delete_all`.
+
+<a name="c-2-2-8"></a>
+#### Finding objects
+
+Finds a single object matching one or more field values by equality.
+
+<a name="c-2-2-8-1"></a>
+##### find_by_id
+
+Find an object by its primary key:
+
+```php
+$user = Users_Collection::do()->find_by_id( $user_id );
+```
+
+Returns `null` if the id does not exist.
+
+<a name="c-2-2-8-2"></a>
+##### find_by_id_if_absent
+
+Find an object by its primary key or evaluate a closure if it does no exist:
+
+```php
+$user = Users_Collection::do()->find_by_id_if_absent( $user_id, function($id) {
+
+    $this->raise_404_error( $id );
+
+}, $this );
+```
+
+<a name="c-2-2-8-3"></a>
+##### find_by
+
+Find an object by matching some of its fields:
+
+```php
+$user = Users_Collection::do()->find_by([
+    "name" => "Lisa",
+    "last_name" => "Simpson"
+]);
+```
+
+Returns `null` if no object is found.
+
+Raises an error if more than one object is found.
+
+<a name="c-2-2-8-4"></a>
+##### find_by_if_absent
+
+Find an object by matching some of its fields or evaluate a closure if absent:
+
+```php
+$user = Users_Collection::do()->find_by_if_absent([
+
+    "name" => "Lisa",
+    "last_name" => "Simpson"
+
+], function($fields) {
+
+    $this->raise_404_error( $fields );
+
+}, $this );
+```
+
+Raises an error if more than one object is found.
 
 <a name="c-3"></a>
 ## Running the tests

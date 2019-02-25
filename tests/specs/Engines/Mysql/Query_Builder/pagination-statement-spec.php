@@ -29,7 +29,7 @@ $spec->describe( "When building the pagination statement of a Mysql expression",
             });
 
         }) ->to() ->be() ->raise(
-            \Haijin\Persistency\Errors\QueryExpressions\Missing_Limit_Expression_Error::class,
+            \Haijin\Persistency\Errors\Query_Expressions\Missing_Limit_Expression_Error::class,
             function($error) {
 
                 $this->expect( $error->getMessage() ) ->to() ->equal(
@@ -101,7 +101,7 @@ $spec->describe( "When building the pagination statement of a Mysql expression",
             });
 
         }) ->to() ->be() ->raise(
-            \Haijin\Persistency\Errors\QueryExpressions\Missing_Page_Size_Expression_Error::class,
+            \Haijin\Persistency\Errors\Query_Expressions\Missing_Page_Size_Expression_Error::class,
             function($error) {
 
                 $this->expect( $error->getMessage() ) ->to() ->equal(
@@ -127,7 +127,7 @@ $spec->describe( "When building the pagination statement of a Mysql expression",
             });
 
         }) ->to() ->be() ->raise(
-            \Haijin\Persistency\Errors\QueryExpressions\Missing_Page_Number_Expression_Error::class,
+            \Haijin\Persistency\Errors\Query_Expressions\Missing_Page_Number_Expression_Error::class,
             function($error) {
 
                 $this->expect( $error->getMessage() ) ->to() ->equal(

@@ -3,7 +3,7 @@
 namespace Haijin\Persistency\Statement_Compiler;
 
 use Haijin\Instantiator\Create;
-use Haijin\Persistency\Errors\QueryExpressions\Macro_Expression_Evaluated_To_Null_Error;
+use Haijin\Persistency\Errors\Query_Expressions\Macro_Expression_Evaluated_To_Null_Error;
 use Haijin\Persistency\Statements\Expressions\Expressions_Factory_Trait;
 use Haijin\Persistency\Statements\Expressions\Expressions_DSL_Trait;
 
