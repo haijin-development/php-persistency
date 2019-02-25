@@ -57,6 +57,11 @@ abstract class Abstract_Query_Expression_Visitor
     /// General expressions
 
     /**
+     * Accepts a Count_Expression.
+     */
+    abstract public function accept_count_expression($count_expression);
+
+    /**
      * Accepts an All_Fields_Expression.
      */
     abstract public function accept_all_fields_expression($all_fields_expression);

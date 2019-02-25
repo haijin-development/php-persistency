@@ -60,6 +60,7 @@ If you like it a lot you may contribute by [financing](https://github.com/haijin
             2. [find_by_id_if_absent](#c-2-2-8-2)
             3. [find_by](#c-2-2-8-3)
             4. [find_by_if_absent](#c-2-2-8-4)
+        9. [Counting objects](#c-2-2-9)
     3. [Migrations](#c-2-3)
 3. [Running the tests](#c-3)
 4. [Developing with Vagrant](#c-4)
@@ -1381,6 +1382,44 @@ $user = Users_Collection::do()->find_by_if_absent([
 ```
 
 Raises an error if more than one object is found.
+
+<a name="c-2-2-9"></a>
+#### Counting objects
+
+Count all the objects with:
+
+```php
+$count = Users_Collection::get()->count();
+```
+
+Count the objects matching a filter with:
+
+```php
+$count = Users_Collection::get()->count( function($query) {
+
+    $query->filter(
+
+        $query->field( "last_name" ) ->op( "=" ) ->value( "Simpson" );
+
+    );
+
+});
+```
+
+or with named parameters:
+
+```php
+$count = Users_Collection::get()->count( function($query) {
+
+    $query->filter(
+
+        $query->field( "last_name" ) ->op( "=" ) ->param( "ln" );
+
+    );
+
+}, [ "ln" => "Simpson" ] );
+```
+
 
 <a name="c-3"></a>
 ## Running the tests

@@ -83,6 +83,14 @@ trait Query_Visitor_Trait
     }
 
     /**
+     * Accepts a Count_Expression.
+     */
+    public function accept_count_expression($count_expression)
+    {
+        $this->raise_unexpected_expression_error( $count_expression );
+    }
+
+    /**
      * Accepts an All_Fields_Expression.
      */
     public function accept_all_fields_expression($all_fields_expression)

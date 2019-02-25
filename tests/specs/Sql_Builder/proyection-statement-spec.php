@@ -180,4 +180,22 @@ $spec->describe( "When building the proyection statement of a sql expression", f
 
     });
 
+    $this->it( "builds the select count statement", function() {
+
+        $sql = $this->query_builder->build( function($query) {
+
+            $query->collection( "users" );
+
+            $query->proyect(
+                $query->count()
+            );
+
+        });
+
+        $this->expect( $sql ) ->to() ->equal(
+            "select count(*) from users;"
+        );
+
+    });
+
 });
