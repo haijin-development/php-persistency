@@ -6,6 +6,7 @@ use  Haijin\Instantiator\Create;
 use Haijin\Persistency\Errors\Connections\Database_Query_Error;
 use Haijin\Persistency\Errors\Connections\Uninitialized_Connection_Error;
 use Haijin\Persistency\Errors\Connections\Connection_Failure_Error;
+use Haijin\Persistency\Types_Converters\Types_Converter;
 
 /**
  * Base class for database engines wrappers.
@@ -16,6 +17,8 @@ use Haijin\Persistency\Errors\Connections\Connection_Failure_Error;
  */
 abstract class Database
 {
+    protected $types_converter;
+
     /// Initializing
 
     /**
@@ -24,7 +27,21 @@ abstract class Database
      */
     public function __construct()
     {
+        $this->types_converter = $this->default_types_converter();
     }
+
+    /// Type convertions
+
+    public function default_types_converter()
+    {
+        return Create::a( Types_Converter::class )->with();
+    }
+
+    public function get_types_converter()
+    {
+        return $this->types_converter;
+    }
+
 
     /// Connecting
 

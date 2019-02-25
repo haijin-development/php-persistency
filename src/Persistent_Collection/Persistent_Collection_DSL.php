@@ -95,6 +95,13 @@ class Persistent_Collection_DSL
         return $this;
     }
 
+    public function type($type)
+    {
+        $this->current_field_mapping->set_type( $type );
+
+        return $this;
+    }
+
     public function read_with($value_reader)
     {
         $value_accessor = null;

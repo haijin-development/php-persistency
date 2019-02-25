@@ -3,11 +3,13 @@
 namespace Haijin\Persistency\Persistent_Collection;
 
 use Haijin\Instantiator\Create;
+use Haijin\Persistency\Types_Converters\Types_Converter;
 
 class Field_Mapping
 {
     protected $field_name;
     protected $is_primary_key;
+    protected $type;
     protected $value_reader;
     protected $value_writter;
 
@@ -17,6 +19,7 @@ class Field_Mapping
     {
         $this->field_name = $field_name;
         $this->is_primary_key = false;
+        $this->type = null;
         $this->value_reader = null;
         $this->value_writter = null;
     }
@@ -43,6 +46,16 @@ class Field_Mapping
         $this->is_primary_key = $boolean;
     }
 
+    public function get_type()
+    {
+        return $this->type;
+    }
+
+    public function set_type($type)
+    {
+        $this->type = $type;
+    }
+
     public function set_value_reader($value_reader)
     {
         $this->value_reader = $value_reader;
@@ -55,9 +68,12 @@ class Field_Mapping
 
     /// Field values
 
-    public function get_mapped_value($raw_record)
+    public function get_mapped_value($raw_record, $database)
     {
-        return $raw_record[ $this->field_name ];
+        return $this->convert_value_from_db(
+            $raw_record[ $this->field_name ],
+            $database
+        );
     }
 
     /**
@@ -65,11 +81,20 @@ class Field_Mapping
      */
     public function read_value_from($object)
     {
-        if( $this->value_writter === null ) {
+        if( $this->value_reader === null ) {
             throw new \RuntimeException( "Field mapping '{$this->field_name}' is missing the object value reader in its definition." );
         }
 
         return $this->value_reader->read_value_from( $object );
+    }
+
+    public function convert_value_from_db($value, $database)
+    {
+        if( $this->type === null || $value === null ) {
+            return $value;
+        }
+
+        return $database->get_types_converter()->convert_from_database( $this->type, $value );
     }
 
     /**

@@ -370,20 +370,29 @@ class Mysql_Database extends Database
             return;
         }
 
+        $types_converter = $this->get_types_converter();
+
         $types = "";
 
         foreach( $sql_parameters as $i => $value ) {
 
-            if( is_string( $value ) )
+            if( is_string( $value ) ) {
                 $types .= "s";
-            elseif( is_double( $value ) )
+            }
+            elseif( is_double( $value ) ) {
                 $types .= "d";
-            elseif( is_int( $value ) )
+            }
+            elseif( is_int( $value ) ) {
                 $types .= "i";
-            elseif( $value === null )
+            }
+            elseif( $value === null ) {
                 $types .= "i";
-            else
-                $types;
+            }
+            else {
+                $types .= "s";
+                $sql_parameters[ $i ] = $types_converter->convert_to_database( $value );
+            }
+
         }
 
         $statement_handle->bind_param( $types, ...$sql_parameters );

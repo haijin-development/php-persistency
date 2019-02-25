@@ -42,8 +42,9 @@ If you like it a lot you may contribute by [financing](https://github.com/haijin
             4. [field_mappings](#c-2-2-4-4)
                 1. [field](#c-2-2-4-4-1)
                 2. [is_primary_key](#c-2-2-4-4-2)
-                3. [read_with](#c-2-2-4-4-3)
-                4. [write_with](#c-2-2-4-4-4)
+                3. [type](#c-2-2-4-4-3)
+                4. [read_with](#c-2-2-4-4-4)
+                5. [write_with](#c-2-2-4-4-5)
         5. [Creating objects](#c-2-2-5)
             1. [create](#c-2-2-5-1)
             2. [create_from_attributes](#c-2-2-5-2)
@@ -914,6 +915,45 @@ public function definition($collection)
 ```
 
 <a name="c-2-2-4-4-3"></a>
+##### type
+
+Defines how to convert a value from and to a database.
+
+```php
+public function definition($collection)
+{
+    $collection->field_mappings = function($mapping) {
+
+        $mapping->field( "id" ) ->is_primary_key()
+            ->type( "integer" );
+
+        $mapping->field( "name" )
+            ->type( "string" );
+
+        $mapping->field( "last_name" )
+            ->type( "string" );
+
+    };
+}
+```
+
+It can be any of:
+
+```php
+->type( "string" )
+->type( "integer" )
+->type( "double" )
+->type( "boolean" )
+->type( "date" )
+->type( "time" )
+->type( "date_time" )
+->type( "json" )
+```
+
+The possibility to define custom types will be added in the future.
+
+
+<a name="c-2-2-4-4-4"></a>
 ##### read_with
 
 Defines how to read the value from the object to persist it in the database.
@@ -1012,7 +1052,7 @@ public function definition($collection)
 
 `read_with` might be absent, in which case the field will not be written to the database (`read_with` reads from the object to the database).
 
-<a name="c-2-2-4-4-4"></a>
+<a name="c-2-2-4-4-5"></a>
 ##### write_with
 
 Defines how to write the value from the database to the object.
@@ -1444,7 +1484,7 @@ $users = Users_Collection::get()->all( function($query) {
 
     $query->filter(
 
-        $query->field( "last_name" ) ->op( "=" ) ->param( "Simpson" );
+        $query->field( "last_name" ) ->op( "=" ) ->value( "Simpson" );
 
     );
 
@@ -1483,7 +1523,7 @@ $user = Users_Collection::get()->first( function($query) {
 
     $query->filter(
 
-        $query->field( "last_name" ) ->op( "=" ) ->param( "Simpson" );
+        $query->field( "last_name" ) ->op( "=" ) ->value( "Simpson" );
 
     );
 
@@ -1516,7 +1556,7 @@ $user = Users_Collection::get()->first( function($query) {
 ```
 
 
-Get the first object in the collection. Mostly useful when testing:
+Get the first object in the collection sorted by id. Mostly useful when testing:
 
 ```php
 $user = Users_Collection::get()->first();
@@ -1573,7 +1613,6 @@ class Users_Persistent_Collection extends Persistent_Collection
                 ->read_with( "get_last_name()" )
                 ->write_with( "set_last_name()" );
         };
-
     }
 }
 
@@ -1610,9 +1649,9 @@ Users_Collection::do()->delete( $user );
 <a name="c-2-2-11-2"></a>
 ##### Query methods
 
-Define each query on a `Persistent_Collection` on a method in the `Persistent_Collection` subclass.
+Define each query on a `Persistent_Collection` subclass in its own method.
 
-This way all the queries will be in a single point in the source code, making it easier to understand and debug the application for developers.
+This way all the queries will be in a single point in the source code, making it easier for developers to understand and debug the application.
 
 ```php
 class Users_Persistent_Collection extends Persistent_Collection
@@ -1639,7 +1678,6 @@ class Users_Persistent_Collection extends Persistent_Collection
                 ->read_with( "get_last_name()" )
                 ->write_with( "set_last_name()" );
         };
-
     }
 
     /// Queries
@@ -1757,7 +1795,6 @@ class Users_Persistent_Collection extends Persistent_Collection
                 ->read_with( "is_admin()" )
                 ->write_with( "set_is_admin()" );
         };
-
     }
 
     /// Creating
@@ -1838,7 +1875,6 @@ class Users_Persistent_Collection extends Persistent_Collection
                 ->many_referenced_from( Books_Collection::class, "id_user" )
                 ->write_with( "set_books()" );
         };
-
     }
 
     /// Deleting

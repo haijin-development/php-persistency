@@ -556,7 +556,7 @@ class Persistent_Collection
         foreach( $this->field_mappings as $field_mapping ) {
 
             $mapped_record[ $field_mapping->get_field_name() ] =
-                $field_mapping->get_mapped_value( $raw_record );
+                $field_mapping->get_mapped_value( $raw_record, $this->database );
 
         }
 

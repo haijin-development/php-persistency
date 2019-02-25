@@ -351,6 +351,8 @@ class Postgresql_Database extends Database
      */
     public function evaluate_sql_string($sql, $sql_parameters = [])
     {
+        $types_converter = $this->get_types_converter();
+
         foreach( $sql_parameters as $i => $value ) {
 
             if( $value === null ) {
@@ -362,6 +364,7 @@ class Postgresql_Database extends Database
             } elseif( is_int( $value ) || is_double( $value ) ) {
                 $value = $value;
             } else {
+                $value = $types_converter->convert_to_database( $value );
                 $value = \pg_escape_literal( $this->connection_handle, $value );
             }
 

@@ -7,6 +7,10 @@ services:
   - mysql
   - postgresql
 
+addons:
+  postgresql: "9.4"
+  mysql: "8.0"
+
 before_install:
   - mysql -u root --password="" < provision-scritps/mysql.sql
   - psql -U postgres -f provision-scritps/postgres.sql

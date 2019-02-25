@@ -20,7 +20,7 @@ use Haijin\Persistency\Statement_Compiler\Update_Statement_Compiler;
 use Haijin\Persistency\Statement_Compiler\Delete_Statement_Compiler;
 use Haijin\Persistency\Engines\Sqlite\Query_Builder\Sqlite_Expression_In_Filter_Builder;
 use Haijin\Persistency\Engines\Sqlite\Query_Builder\Sqlite_Pagination_Builder;
-
+use Haijin\Persistency\Types_Converters\Boolean_To_Integer;
 
 class Sqlite_Database extends Database
 {
@@ -37,6 +37,17 @@ class Sqlite_Database extends Database
         parent::__construct();
 
         $this->connection_handle = null;
+    }
+
+    /// Types converters
+
+    public function default_types_converter()
+    {
+        return parent::default_types_converter()->define( function($types_converter) {
+
+            $types_converter->set_type_converter( "boolean", new Boolean_To_Integer() );
+
+        });
     }
 
     /// Connecting
@@ -383,7 +394,11 @@ class Sqlite_Database extends Database
             return;
         }
 
+        $types_converter = $this->get_types_converter();
+
         foreach( $sql_parameters as $i => $value ) {
+            $value = $types_converter->convert_to_database( $value );
+
             $statement_handle->bindValue( $i + 1, $value );
         }
     }
