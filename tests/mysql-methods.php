@@ -22,6 +22,7 @@ class Mysql_Methods
         $spec->def( "clear_mysql_tables", function() {
 
             $this->mysql->query( "TRUNCATE users;" );
+            $this->mysql->query( "TRUNCATE types;" );
 
         });
 
@@ -40,6 +41,7 @@ class Mysql_Methods
             $this->mysql->query( "DROP TABLE IF EXISTS cities;" );
 
             $this->mysql->query( "DROP TABLE IF EXISTS users;" );
+            $this->mysql->query( "DROP TABLE IF EXISTS types;" );
         });
 
         $spec->def( "create_mysql_tables", function() {
@@ -85,6 +87,22 @@ class Mysql_Methods
                     `id` INT NOT NULL AUTO_INCREMENT,
                     `name` VARCHAR(45) NULL,
                     `last_name` VARCHAR(45) NULL,
+                    PRIMARY KEY (`id`)
+                );"
+            );
+
+            $this->mysql->query(
+                "CREATE TABLE `haijin-persistency`.`types` (
+                    `id` INT NOT NULL AUTO_INCREMENT,
+                    `no_type_field` VARCHAR(45) NULL,
+                    `string_field` VARCHAR(45) NULL,
+                    `integer_field` INT NULL,
+                    `double_field` DOUBLE NULL,
+                    `boolean_field` VARCHAR(1) NULL,
+                    `date_field` DATE NULL,
+                    `time_field` TIME NULL,
+                    `date_time_field` DATETIME NULL,
+                    `json_field` TEXT NULL,
                     PRIMARY KEY (`id`)
                 );"
             );

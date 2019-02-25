@@ -28,6 +28,7 @@ class Sqlite_Methods
         $spec->def( "clear_sqlite_tables", function() {
 
             $this->sqlite->query( "delete from users;" );
+            $this->sqlite->query( "delete from types;" );
 
         });
 
@@ -49,6 +50,7 @@ class Sqlite_Methods
             $this->sqlite->query( "DROP TABLE IF EXISTS address_2;" );
             $this->sqlite->query( "DROP TABLE IF EXISTS cities;" );
             $this->sqlite->query( "DROP TABLE IF EXISTS users;" );
+            $this->sqlite->query( "DROP TABLE IF EXISTS types;" );
 
         });
 
@@ -90,6 +92,20 @@ class Sqlite_Methods
                 "CREATE TABLE `cities` (
                     `id` INTEGER PRIMARY KEY,
                     `name` VARCHAR(45) NULL
+                );"
+            );
+            $this->sqlite->query(
+                "CREATE TABLE `types` (
+                    `id` INTEGER PRIMARY KEY,
+                    `no_type_field` varchar(45) NULL,
+                    `string_field` varchar(45) NULL,
+                    `integer_field` integer NULL,
+                    `double_field` real NULL,
+                    `boolean_field` boolean NULL,
+                    `date_field` date NULL,
+                    `time_field` time NULL,
+                    `date_time_field` timestamp NULL,
+                    `json_field` json NULL
                 );"
             );
 

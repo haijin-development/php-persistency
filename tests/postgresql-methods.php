@@ -35,12 +35,14 @@ class Postgresql_Methods
             pg_query( $this->postgresql, "DROP TABLE IF EXISTS address_2;" );
             pg_query( $this->postgresql, "DROP TABLE IF EXISTS cities;" );
             pg_query( $this->postgresql, "DROP TABLE IF EXISTS users;" );
+            pg_query( $this->postgresql, "DROP TABLE IF EXISTS types;" );
 
         });
 
         $spec->def( "clear_postgresql_tables", function() {
 
             pg_query( $this->postgresql, "truncate users restart identity;" );
+            pg_query( $this->postgresql, "truncate types restart identity;" );
 
         });
 
@@ -89,6 +91,23 @@ class Postgresql_Methods
                     id SERIAL PRIMARY KEY,
                     name VARCHAR(45) NULL,
                     last_name VARCHAR(45) NULL
+                );"
+            );
+
+            pg_query(
+                $this->postgresql, 
+                "CREATE TABLE types (
+                    id SERIAL PRIMARY KEY,
+                    no_type_field varchar(45) NULL,
+                    string_field varchar(45) NULL,
+                    integer_field integer NULL,
+                    double_field real NULL,
+                    boolean_field boolean NULL,
+                    date_field date NULL,
+                    time_field time NULL,
+                    date_time_field timestamp NULL,
+                    timestamp_field timestamp NULL,
+                    json_field jsonb NULL
                 );"
             );
 
