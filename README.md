@@ -61,6 +61,15 @@ If you like it a lot you may contribute by [financing](https://github.com/haijin
             3. [find_by](#c-2-2-8-3)
             4. [find_by_if_absent](#c-2-2-8-4)
         9. [Counting objects](#c-2-2-9)
+        10. [Querying](#c-2-2-10)
+            1. [all](#c-2-2-10-1)
+            2. [first](#c-2-2-10-2)
+            3. [last](#c-2-2-10-3)
+        11. [Persistent_Collection patterns](#c-2-2-11)
+            1. [Singleton collection](#c-2-2-11-1)
+            2. [Query methods](#c-2-2-11-2)
+            3. [Default optional values](#c-2-2-11-3)
+            4. [Cascade delete](#c-2-2-11-4)
     3. [Migrations](#c-2-3)
 3. [Running the tests](#c-3)
 4. [Developing with Vagrant](#c-4)
@@ -1420,6 +1429,444 @@ $count = Users_Collection::get()->count( function($query) {
 }, [ "ln" => "Simpson" ] );
 ```
 
+<a name="c-2-2-10"></a>
+#### Querying
+
+Search for objects matching a criteria.
+
+<a name="c-2-2-10-1"></a>
+##### all
+
+Find all objects matching a query:
+
+```php
+$users = Users_Collection::get()->all( function($query) {
+
+    $query->filter(
+
+        $query->field( "last_name" ) ->op( "=" ) ->param( "Simpson" );
+
+    );
+
+});
+```
+
+or with named parameters:
+
+```php
+$users = Users_Collection::get()->all( function($query) {
+
+    $query->filter(
+
+        $query->field( "last_name" ) ->op( "=" ) ->param( "ln" );
+
+    );
+
+}, [ "ln" => "Simpson" ] );
+```
+
+Get all the objects in the collection. Mostly useful when testing:
+
+```php
+$users = Users_Collection::get()->all();
+```
+
+<a name="c-2-2-10-2"></a>
+##### first
+
+Find the first object matching a query.
+
+The difference with `find_by` is that `first` allows queries of any complexitiy instead of just matching fields for equality and that `find_by` raises an error if more than one record matches the criteria where `first` returns the first one if there are more than one.
+
+```php
+$user = Users_Collection::get()->first( function($query) {
+
+    $query->filter(
+
+        $query->field( "last_name" ) ->op( "=" ) ->param( "Simpson" );
+
+    );
+
+    $query->pagination(
+
+        $query->limit( 1 )
+
+    );
+});
+```
+
+or with named parameters:
+
+```php
+$user = Users_Collection::get()->first( function($query) {
+
+    $query->filter(
+
+        $query->field( "last_name" ) ->op( "=" ) ->param( "ln" );
+
+    );
+
+    $query->pagination(
+
+        $query->limit( 1 )
+
+    );
+
+}, [ "ln" => "Simpson" ] );
+```
+
+
+Get the first object in the collection. Mostly useful when testing:
+
+```php
+$user = Users_Collection::get()->first();
+```
+
+<a name="c-2-2-10-3"></a>
+##### last
+
+Find the last object in the collection sorted by id.
+
+Mostly useful when testing.
+
+```php
+$user = Users_Collection::get()->last();
+```
+
+<a name="c-2-2-11"></a>
+#### Persistent_Collection patterns
+
+The following conventions are not mandatory but they are recommended.
+
+<a name="c-2-2-11-1"></a>
+##### Singleton collection
+
+Declare a second class for each `Persisted_Collection` subclass and make it a `Persisted_Collection` getter.
+
+
+In file `Users_Collection.php`.
+
+```php
+namespace App\Users_Collection;
+
+class Users_Persistent_Collection extends Persistent_Collection
+{
+    public function definition($collection)
+    {
+        $collection->database = Application::get_instance()->get_mysql_db();
+
+        $collection->collection_name = "users";
+
+        $collection->instantiate_objects_with = User::class;
+
+        $collection->field_mappings = function($mapping) {
+
+            $mapping->field( "id" ) ->is_primary_key()
+                ->read_with( "get_id()" )
+                ->write_with( "set_id()" );
+
+            $mapping->field( "name" )
+                ->read_with( "get_name()" )
+                ->write_with( "set_name()" );
+
+            $mapping->field( "last_name" )
+                ->read_with( "get_last_name()" )
+                ->write_with( "set_last_name()" );
+        };
+
+    }
+}
+
+class Users_Collection
+{
+    static public $instance;
+
+    static public function get()
+    {
+        return self::$instance;
+    }
+
+    static public function do()
+    {
+        return self::$instance;
+    }
+}
+
+Users_Collection::$instance = new Users_Persistent_Collection();
+```
+
+to be used like:
+
+```php
+$all_users = Users_Collection::get()->all();
+
+$first_user = Users_Collection::get()->first();
+
+Users_Collection::do()->create( $user );
+Users_Collection::do()->update( $user );
+Users_Collection::do()->delete( $user );
+```
+
+<a name="c-2-2-11-2"></a>
+##### Query methods
+
+Define each query on a `Persistent_Collection` on a method in the `Persistent_Collection` subclass.
+
+This way all the queries will be in a single point in the source code, making it easier to understand and debug the application for developers.
+
+```php
+class Users_Persistent_Collection extends Persistent_Collection
+{
+    public function definition($collection)
+    {
+        $collection->database = null;
+
+        $collection->collection_name = "users";
+
+        $collection->instantiate_objects_with = User::class;
+
+        $collection->field_mappings = function($mapping) {
+
+            $mapping->field( "id" ) ->is_primary_key()
+                ->read_with( "get_id()" )
+                ->write_with( "set_id()" );
+
+            $mapping->field( "name" )
+                ->read_with( "get_name()" )
+                ->write_with( "set_name()" );
+
+            $mapping->field( "last_name" )
+                ->read_with( "get_last_name()" )
+                ->write_with( "set_last_name()" );
+        };
+
+    }
+
+    /// Queries
+
+    /**
+     * Returns all the users in a page sorted by (last_name, name, id).
+     */
+    public function all_sorted_by_name($page, $page_size)
+    {
+        return $this->all( function($query) use($page, $page_size) {
+
+            $query->order_by(
+                $query->field( "last_name" ),
+                $query->field( "name" ),
+                $query->field( "id" ),                
+            );
+
+            $query->pagination(
+                $query->page( $page ),
+                $query->page_size( $page_size ),
+            );
+
+        });
+    }
+
+    /**
+     * Returns all the users in a page with a name matching a term sorted by (last_name, name, id).
+     */
+    public function all_matching_name($q, $page, $page_size)
+    {
+        return $this->all( function($query) use($q, $page, $page_size) {
+
+            $query->filter(
+                $query
+                    ->concat( $query->field( "name" ), " ", $query->field( "last_name") )
+                    ->op( "like" )
+                    ->concat( "%", $query->value( $q ), "%" )
+            );
+
+            $query->order_by(
+                $query->field( "last_name" ),
+                $query->field( "name" ),
+                $query->field( "id" ),                
+            );
+
+            $query->pagination(
+                $query->page( $page ),
+                $query->page_size( $page_size ),
+            );
+
+        });
+    }
+}
+
+class Users_Collection
+{
+    static public $instance;
+
+    static public function get()
+    {
+        return self::$instance;
+    }
+
+    static public function do()
+    {
+        return self::$instance;
+    }
+}
+```
+
+to be used like:
+
+```php
+$users = Users_Collection::get()->all_sorted_by_name( 0, 30 );
+
+$users = Users_Collection::get()->all_matching_name( $search_term, 0, 30 );
+```
+
+<a name="c-2-2-11-3"></a>
+##### Default optional values
+
+Override `create` and `update` to assign default values to the optional fields instead of, or besides of, relying in the database definition.
+
+
+```php
+class Users_Persistent_Collection extends Persistent_Collection
+{
+    public function definition($collection)
+    {
+        $collection->database = null;
+
+        $collection->collection_name = "users";
+
+        $collection->instantiate_objects_with = User::class;
+
+        $collection->field_mappings = function($mapping) {
+
+            $mapping->field( "id" ) ->is_primary_key()
+                ->type( "integer" )
+                ->read_with( "get_id()" )
+                ->write_with( "set_id()" );
+
+            $mapping->field( "name" )
+                ->type( "string" )
+                ->read_with( "get_name()" )
+                ->write_with( "set_name()" );
+
+            $mapping->field( "last_name" )
+                ->type( "string" )
+                ->read_with( "get_last_name()" )
+                ->write_with( "set_last_name()" );
+
+            $mapping->field( "is_admin" )
+                ->type( "boolean" )
+                ->read_with( "is_admin()" )
+                ->write_with( "set_is_admin()" );
+        };
+
+    }
+
+    /// Creating
+
+    public function create($user)
+    {
+        if( $user->is_admin() === null ) {
+            $user->set_is_admin( false );
+        }
+
+        parent::create( $user );
+    }
+}
+
+class Users_Collection
+{
+    static public $instance;
+
+    static public function get()
+    {
+        return self::$instance;
+    }
+
+    static public function do()
+    {
+        return self::$instance;
+    }
+}
+```
+
+<a name="c-2-2-11-4"></a>
+##### Cascade delete
+
+Make cascade deletes explicit and procedural.
+
+The library makes no assumptions on the database. It might support cascade delete or not.
+
+The library makes no assumptions nor conventions on an entity relation belonging to another one. Declarative cascade owneship tend to be confusing for developers.
+
+```php
+class Users_Persistent_Collection extends Persistent_Collection
+{
+    public function definition($collection)
+    {
+        $collection->database = null;
+
+        $collection->collection_name = "users";
+
+        $collection->instantiate_objects_with = User::class;
+
+        $collection->field_mappings = function($mapping) {
+
+            $mapping->field( "id" ) ->is_primary_key()
+                ->type( "integer" )
+                ->read_with( "get_id()" )
+                ->write_with( "set_id()" );
+
+            $mapping->field( "name" )
+                ->type( "string" )
+                ->read_with( "get_name()" )
+                ->write_with( "set_name()" );
+
+            $mapping->field( "last_name" )
+                ->type( "string" )
+                ->read_with( "get_last_name()" )
+                ->write_with( "set_last_name()" );
+
+            $mapping->field( "is_admin" )
+                ->type( "boolean" )
+                ->read_with( "is_admin()" )
+                ->write_with( "set_is_admin()" );
+
+            $mapping->field( "address" )
+                ->one_referenced_from( Address_Collection::class, "id_user" )
+                ->write_with( "set_address()" );
+
+            $mapping->field( "books" )
+                ->many_referenced_from( Books_Collection::class, "id_user" )
+                ->write_with( "set_books()" );
+        };
+
+    }
+
+    /// Deleting
+
+    public function delete($user)
+    {
+        Address_Collection::delete_all_belonging_to( $user );
+        Books_Collection::delete_all_belonging_to( $user );
+
+        parent::delete( $user );
+    }
+}
+
+class Users_Collection
+{
+    static public $instance;
+
+    static public function get()
+    {
+        return self::$instance;
+    }
+
+    static public function do()
+    {
+        return self::$instance;
+    }
+}
+```
 
 <a name="c-3"></a>
 ## Running the tests
@@ -1458,6 +1905,7 @@ and run the tests
 
 ```
 cd src/php-persistency
+composer install
 composer specs
 ```
 
