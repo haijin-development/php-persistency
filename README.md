@@ -40,6 +40,21 @@ If you like it a lot you may contribute by [financing](https://github.com/haijin
                 2. [closure instantiator](#c-2-2-4-3-2)
                 3. [null instantiator](#c-2-2-4-3-3)
             4. [field_mappings](#c-2-2-4-4)
+                1. [field](#c-2-2-4-4-1)
+                2. [is_primary_key](#c-2-2-4-4-2)
+                3. [read_with](#c-2-2-4-4-3)
+                4. [write_with](#c-2-2-4-4-4)
+        5. [Creating objects](#c-2-2-5)
+            1. [create](#c-2-2-5-1)
+            2. [create_from_attributes](#c-2-2-5-2)
+        6. [Updating objects](#c-2-2-6)
+            1. [update](#c-2-2-6-1)
+            2. [update_from_attributes](#c-2-2-6-2)
+            3. [update_all](#c-2-2-6-3)
+        7. [Deleting objects](#c-2-2-7)
+            1. [delete](#c-2-2-7-1)
+            2. [delete_all](#c-2-2-7-2)
+            3. [clear_all](#c-2-2-7-3)
     3. [Migrations](#c-2-3)
 3. [Running the tests](#c-3)
 4. [Developing with Vagrant](#c-4)
@@ -1074,7 +1089,7 @@ public function definition($collection)
 }
 ```
 
-The `write_with` closure receives 3 parameters: the object being mapped, the record with the values convereted according to the mapping definitions and the raw record as it came from the database.
+The `write_with` closure receives 3 parameters: the object being mapped, the record with the values converted according to the mapping definitions and the raw record as it came from the database.
 
 `write_with` might be absent, in which case the field will not be read from database.
 
@@ -1109,6 +1124,193 @@ public function definition($collection)
     };
 }
 ```
+
+<a name="c-2-2-5"></a>
+#### Creating objects
+
+<a name="c-2-2-5-1"></a>
+#### create
+
+Persist an object with:
+
+```php
+$user = new User();
+
+$user->set_name( "Lisa" );
+$user->set_last_name( "Simpson" );
+
+Users_Collection::do()->create( $user );
+```
+
+<a name="c-2-2-5-2"></a>
+#### create_from_attributes
+
+Create an object from its attributes with:
+
+```php
+$user = Users_Collection::do()->create_from_attributes([
+        "name" => "Lisa",
+        "last_name" => "Simpson",
+    ]);
+```
+
+<a name="c-2-2-6"></a>
+#### Updating objects
+
+<a name="c-2-2-6-1"></a>
+##### update
+
+Update an object with:
+
+```php
+$user = Users_Collection::get()->find_by_id( $object_id );
+
+$user->set_name( "Margaret" );
+
+Users_Collection::do()->update( $user );
+```
+
+<a name="c-2-2-6-2"></a>
+##### update_from_attributes
+
+Update an object from its attributes with:
+
+```php
+$user = Users_Collection::get()->find_by_id( $object_id );
+
+Users_Collection::do()->update_from_attributes( $user, [
+    "name" => "Margaret"
+]);
+```
+
+<a name="c-2-2-6-3"></a>
+##### update_all
+
+Update many objects in batch with:
+
+```php
+Users_Collection::do()->update_all( function($query) {
+
+    $query->record(
+        $query->set( "last_name", $query->field( "last_name" )->lower() )
+    );
+
+    $query->filter(
+
+        $query->field( "id") ->op( "<=" ) ->value( 2 )
+
+    );
+
+});
+```
+
+or with named parameters:
+
+```php
+Users_Collection::do()->update_all( function($query) {
+
+    $query->record(
+        $query->set( "last_name", $query->param( "last_name" ) )
+    );
+
+    $query->filter(
+
+        $query->field( "id") ->op( "<=" ) ->param( "id" )
+
+    );
+
+}, [ "last_name" => "simpson", "id" => 2 ] );
+```
+
+<a name="c-2-2-7"></a>
+#### Deleting objects
+
+<a name="c-2-2-7-1"></a>
+##### delete
+
+Delete an object with:
+
+```php
+$user = Users_Collection::get()->find_by_id( $object_id );
+
+Users_Collection::do()->delete( $user );
+```
+
+<a name="c-2-2-7-2"></a>
+##### delete_all
+
+Delete many objects in batch with:
+
+```php
+Users_Collection::do()->delete_all( function($query) {
+
+    $query->filter(
+
+        $query->field( "id") ->op( "<=" ) ->value( 2 )
+
+    );
+
+});
+```
+
+or with named parameters:
+
+```php
+Users_Collection::do()->delete_all( function($query) {
+
+    $query->filter(
+
+        $query->field( "id") ->op( "<=" ) ->param( "id" )
+
+    );
+
+}, [ "id" => 2 ] );
+```
+
+<a name="c-2-2-7-3"></a>
+##### clear_all
+
+Delete all the objects in a Persistent_Collection with
+
+```php
+Users_Collection::do()->clear_all();
+```
+
+Clearing a `Persistent_Collection` is useful for easily setting up a database in place when implementing tests:
+
+```php
+$this->before_each( function() {
+
+    Users_Collection::do()->clear_all();
+
+    Users_Collection::do()->create_from_attributes([
+        "id" => 1,
+        "name" => "Lisa",
+        "last_name" => "Simpson",
+    ]);
+
+    Users_Collection::do()->create_from_attributes([
+        "id" => 2,
+        "name" => "Bart",
+        "last_name" => "Simpson",
+    ]);
+
+    Users_Collection::do()->create_from_attributes([
+        "id" => 3,
+        "name" => "Maggie",
+        "last_name" => "Simpson",
+    ]);
+
+});
+
+$this->after_all( function() {
+
+    Users_Collection::do()->clear_all();
+
+});
+```
+
+but it is not meant to be used in real applications. That's why it is a different method from `delete_all`.
 
 <a name="c-3"></a>
 ## Running the tests

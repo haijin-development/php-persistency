@@ -18,7 +18,7 @@ $spec->describe( "When inspecting a statement of a MySql expression", function()
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
         }, [], function($sql, $sql_parameters) {
 

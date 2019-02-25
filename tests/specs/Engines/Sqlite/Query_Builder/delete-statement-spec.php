@@ -6,13 +6,23 @@ $spec->describe( "When evaluating a delete statement in a MySql database", funct
 
     $this->before_each( function() {
 
-        $this->re_populate_sqlite_tables();
+        $this->clear_sqlite_tables();
+
+        $this->sqlite->query(
+            "INSERT INTO users VALUES ( 1, 'Lisa', 'Simpson' );"
+        );
+        $this->sqlite->query(
+            "INSERT INTO users VALUES ( 2, 'Bart', 'Simpson' );"
+        );
+        $this->sqlite->query(
+            "INSERT INTO users VALUES ( 3, 'Maggie', 'Simpson' );"
+        );
 
     });
 
     $this->after_all( function() {
 
-        $this->re_populate_sqlite_tables();
+        $this->clear_sqlite_tables();
 
     });
 

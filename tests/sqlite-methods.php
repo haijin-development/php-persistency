@@ -25,10 +25,9 @@ class Sqlite_Methods
 
         });
 
-        $spec->def( "re_populate_sqlite_tables", function() {
+        $spec->def( "clear_sqlite_tables", function() {
 
-            $this->clear_sqlite_tables();
-            $this->populate_sqlite_tables();
+            $this->sqlite->query( "delete from users;" );
 
         });
 
@@ -45,25 +44,25 @@ class Sqlite_Methods
 
         $spec->def( "drop_sqlite_tables", function() {
 
-            $this->sqlite->query( "DROP TABLE IF EXISTS users;" );
+            $this->sqlite->query( "DROP TABLE IF EXISTS users_read_only;" );
             $this->sqlite->query( "DROP TABLE IF EXISTS address_1;" );
             $this->sqlite->query( "DROP TABLE IF EXISTS address_2;" );
             $this->sqlite->query( "DROP TABLE IF EXISTS cities;" );
-            $this->sqlite->query( "DROP TABLE IF EXISTS users_with_sequence;" );
+            $this->sqlite->query( "DROP TABLE IF EXISTS users;" );
 
         });
 
         $spec->def( "create_sqlite_tables", function() {
 
             $this->sqlite->query(
-                "CREATE TABLE `users` (
+                "CREATE TABLE `users_read_only` (
                     `id` INTEGER PRIMARY KEY,
                     `name` VARCHAR(45) NULL,
                     `last_name` VARCHAR(45) NULL
                 );"
             );
             $this->sqlite->query(
-                "CREATE TABLE `users_with_sequence` (
+                "CREATE TABLE `users` (
                     `id` INTEGER PRIMARY KEY,
                     `name` VARCHAR(45) NULL,
                     `last_name` VARCHAR(45) NULL
@@ -97,26 +96,16 @@ class Sqlite_Methods
         });
 
 
-        $spec->def( "clear_sqlite_tables", function() {
-
-            $this->sqlite->query( "delete from users where 1 = 1;" );
-            $this->sqlite->query( "delete from address_1 where 1 = 1;" );
-            $this->sqlite->query( "delete from address_2 where 1 = 1;" );
-            $this->sqlite->query( "delete from cities where 1 = 1;" );
-            $this->sqlite->query( "delete from users_with_sequence where 1 = 1;" );
-
-        });
-
         $spec->def( "populate_sqlite_tables", function() {
 
             $this->sqlite->query(
-                "INSERT INTO users VALUES ( 1, 'Lisa', 'Simpson' );"
+                "INSERT INTO users_read_only VALUES ( 1, 'Lisa', 'Simpson' );"
             );
             $this->sqlite->query(
-                "INSERT INTO users VALUES ( 2, 'Bart', 'Simpson' );"
+                "INSERT INTO users_read_only VALUES ( 2, 'Bart', 'Simpson' );"
             );
             $this->sqlite->query(
-                "INSERT INTO users VALUES ( 3, 'Maggie', 'Simpson' );"
+                "INSERT INTO users_read_only VALUES ( 3, 'Maggie', 'Simpson' );"
             );
             $this->sqlite->query(
                 "INSERT INTO address_1 VALUES ( 10, 1, 2, 'Evergreen', '742' );"

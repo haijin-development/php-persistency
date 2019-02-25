@@ -6,13 +6,26 @@ $spec->describe( "When evaluating an update statement in a Postgresql database",
 
     $this->before_each( function() {
 
-        $this->re_populate_postgres_tables();
+        $this->clear_postgresql_tables();
+
+        pg_query(
+            $this->postgresql, 
+            "INSERT INTO users VALUES ( 1, 'Lisa', 'Simpson' );"
+        );
+        pg_query(
+            $this->postgresql, 
+            "INSERT INTO users VALUES ( 2, 'Bart', 'Simpson' );"
+        );
+        pg_query(
+            $this->postgresql, 
+            "INSERT INTO users VALUES ( 3, 'Maggie', 'Simpson' );"
+        );
 
     });
 
     $this->after_all( function() {
 
-        $this->re_populate_postgres_tables();
+        $this->clear_postgresql_tables();
 
     });
 

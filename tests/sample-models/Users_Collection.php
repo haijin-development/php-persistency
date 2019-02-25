@@ -14,7 +14,7 @@ class Users_Persistent_Collection extends Persistent_Collection
 
         $collection->field_mappings = function($mapping) {
 
-            $mapping->field( "id" )
+            $mapping->field( "id" ) ->is_primary_key()
                 ->read_with( "get_id()" )
                 ->write_with( "set_id()" );
 
@@ -35,6 +35,11 @@ class Users_Collection
     static public $instance;
 
     static public function get()
+    {
+        return self::$instance;
+    }
+
+    static public function do()
     {
         return self::$instance;
     }

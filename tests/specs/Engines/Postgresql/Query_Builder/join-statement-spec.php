@@ -20,7 +20,7 @@ $spec->describe( "When building the join statement of a Postgresql expression", 
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->proyect(
                 $query->field( "id" ) ->as( "user_id" ),
@@ -72,7 +72,7 @@ $spec->describe( "When building the join statement of a Postgresql expression", 
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->proyect(
                 $query->field( "id" ) ->as( "user_id" ),
@@ -123,7 +123,7 @@ $spec->describe( "When building the join statement of a Postgresql expression", 
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->proyect(
                 $query->field( "id" ) ->as( "user_id" ),
@@ -193,7 +193,7 @@ $spec->describe( "When building the join statement of a Postgresql expression", 
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->proyect(
                 $query->field( "name" ),
@@ -237,7 +237,7 @@ $spec->describe( "When building the join statement of a Postgresql expression", 
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->proyect(
                 $query->field( "id" ) ->as( "user_id" ),
@@ -283,7 +283,7 @@ $spec->describe( "When building the join statement of a Postgresql expression", 
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
             $query->proyect(
                 $query->field( "id" ) ->as( "user_id" ),

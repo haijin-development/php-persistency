@@ -19,10 +19,9 @@ class Mysql_Methods
 
         });
 
-        $spec->def( "re_populate_mysql_tables", function() {
+        $spec->def( "clear_mysql_tables", function() {
 
-            $this->clear_mysql_tables();
-            $this->populate_mysql_tables();
+            $this->mysql->query( "TRUNCATE users;" );
 
         });
 
@@ -35,17 +34,18 @@ class Mysql_Methods
 
         $spec->def( "drop_mysql_tables", function() {
 
-            $this->mysql->query( "DROP TABLE IF EXISTS users;" );
+            $this->mysql->query( "DROP TABLE IF EXISTS users_read_only;" );
             $this->mysql->query( "DROP TABLE IF EXISTS address_1;" );
             $this->mysql->query( "DROP TABLE IF EXISTS address_2;" );
             $this->mysql->query( "DROP TABLE IF EXISTS cities;" );
 
+            $this->mysql->query( "DROP TABLE IF EXISTS users;" );
         });
 
         $spec->def( "create_mysql_tables", function() {
 
             $this->mysql->query(
-                "CREATE TABLE `haijin-persistency`.`users` (
+                "CREATE TABLE `haijin-persistency`.`users_read_only` (
                     `id` INT NOT NULL AUTO_INCREMENT,
                     `name` VARCHAR(45) NULL,
                     `last_name` VARCHAR(45) NULL,
@@ -80,28 +80,27 @@ class Mysql_Methods
                 );"
             );
 
-        });
-
-
-        $spec->def( "clear_mysql_tables", function() {
-
-            $this->mysql->query( "TRUNCATE users;" );
-            $this->mysql->query( "TRUNCATE address_1;" );
-            $this->mysql->query( "TRUNCATE address_2;" );
-            $this->mysql->query( "TRUNCATE cities;" );
+            $this->mysql->query(
+                "CREATE TABLE `haijin-persistency`.`users` (
+                    `id` INT NOT NULL AUTO_INCREMENT,
+                    `name` VARCHAR(45) NULL,
+                    `last_name` VARCHAR(45) NULL,
+                    PRIMARY KEY (`id`)
+                );"
+            );
 
         });
 
         $spec->def( "populate_mysql_tables", function() {
 
             $this->mysql->query(
-                "INSERT INTO users VALUES ( 1, 'Lisa', 'Simpson' );"
+                "INSERT INTO users_read_only VALUES ( 1, 'Lisa', 'Simpson' );"
             );
             $this->mysql->query(
-                "INSERT INTO users VALUES ( 2, 'Bart', 'Simpson' );"
+                "INSERT INTO users_read_only VALUES ( 2, 'Bart', 'Simpson' );"
             );
             $this->mysql->query(
-                "INSERT INTO users VALUES ( 3, 'Maggie', 'Simpson' );"
+                "INSERT INTO users_read_only VALUES ( 3, 'Maggie', 'Simpson' );"
             );
             $this->mysql->query(
                 "INSERT INTO address_1 VALUES ( 10, 1, 2, 'Evergreen', '742' );"

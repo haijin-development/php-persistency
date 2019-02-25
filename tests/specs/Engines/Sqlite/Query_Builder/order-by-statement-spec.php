@@ -6,13 +6,23 @@ $spec->describe( "When building the order by statement of a sql expression", fun
 
     $this->before_all( function() {
 
-        $this->sort_users();
+        $this->clear_sqlite_tables();
+
+        $this->sqlite->query(
+            "INSERT INTO users VALUES ( 1, 'Lisa', 'Simpson' );"
+        );
+        $this->sqlite->query(
+            "INSERT INTO users VALUES ( 2, 'Marge', 'Bouvier' );"
+        );
+        $this->sqlite->query(
+            "INSERT INTO users VALUES ( 3, 'Maggie', 'Simpson' );"
+        );
 
     });
 
     $this->after_all( function() {
 
-        $this->re_populate_sqlite_tables();
+        $this->clear_sqlite_tables();
 
     });
 
@@ -120,22 +130,6 @@ $spec->describe( "When building the order by statement of a sql expression", fun
                 "last_name" => "Bouvier"
             ]
         ]);
-
-    });
-
-    $this->def( "sort_users", function() {
-
-        $this->sqlite->query( "delete from users where 1 = 1;" );
-
-        $this->sqlite->query(
-            "INSERT INTO users VALUES ( 1, 'Lisa', 'Simpson' );"
-        );
-        $this->sqlite->query(
-            "INSERT INTO users VALUES ( 2, 'Marge', 'Bouvier' );"
-        );
-        $this->sqlite->query(
-            "INSERT INTO users VALUES ( 3, 'Maggie', 'Simpson' );"
-        );
 
     });
 

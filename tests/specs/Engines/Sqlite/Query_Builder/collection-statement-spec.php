@@ -18,7 +18,7 @@ $spec->describe( "When building the collection statement of a MySql expression",
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" );
+            $query->collection( "users_read_only" );
 
         });
 
@@ -46,7 +46,7 @@ $spec->describe( "When building the collection statement of a MySql expression",
 
         $rows = $this->database->query( function($query) {
 
-            $query->collection( "users" ) ->as( "c" );
+            $query->collection( "users_read_only" ) ->as( "c" );
 
         });
 

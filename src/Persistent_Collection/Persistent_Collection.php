@@ -107,11 +107,35 @@ class Persistent_Collection
         $values = [];
 
         foreach( $this->field_mappings as $field_mapping ) {
-            $values[ $field_mapping->get_field_name() ] =
-                $field_mapping->read_value_from( $object );
+
+            $value = $field_mapping->read_value_from( $object );
+
+            if( $field_mapping->is_primary_key() && $value === null ) {
+                continue;
+            }
+
+            $values[ $field_mapping->get_field_name() ] = $value;
+
         }
 
         return $values;
+    }
+
+    /// Searching
+
+    public function find_by_id($id)
+    {
+        $id_field = $this->get_id_field();
+
+        return $this->first( function($query) use($id_field, $id) {
+
+            $this->filter(
+
+                $query->field( $id_field ) ->op( "=" ) ->value( $id )
+
+            );
+
+        });
     }
 
     /// Querying
@@ -130,6 +154,18 @@ class Persistent_Collection
             $binding = $this;
         }
 
+        if( $filter_closure === null ) {
+
+            $filter_closure = function($query) {
+
+                $query->order_by(
+                    $query ->field( "id" )
+                );
+
+            };
+
+        }
+
         $collection_name = $this->collection_name;
 
         $records = $this->get_database()->query( function($query)
@@ -137,11 +173,7 @@ class Persistent_Collection
 
             $query->collection( $collection_name );
 
-            if( $filter_closure !== null ) {
-
-                $filter_closure->call( $this, $query );
-
-            }
+            $filter_closure->call( $this, $query );
 
         }, $named_parameters, $binding );
 
@@ -223,18 +255,107 @@ class Persistent_Collection
         return $this->record_to_object( $records[ 0 ] );
     }
 
+    /// Creating
+
+    public function create($object)
+    {
+        $record_values = $this->get_object_values_from( $object );
+
+        $collection_name = $this->collection_name;
+
+        $this->get_database()->create( function($query)
+                                    use($collection_name, $record_values) {
+
+            $query->collection( $collection_name );
+
+            $expressions = [];
+            foreach( $record_values as $field => $value ) {
+                $expressions[] = $query->set( $field, $query->value( $value ) );
+            }
+
+            $query->record( ...$expressions );
+
+        });
+
+        $primary_key_mapping = $this->get_primary_key_field_mapping();
+
+        $id_field_name = $primary_key_mapping->get_field_name();
+
+        if( ! isset( $record_values[ $id_field_name ] )
+            ||
+            $record_values[ $id_field_name ] === null
+          ) {
+
+            $record_values[ $id_field_name ] = $this->get_database()->get_last_created_id();
+
+            $primary_key_mapping->write_value_to(
+                $object,
+                $record_values[ $id_field_name ],
+                $record_values,
+                $record_values
+            );
+
+        }
+
+        return $object;
+    }
+
+    public function create_from_attributes($attributes)
+    {
+        $object = $this->instantiate_object( $attributes, $attributes );
+
+        foreach( $this->field_mappings as $mapping ) {
+
+            $field_name = $mapping->get_field_name();
+
+            if( ! array_key_exists( $field_name, $attributes ) ) {
+                continue;
+            }
+
+            $mapping->write_value_to(
+                $object,
+                $attributes[ $field_name ],
+                $attributes,
+                $attributes
+            );
+        }
+
+        return $this->create( $object );
+    }
+
     /// Updating
+
+    public function update_from_attributes($object, $attributes)
+    {
+        foreach( $this->field_mappings as $mapping ) {
+
+            $field_name = $mapping->get_field_name();
+
+            if( ! array_key_exists( $field_name, $attributes ) ) {
+                continue;
+            }
+
+            $mapping->write_value_to(
+                $object,
+                $attributes[ $field_name ],
+                $attributes,
+                $attributes
+            );
+        }
+
+        return $this->update( $object );
+    }
 
     public function update($object)
     {
-        $field_id = $this->get_id_field();
+        $id_field = $this->get_id_field();
         $id = $this->get_id_of( $object );
         $record_values = $this->get_object_values_from( $object );
 
         $collection_name = $this->collection_name;
 
         $this->get_database()->update( function($query)
-                                    use($collection_name, $field_id, $id, $record_values) {
+                                    use($collection_name, $id_field, $id, $record_values) {
 
             $query->collection( $collection_name );
 
@@ -246,11 +367,73 @@ class Persistent_Collection
             $query->record( ...$expressions );
 
             $query->filter(
-                $query ->field( $field_id ) ->op( "=" ) ->value( $id )
+                $query ->field( $id_field ) ->op( "=" ) ->value( $id )
             );
 
         });
 
+        return $object;
+    }
+
+    public function update_all($filter_closure, $named_parameters = [], $binding = null)
+    {
+        $collection_name = $this->collection_name;
+
+        $records = $this->get_database()->update( function($query)
+                                            use($collection_name, $filter_closure) {
+
+            $query->collection( $collection_name );
+
+            $filter_closure->call( $this, $query );
+
+        }, $named_parameters, $binding );
+
+        return $this;
+    }
+
+    /// Deleting
+
+    public function clear_all()
+    {
+        $this->get_database()->clear_all( $this->collection_name );
+    }
+
+    public function delete($object)
+    {
+        $id_field = $this->get_id_field();
+
+        $id = $this->get_id_of( $object );
+
+        $collection_name = $this->collection_name;
+
+        $this->get_database()->delete( function($query)
+                                    use($collection_name, $id_field, $id) {
+
+            $query->collection( $collection_name );
+
+            $query->filter(
+                $query ->field( $id_field ) ->op( "=" ) ->value( $id )
+            );
+
+        });
+
+        return $object;
+    }
+
+    public function delete_all($filter_closure, $named_parameters = [], $binding = null)
+    {
+        $collection_name = $this->collection_name;
+
+        $records = $this->get_database()->delete( function($query)
+                                            use($collection_name, $filter_closure) {
+
+            $query->collection( $collection_name );
+
+            $filter_closure->call( $this, $query );
+
+        }, $named_parameters, $binding );
+
+        return $this;
     }
 
     /// Converting

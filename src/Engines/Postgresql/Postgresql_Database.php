@@ -152,6 +152,11 @@ class Postgresql_Database extends Database
         return $this->execute( $compiled_statement, $named_parameters );
     }
 
+    public function clear_all($collection_name)
+    {
+        $this->evaluate_sql_string( "truncate {$collection_name} restart identity;" );
+    }
+
     /**
      * Compiles the $query_closure and retunrs the compiled
      *      Haijin\Persistency\Statement_Compiler\Query_Statement.
@@ -331,6 +336,10 @@ class Postgresql_Database extends Database
         $rows = pg_fetch_all( $result_handle );
 
         \pg_free_result( $result_handle );
+
+        if( $rows === false ) {
+            $rows = [];
+        }
 
         return $this->process_result_rows( $rows );
     }
