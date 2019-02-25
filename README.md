@@ -1905,6 +1905,7 @@ and run the tests
 
 ```
 cd src/php-persistency
+composer install
 composer specs
 ```
 

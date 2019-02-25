@@ -1,0 +1,3 @@
+CREATE USER haijin WITH LOGIN PASSWORD '123456';
+CREATE DATABASE "haijin-persistency";
+GRANT ALL PRIVILEGES ON DATABASE "haijin-persistency" TO haijin;

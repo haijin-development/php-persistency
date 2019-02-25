@@ -25,7 +25,7 @@ $spec->describe( "When stablishing a connection to a Postgresql database", funct
         $this->expect( function() use($database) {
 
             $database->connect(
-                "host=localhost port=5432 dbname=haijin-persistency user=haijin password=123"
+                "host=localhost port=5432 dbname=haijin-persistency user=invalid_user password=123"
             );
 
         }) ->to() ->raise(
