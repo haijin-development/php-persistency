@@ -12,6 +12,14 @@ trait Expressions_DSL_Trait
     /// DSL
 
     /**
+     * Returns a new Count_Expression.
+     */
+    public function count()
+    {
+        return $this->new_count_expression();
+    }
+
+    /**
      * Returns a new All_Fields_Expression.
      */
     public function all()

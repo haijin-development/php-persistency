@@ -68,6 +68,13 @@ trait Expressions_Factory_Trait
         );
     }
 
+    protected function new_count_expression()
+    {
+        return Create::a( Count_Expression::class )->with(
+            $this->context
+        );
+    }
+
     protected function new_all_fields_expression()
     {
         return Create::an( All_Fields_Expression::class )->with(

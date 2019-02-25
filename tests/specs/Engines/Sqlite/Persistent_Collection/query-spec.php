@@ -3,7 +3,7 @@
 use Haijin\Persistency\Engines\Sqlite\Sqlite_Database;
 use Haijin\Persistency\Persistent_Collection\Persistent_Collection;
 
-$spec->describe( "When querying a Persistent_Collection stored in a MySql database", function() {
+$spec->describe( "When querying a Persistent_Collection stored in a Sqlite database", function() {
 
     $this->before_all( function() {
 

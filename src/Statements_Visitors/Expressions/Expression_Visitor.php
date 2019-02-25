@@ -12,6 +12,14 @@ class Expression_Visitor extends Abstract_Query_Expression_Visitor
     /// Visiting
 
     /**
+     * Accepts a Count_Expression.
+     */
+    public function accept_count_expression($count_expression)
+    {
+        $this->raise_unexpected_expression_error( $filter_expression );
+    }
+
+    /**
      * Accepts an All_Fields_Expression.
      */
     public function accept_all_fields_expression($all_fields_expression)

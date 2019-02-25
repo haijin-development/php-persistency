@@ -257,10 +257,12 @@ class Persistent_Collection
 
         if( $filter_closure === null ) {
 
-            $filter_closure = function($query) {
+            $id_field = $this->get_id_field();
+
+            $filter_closure = function($query) use($id_field) {
 
                 $query->order_by(
-                    $query ->field( "id" )
+                    $query ->field( $id_field )
                 );
 
             };
@@ -300,12 +302,14 @@ class Persistent_Collection
     {
         $collection_name = $this->collection_name;
 
-        $records = $this->get_database()->query( function($query) use($collection_name) {
+        $id_field = $this->get_id_field();
+
+        $records = $this->get_database()->query( function($query) use($collection_name, $id_field) {
 
             $query->collection( $collection_name );
 
             $query->order_by(
-                $query ->field( "id" ) ->desc()
+                $query ->field( $id_field ) ->desc()
             );
 
             $query->pagination(
@@ -319,6 +323,30 @@ class Persistent_Collection
         }
 
         return $this->record_to_object( $records[ 0 ] );
+    }
+
+    /// Counting
+
+    public function count($filter_closure = null, $named_parameters = [], $binding = null)
+    {
+        $collection_name = $this->collection_name;
+
+        $result = $this->get_database()->query( function($query)
+                                            use($collection_name, $filter_closure) {
+
+            $query->collection( $collection_name );
+
+            $query->proyect(
+                $query->count() ->as( "count" )
+            );
+
+            if( $filter_closure !== null ) {
+                $filter_closure->call( $this, $query );
+            }
+
+        }, $named_parameters, $binding );
+
+        return $result[ 0 ][ "count" ];
     }
 
     /// Creating
