@@ -62,7 +62,7 @@ $spec->describe( "When building a sql expression", function() {
             "join address on users.id = address.user_id" . " " .
             "where ((users.name = 'Lisa') and (users.last_name = 'Simpson')) or (address.street_name like '%Evergreen%')" . " " .
             "order by users.last_name, users.name, address" . " " .
-            "limit 10, 0;";
+            "limit 10 offset 0;";
 
         $this->expect( $sql ) ->to() ->equal( $expected_sql );
 
@@ -134,7 +134,7 @@ $spec->describe( "When building a sql expression", function() {
             "join address on users.id = address.user_id" . " " .
             "where ((users.name = 'Lisa') and (users.last_name = 'Simpson')) or (address.street_name like '%Evergreen%')" . " " .
             "order by users.last_name, users.name, address" . " " .
-            "limit 10, 0;";
+            "limit 10 offset 0;";
 
         $this->expect( $sql ) ->to() ->equal( $expected_sql );
 

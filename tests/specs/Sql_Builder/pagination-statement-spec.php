@@ -59,7 +59,7 @@ $spec->describe( "When building the pagination statement of a sql expression", f
         });
 
         $this->expect( $sql ) ->to() ->equal(
-            "select users.* from users limit 10, 1;"
+            "select users.* from users limit 10 offset 1;"
         );
 
     });
@@ -79,7 +79,7 @@ $spec->describe( "When building the pagination statement of a sql expression", f
         });
 
         $this->expect( $sql ) ->to() ->equal(
-            "select users.* from users limit 10, 30;"
+            "select users.* from users limit 10 offset 30;"
         );
 
     });
