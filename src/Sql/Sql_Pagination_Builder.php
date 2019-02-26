@@ -44,9 +44,8 @@ class Sql_Pagination_Builder extends Pagination_Visitor
             return $this->raise_missing_page_size_expression_error();
         }
 
-        return "limit " . 
-                $this->escape_sql( (string) $page_size ) . ", " .
-                $this->escape_sql( (string) $page_size * $page_number );
+        return  "limit "   . $this->escape_sql( (string) $page_size ) . " " .
+                "offset " . $this->escape_sql( (string) $page_size * $page_number );
     }
 
     protected function offset_and_limit_sql($offset, $limit)
@@ -59,9 +58,8 @@ class Sql_Pagination_Builder extends Pagination_Visitor
             return "limit " . $this->escape_sql( (string) $limit );
         }
 
-        return "limit " .
-                $this->escape_sql( (string) $limit ) . ", " . 
-                $this->escape_sql( (string) $offset );
+        return  "limit "  . $this->escape_sql( (string) $limit ) . " " .
+                "offset " . $this->escape_sql( (string) $offset );
     }
 
     /// Raising errors

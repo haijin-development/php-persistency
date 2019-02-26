@@ -34,8 +34,7 @@ class Mysql_Pagination_Builder extends Sql_Pagination_Builder
             return "limit " . $this->escape_sql( (string) $limit );
         }
 
-        return "limit " .
-                $this->escape_sql( (string) $offset )  . ", " .
-                $this->escape_sql( (string) $limit );
+        return "limit "  . $this->escape_sql( (string) $limit )  . " " .
+               "offset " . $this->escape_sql( (string) $offset );
     }
 }
