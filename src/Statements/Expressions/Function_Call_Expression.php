@@ -40,4 +40,11 @@ class Function_Call_Expression extends Expression
     {
         return $visitor->accept_function_call_expression( $this );
     }
+
+    /// Asking
+
+    public function is_function_call_expression()
+    {
+        return true;
+    }
 }

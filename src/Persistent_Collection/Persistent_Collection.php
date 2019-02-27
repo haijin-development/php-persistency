@@ -222,7 +222,9 @@ class Persistent_Collection
 
         if( $filter_closure === null ) {
 
-            $filter_closure = function($query) {
+            $id_field = $this->get_id_field();
+
+            $filter_closure = function($query) use($id_field) {
 
                 $query->order_by(
                     $query ->field( "id" )
@@ -236,7 +238,6 @@ class Persistent_Collection
 
         $records = $this->get_database()->query( function($query)
                                             use($collection_name, $filter_closure) {
-
             $query->collection( $collection_name );
 
             $filter_closure->call( $this, $query );

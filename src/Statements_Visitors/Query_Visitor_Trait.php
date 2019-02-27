@@ -2,6 +2,10 @@
 
 namespace Haijin\Persistency\Statements_Visitors;
 
+use Haijin\Instantiator\Create;
+use Haijin\Persistency\Errors\Query_Expressions\Unexpected_Expression_Error;
+
+
 /**
  * A Trait the AbstractQueryExpressionVisitors may use to have a default null implementation
  * on each node acceptance.
@@ -24,6 +28,22 @@ trait Query_Visitor_Trait
     public function accept_create_statement($create_statement)
     {
         $this->raise_unexpected_expression_error( $create_statement );
+    }
+
+    /**
+     * Accepts an Update_Statement.
+     */
+    public function accept_update_statement($update_statement)
+    {
+        $this->raise_unexpected_expression_error( $update_statement );
+    }
+
+    /**
+     * Accepts an Delete_Statement.
+     */
+    public function accept_delete_statement($delete_statement)
+    {
+        $this->raise_unexpected_expression_error( $delete_statement );
     }
 
     /**
@@ -144,5 +164,25 @@ trait Query_Visitor_Trait
     public function accept_brackets_expression($brackets_expression)
     {
         $this->raise_unexpected_expression_error( $brackets_expression );
+    }
+
+    /**
+     * Accepts a Record_Values_Expression.
+     */
+    public function accept_record_values_expression($record_values_expression)
+    {
+        $this->raise_unexpected_expression_error( $record_values_expression );
+    }
+
+    /// Raising errors
+
+    protected function raise_unexpected_expression_error($expression)
+    {
+        $expression_name = get_class( $expression );
+
+        throw Create::an( Unexpected_Expression_Error::class )->with(
+            "Unexpected {$expression_name}",
+            $expression
+        );
     }
 }

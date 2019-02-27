@@ -60,7 +60,7 @@ $spec->describe( "When instantiating objects from a Postgresql database", functi
 
                 $collection->field_mappings = function($mapping) {
 
-                    $mapping->field( "id" )
+                    $mapping->field( "id" ) ->is_primary_key()
                         ->read_with( "get_id()" )
                         ->write_with( "set_id()" );
 
@@ -122,7 +122,7 @@ $spec->describe( "When instantiating objects from a Postgresql database", functi
 
                 $collection->field_mappings = function($mapping) {
 
-                    $mapping->field( "id" )
+                    $mapping->field( "id" ) ->is_primary_key()
                         ->read_with( "get_id()" )
                         ->write_with( "set_id()" );
 
@@ -174,7 +174,7 @@ $spec->describe( "When instantiating objects from a Postgresql database", functi
 
                 $collection->field_mappings = function($mapping) {
 
-                    $mapping->field( "id" );
+                    $mapping->field( "id" ) ->is_primary_key();
                     $mapping->field( "name" );
                 };
 

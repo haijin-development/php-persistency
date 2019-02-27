@@ -4,7 +4,8 @@ namespace Haijin\Persistency\Engines\Mysql;
 
 use Haijin\Instantiator\Global_Factory;
 use  Haijin\Instantiator\Create;
-use Haijin\Persistency\Errors\Connections\Named_Parameter_Not_Found_Error;
+use Haijin\Dictionary;
+use Haijin\Ordered_Collection;
 use Haijin\Persistency\Database\Database;
 use Haijin\Persistency\Sql\Sql_Query_Statement_Builder;
 use Haijin\Persistency\Sql\Sql_Create_Statement_Builder;
@@ -14,31 +15,10 @@ use Haijin\Persistency\Sql\Sql_Pagination_Builder;
 use Haijin\Persistency\Sql\Expression_Builders\Sql_Expression_In_Filter_Builder;
 use Haijin\Persistency\Engines\Mysql\Query_Builder\Mysql_Pagination_Builder;
 use Haijin\Persistency\Engines\Mysql\Query_Builder\Mysql_Expression_In_Filter_Builder;
-use Haijin\Persistency\Statement_Compiler\Query_Statement_Compiler;
-use Haijin\Persistency\Statement_Compiler\Create_Statement_Compiler;
-use Haijin\Persistency\Statement_Compiler\Update_Statement_Compiler;
-use Haijin\Persistency\Statement_Compiler\Delete_Statement_Compiler;
-use Haijin\Dictionary;
-use Haijin\Ordered_Collection;
 
 
 class Mysql_Database extends Database
 {
-    /**
-     * The handle to an open connection to a Mysql server.
-     */
-    protected $connection_handle;
-
-    /**
-     * Initializes $this instance.
-     */
-    public function __construct()
-    {
-        parent::__construct();
-
-        $this->connection_handle = null;
-    }
-
     /// Connecting
 
     /**
@@ -93,139 +73,12 @@ class Mysql_Database extends Database
 
     /// Querying
 
-    /**
-     * Compiles the $query_closure and executes the compiled query in the server.
-     * Returns the rows returned by the query execution.
-     */
-    public function query($query_closure, $named_parameters = [], $binding = null)
-    {
-        $compiled_query = $this->compile_query_statement( $query_closure, $binding );
-
-        return $this->execute( $compiled_query, $named_parameters );
-    }
-
-    /**
-     * Compiles the $create_closure and executes the create record query in the database server.
-     * Returns the id of the created query.
-     *
-     * @param closure $create_closure A closure to construct the record creation.
-     * @param array $named_parameters An associative array of the named parameters values
-     *      referenced in the create_closure.
-     *
-     * @return object The unique id of the created record in the database expression.
-     */
-    public function create($create_closure, $named_parameters = [], $binding = null)
-    {
-        $compiled_statement = $this->compile_create_statement( $create_closure, $binding );
-
-        return $this->execute( $compiled_statement, $named_parameters );
-    }
-
-    /**
-     * Compiles the $update_closure and executes the update record query in the database server.
-     *
-     * @param closure $update_closure A closure to construct the record creation.
-     * @param array $named_parameters An associative array of the named parameters values
-     *      referenced in the update_closure.
-     */
-    public function update($update_closure, $named_parameters = [], $binding = null)
-    {
-        $compiled_statement = $this->compile_update_statement( $update_closure, $binding );
-
-        return $this->execute( $compiled_statement, $named_parameters );
-    }
-
-    /**
-     * Compiles the $delete_closure and executes the delete statement in the database server.
-     *
-     * @param closure $delete_closure A closure to construct the record creation.
-     * @param array $named_parameters An associative array of the named parameters values
-     *      referenced in the delete_closure.
-     */
-    public function delete($delete_closure, $named_parameters = [], $binding = null)
-    {
-        $compiled_statement = $this->compile_delete_statement( $delete_closure, $binding );
-
-        return $this->execute( $compiled_statement, $named_parameters );
-    }
-
     public function clear_all($collection_name)
     {
         $this->evaluate_sql_string( "truncate {$collection_name};" );
     }
 
-    /**
-     * Compiles the $query_closure and retunrs the compiled
-     *      Haijin\Persistency\Statement_Compiler\Query_Statement.
-     *
-     * @param closure $query_closure A closure to construct the database statement.
-     *
-     * @return Haijin\Persistency\Statement_Compiler\Query_Statement The Query_Statement
-     *      compiled from the $query_closure evaluation.
-     */
-    public function compile_query_statement($query_closure, $binding = null)
-    {
-        return $this->new_query_statement_compiler()
-            ->build( $query_closure, $binding );
-    }
-
-    /**
-     * Compiles the $create_closure and retunrs the compiled
-     *      Haijin\Persistency\Statement_Compiler\Create_Statement.
-     *
-     * @param closure $create_closure A closure to construct the database statement.
-     *
-     * @return Haijin\Persistency\Statement_Compiler\Create_Statement The Create_Statement 
-     *      compiled from the $create_closure evaluation.
-     */
-    public function compile_create_statement($create_closure, $binding = null)
-    {
-        return $this->new_create_expression_compiler()
-            ->build( $create_closure, $binding );
-    }
-
-    /**
-     * Compiles the $update_closure and retunrs the compiled
-     *      Haijin\Persistency\Statement_Compiler\Update_Statement.
-     *
-     * @param closure $update_closure A closure to construct the database statement.
-     *
-     * @return Haijin\Persistency\Statement_Compiler\Update_Statement The Update_Statement 
-     *      compiled from the $update_closure evaluation.
-     */
-    public function compile_update_statement($update_closure, $binding = null)
-    {
-        return $this->new_update_expression_compiler()
-            ->build( $update_closure, $binding );
-    }
-
-    /**
-     * Compiles the $delete_closure and retunrs the compiled
-     *      Haijin\Persistency\Statement_Compiler\Delete_Statement.
-     *
-     * @param closure $delete_closure A closure to construct the database statement.
-     *
-     * @return Haijin\Persistency\Statement_Compiler\Delete_Statement The Delete_Statement 
-     *      compiled from the $delete_closure evaluation.
-     */
-    public function compile_delete_statement($delete_closure, $binding = null)
-    {
-        return $this->new_delete_expression_compiler()
-            ->build( $delete_closure, $binding );
-    }
-
     /// Executing
-
-    /**
-     * Executes the $statement.
-     * Returns the result of the execution.
-     */
-    public function execute($statement, $named_parameters = [])
-    {
-        $this->validate_connection_handle();
-
-        return $statement->execute_in( $this, $named_parameters );
-    }
 
     /**
      * Executes the $query_statement.
@@ -455,49 +308,7 @@ class Mysql_Database extends Database
         }, $this);
     }
 
-    /// Validating
-
-    /**
-     * Validates that the connection_handle to the Mysql server was initialized.
-     */
-    protected function validate_connection_handle()
-    {
-        if( $this->connection_handle === null ) {
-            $this->raise_uninitialized_connection_error();
-        }
-    }
-
-    /// Raising errors
-
-    protected function raise_named_parameter_not_found_error($parameter_name)
-    {
-        throw Create::a( Named_Parameter_Not_Found_Error::class )->with(
-            "The query named parameter '{$parameter_name}' was not found.",
-            $parameter_name
-        );
-    }
-
     /// Creating instances
-
-    protected function new_query_statement_compiler()
-    {
-        return Create::a( Query_Statement_Compiler::class )->with();
-    }
-
-    protected function new_create_expression_compiler()
-    {
-        return Create::a( Create_Statement_Compiler::class )->with();
-    }
-
-    protected function new_update_expression_compiler()
-    {
-        return Create::a( Update_Statement_Compiler::class )->with();
-    }
-
-    protected function new_delete_expression_compiler()
-    {
-        return Create::a( Delete_Statement_Compiler::class )->with();
-    }
 
     protected function new_sql_query_statement_builder()
     {

@@ -3,8 +3,6 @@
 namespace Haijin\Persistency\Sql;
 
 use Haijin\Instantiator\Create;
-use Haijin\Persistency\Factory\Factory;
-use Haijin\Persistency\Errors\Query_Expressions\Unexpected_Expression_Error;
 
 trait Sql_Builder_Trait
 {
@@ -56,15 +54,5 @@ trait Sql_Builder_Trait
     {
         return $this->collect_expressions_sql( $expressions )
             ->join_with( ", " );        
-    }
-
-    protected function raise_unexpected_expression_error($expression)
-    {
-        $expression_name = get_class( $expression );
-
-        throw Create::an( Unexpected_Expression_Error::class )->with(
-            "Unexpected {$expression_name}",
-            $expression
-        );
     }
 }

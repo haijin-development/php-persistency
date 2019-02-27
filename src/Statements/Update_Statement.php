@@ -67,6 +67,11 @@ class Update_Statement extends Expression
 
     /// Asking
 
+    public function has_records_values_expression()
+    {
+        return $this->records_values_expression !== null;
+    }
+
     public function has_filter_expression()
     {
         return $this->filter_expression !== null;

@@ -71,9 +71,11 @@ If you like it a lot you may contribute by [financing](https://github.com/haijin
             2. [Query methods](#c-2-2-11-2)
             3. [Default optional values](#c-2-2-11-3)
             4. [Cascade delete](#c-2-2-11-4)
+            5. [Syncronized index](#c-2-2-11-5)
     3. [Migrations](#c-2-3)
-3. [Running the tests](#c-3)
-4. [Developing with Vagrant](#c-4)
+3. [Elasticsearch specifics](#c-3)
+4. [Running the tests](#c-4)
+5. [Developing with Vagrant](#c-5)
 
 <a name="c-1"></a>
 ## Installation
@@ -562,6 +564,24 @@ $database->evaluate( "CREATE TABLE `users` (
     `last_name` VARCHAR(45) NULL
 );" );
 ```
+
+4. Haijin\Persistency\Engines\Elasticsearch\Elasticsearch_Database
+
+Elasticsearch wrapper does not intend to wrap every feature but to ease the most common use cases for indexing and searching documents.
+
+For the rest of the features it provides the connection handle to allow custom calls.
+
+Elasticsearch implementation is a work in progress.
+
+Connect with:
+
+```php
+$database = new Sqlite_Database();
+
+$database->connect( [ '127.0.0.1:9200' ] );
+```
+
+`Elasticsearch` mappings has some specifics that are documented in a separated section.
 
 <a name="c-2-2"></a>
 ### Mapping objects
@@ -1904,14 +1924,288 @@ class Users_Collection
 }
 ```
 
+<a name="c-2-2-11-5"></a>
+##### Syncronized index
+
+Keep the index search engine in sync with the database overriding the write operations:
+
+```php
+class Users_Persistent_Collection extends Persistent_Collection
+{
+    public function definition($collection)
+    {
+        $collection->database = null;
+
+        $collection->collection_name = "users";
+
+        $collection->instantiate_objects_with = User::class;
+
+        $collection->field_mappings = function($mapping) {
+
+            $mapping->field( "id" ) ->is_primary_key()
+                ->type( "integer" )
+                ->read_with( "get_id()" )
+                ->write_with( "set_id()" );
+
+            $mapping->field( "name" )
+                ->type( "string" )
+                ->read_with( "get_name()" )
+                ->write_with( "set_name()" );
+
+            $mapping->field( "last_name" )
+                ->type( "string" )
+                ->read_with( "get_last_name()" )
+                ->write_with( "set_last_name()" );
+
+            $mapping->field( "is_admin" )
+                ->type( "boolean" )
+                ->read_with( "is_admin()" )
+                ->write_with( "set_is_admin()" );
+
+            $mapping->field( "address" )
+                ->one_referenced_from( Address_Collection::class, "id_user" )
+                ->write_with( "set_address()" );
+
+            $mapping->field( "books" )
+                ->many_referenced_from( Books_Collection::class, "id_user" )
+                ->write_with( "set_books()" );
+        };
+    }
+
+    public function create($user)
+    {
+        parent::create( $user );
+
+        Elasticsearch_Users_Collection::create( $user );
+    }
+
+    public function create($user)
+    {
+        parent::delete( $user );
+
+        Elasticsearch_Users_Collection::update( $user );
+    }
+
+    public function delete($user)
+    {
+        parent::delete( $user );
+
+        Elasticsearch_Users_Collection::delete( $user );
+    }
+}
+
+class Users_Collection
+{
+    static public $instance;
+
+    static public function get()
+    {
+        return self::$instance;
+    }
+
+    static public function do()
+    {
+        return self::$instance;
+    }
+}
+```
+
+
+
+
 <a name="c-3"></a>
+### Elasticsearch specifics
+
+#### `_id` field
+
+A `Persisted_Collection` for Elasticsearch must have a field named `_id`.
+The field is not written in Elasticsearch indices but is required.
+
+
+```php
+use Haijin\Persistency\Persistent_Collection\Persistent_Collection;
+
+class Elasticsearch_Users_Persisted_Collection extends Persistent_Collection
+{
+    public function definition($collection)
+    {
+        $collection->database = Databases::get_elasticsearch();
+
+        $collection->collection_name = "users";
+
+        $collection->instantiate_objects_with = User::class;
+
+        $collection->field_mappings = function($mapping) {
+
+            $mapping->field( "_id" )
+                ->read_with( "get_id()" )
+                ->write_with( "set_id()" );
+
+            $mapping->field( "name" )
+                ->read_with( "get_name()" )
+                ->write_with( "set_name()" );
+
+            $mapping->field( "last_name" )
+                ->read_with( "get_last_name()" )
+                ->write_with( "set_last_name()" );
+        };
+
+    }
+}
+
+class Elasticsearch_Users_Collection
+{
+    static public $instance;
+
+    static public function get()
+    {
+        return self::$instance;
+    }
+
+    static public function do()
+    {
+        return self::$instance;
+    }
+}
+
+Elasticsearch_Users_Collection::$instance =
+    new Elasticsearch_Users_Persisted_Collection();
+```
+
+#### Records creation
+
+To create a record the `_id` field must be defined. Elasticsearch does not assign ids to documents that do not have one.
+
+```php
+Elasticsearch_Users_Collection::do()->create_from_attributes([
+    "id" => 7,
+    "name" => "Lisa"
+    "last_name" => "Simpson"
+]);
+```
+
+#### all, first, last
+
+Functions `Persisted_Collection::all()`, `Persisted_Collection::first()` and `Persisted_Collection::last()` can only be used without parameters if the collection has a `->is_primary_key()` on a sortable field different than the `_id` field.
+
+In Elasticsearch not all fields are sortable with its default configuration. In particular, text fields are not.
+
+In that scenario calling
+
+```php
+Elasticsearch_Users_Collection::get()->all();
+Elasticsearch_Users_Collection::get()->first();
+Elasticsearch_Users_Collection::get()->last();
+```
+
+will raise an error.
+
+A query must be explicetly given:
+
+```php
+Elasticsearch_Users_Collection::get()->first( function($query) {
+
+    $query->order_by(
+        $query->field( 'creation_time' ) ->desc();
+    )
+
+});
+```
+
+#### Elastic sitaxis
+
+Elasticsearch supports different query sintaxis.
+
+Currently the `haijin/persistency` maps elastic [query dsl](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html) and maps one to one its sintax.
+
+This means that while `haijin/persistency` library serves as an adaptor to index and retrieve documents from an Elasticsearch engine it uses its sintax as it is. No new DSL is built on top of Elasticsearch one.
+
+`haijin/persistency` will support a wrapper of elastic's [query dsl query](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html) in the future to easy the most common search queries.
+
+Examples:
+
+* [match_all query](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-all-query.html)
+
+```php
+Elasticsearch_Users_Collection::get()->all( function($query) {
+
+    $query->filter(
+        $query->match_all()
+    );
+
+});
+```
+
+```php
+Elasticsearch_Users_Collection::get()->all( function($query) {
+
+    $query->filter(
+        $query->match_all( "boost", 1.2 )
+    );
+
+});
+```
+
+* [match query](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query.html)
+
+```php
+Elasticsearch_Users_Collection::get()->all( function($query) {
+
+    $query->filter(
+        $query->match( "message", "this is a test" )
+    );
+
+});
+```
+
+```php
+Elasticsearch_Users_Collection::get()->all( function($query) {
+
+    $query->filter(
+        $query->match(
+            $query->message([
+                "query" => "this is a test",
+                "operator" => "and"
+            ])
+        )
+    );
+
+});
+```
+
+#### Search additional parameters
+
+To configure additional parameters for elastic searches do:
+
+```php
+Elasticsearch_Users_Collection::get()->all( function($query) {
+
+    $query->filter(
+        $query->match(
+            $query->message([
+                "query" => "this is a test",
+                "operator" => "and"
+            ])
+        )
+    );
+
+}, [
+    '_elastic' => [
+        'query_cache' => true,
+        'lowercase_expanded_terms' => true
+    ]
+]);
+```
+
+
+<a name="c-4"></a>
 ## Running the tests
 
 ```
 composer specs
 ```
 
-<a name="c-4"></a>
+<a name="c-5"></a>
 ## Developing with Vagrant
 
 Vagrant eases the creation and setup of virtual machines to create development environments.

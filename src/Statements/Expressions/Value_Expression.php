@@ -33,4 +33,11 @@ class Value_Expression extends Expression
     {
         return $visitor->accept_value_expression( $this );
     }
+
+    /// Asking
+
+    public function is_value_expression()
+    {
+        return true;
+    }
 }

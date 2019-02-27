@@ -68,10 +68,6 @@ $spec->describe( "When evaluating a create statement in a Postgresql database", 
                 $query->field( "id" ) ->desc()
             );
 
-            $query->pagination(
-                $query->limit( 1 )
-            );
-
         });
 
         $this->expect( $rows ) ->to() ->be() ->exactly_like([
@@ -103,10 +99,6 @@ $spec->describe( "When evaluating a create statement in a Postgresql database", 
 
             $query->order_by(
                 $query->field( "id" ) ->desc()
-            );
-
-            $query->pagination(
-                $query->limit( 1 )
             );
 
         });
@@ -142,10 +134,6 @@ $spec->describe( "When evaluating a create statement in a Postgresql database", 
                 $query->field( "id" ) ->desc()
             );
 
-            $query->pagination(
-                $query->limit( 1 )
-            );
-
         });
 
         $this->expect( $rows ) ->to() ->be() ->exactly_like([
@@ -177,10 +165,6 @@ $spec->describe( "When evaluating a create statement in a Postgresql database", 
 
             $query->order_by(
                 $query->field( "id" ) ->desc()
-            );
-
-            $query->pagination(
-                $query->limit( 1 )
             );
 
         });
@@ -215,10 +199,6 @@ $spec->describe( "When evaluating a create statement in a Postgresql database", 
 
             $query->order_by(
                 $query->field( "id" ) ->desc()
-            );
-
-            $query->pagination(
-                $query->limit( 1 )
             );
 
         });
@@ -257,10 +237,6 @@ $spec->describe( "When evaluating a create statement in a Postgresql database", 
                 $query->field( "id" ) ->desc()
             );
 
-            $query->pagination(
-                $query->limit( 1 )
-            );
-
         });
 
         $this->expect( $rows ) ->to() ->be() ->exactly_like([
@@ -292,10 +268,6 @@ $spec->describe( "When evaluating a create statement in a Postgresql database", 
 
             $query->order_by(
                 $query->field( "id" ) ->desc()
-            );
-
-            $query->pagination(
-                $query->limit( 1 )
             );
 
         });
@@ -332,10 +304,6 @@ $spec->describe( "When evaluating a create statement in a Postgresql database", 
 
             $query->order_by(
                 $query->field( "id" ) ->desc()
-            );
-
-            $query->pagination(
-                $query->limit( 1 )
             );
 
         });
@@ -379,10 +347,6 @@ $spec->describe( "When evaluating a create statement in a Postgresql database", 
 
             $query->order_by(
                 $query->field( "id" ) ->desc()
-            );
-
-            $query->pagination(
-                $query->limit( 2 )
             );
 
         });

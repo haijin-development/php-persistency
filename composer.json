@@ -44,7 +44,8 @@
     },
     "require": {
         "haijin/tools": "dev-development",
-        "haijin/instantiator": "dev-development"
+        "haijin/instantiator": "dev-development",
+        "elasticsearch/elasticsearch": "~6.0"
     },
     "require-dev": {
         "haijin/specs": "dev-development"
