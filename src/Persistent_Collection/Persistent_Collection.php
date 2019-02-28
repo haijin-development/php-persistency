@@ -131,6 +131,19 @@ class Persistent_Collection
         ]);
     }
 
+    public function find_by_ids($ids_collection)
+    {
+        $id_field = $this->get_id_field();
+
+        $records = $this->database->find_by_ids(
+            $this->collection_name,
+            $id_field,
+            $ids_collection 
+        );
+
+        return $this->records_to_objects( $records );
+    }
+
     public function find_by_id_if_absent($id, $absent_closure, $binding = null)
     {
         $object = $this->find_by_id( $id );
@@ -222,7 +235,9 @@ class Persistent_Collection
 
         if( $filter_closure === null ) {
 
-            $filter_closure = function($query) {
+            $id_field = $this->get_id_field();
+
+            $filter_closure = function($query) use($id_field) {
 
                 $query->order_by(
                     $query ->field( "id" )
@@ -236,7 +251,6 @@ class Persistent_Collection
 
         $records = $this->get_database()->query( function($query)
                                             use($collection_name, $filter_closure) {
-
             $query->collection( $collection_name );
 
             $filter_closure->call( $this, $query );

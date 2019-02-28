@@ -43,4 +43,21 @@ abstract class Expression
     /// Visiting
 
     abstract public function accept_visitor($visitor);
+
+    /// Asking
+
+    public function is_field_expression()
+    {
+        return false;
+    }
+
+    public function is_value_expression()
+    {
+        return false;
+    }
+
+    public function is_function_call_expression()
+    {
+        return false;
+    }
 }

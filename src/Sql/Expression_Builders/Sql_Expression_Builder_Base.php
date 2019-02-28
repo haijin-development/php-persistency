@@ -72,7 +72,7 @@ class Sql_Expression_Builder_Base extends Expression_Visitor
     public function accept_function_call_expression($function_call_expression)
     {
         $function_name = $function_call_expression->get_function_name();
-        if( in_array( $function_name, $this->unary_functions() ) ) {
+        if( in_array( $function_name, $this->special_sintax_functions() ) ) {
             return $this->unary_function_sql( $function_name, $function_call_expression );
         }
 
@@ -88,13 +88,14 @@ class Sql_Expression_Builder_Base extends Expression_Visitor
         return $sql;
     }
 
-    protected function unary_functions()
+    protected function special_sintax_functions()
     {
         return [
             "is_null",
             "is_not_null",
             "desc",
-            "asc"
+            "asc",
+            "in"
         ];
     }
 
@@ -118,6 +119,22 @@ class Sql_Expression_Builder_Base extends Expression_Visitor
         if( $function_name == "asc" ) {
             $receiver = $function_call_expression->get_parameters()[0];
             return $this->expression_sql_from( $receiver ) . " asc";
+        }
+
+        if( $function_name == "in" ) {
+            $sql = $this->visit( $function_call_expression->get_parameters()[0] );
+
+            $sql .= " in (";
+
+            $ids = [];
+            foreach( $function_call_expression->get_parameters()[ 1 ]->get_value() as $id ) {
+                $ids[] = $this->value_to_sql( $id );
+            }
+
+            $sql .= join( ", ", $ids );
+            $sql .= ")";
+
+            return $sql;
         }
     }
 

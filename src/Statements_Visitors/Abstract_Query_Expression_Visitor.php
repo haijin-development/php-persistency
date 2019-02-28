@@ -24,6 +24,16 @@ abstract class Abstract_Query_Expression_Visitor
     abstract public function accept_create_statement($create_statement);
 
     /**
+     * Accepts an Update_Statement.
+     */
+    abstract public function accept_update_statement($update_statement);
+
+    /**
+     * Accepts an Delete_Statement.
+     */
+    abstract public function accept_delete_statement($delete_statement);
+
+    /**
      * Accepts a Collection_Expression.
      */
     abstract public function accept_collection_expression($collection_expression);
@@ -100,4 +110,9 @@ abstract class Abstract_Query_Expression_Visitor
      * Accepts a Brackets_Expression.
      */
     abstract public function accept_brackets_expression($brackets_expression);
+
+    /**
+     * Accepts a Record_Values_Expression.
+     */
+    abstract public function accept_record_values_expression($record_values_expression);
 }

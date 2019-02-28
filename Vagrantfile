@@ -86,5 +86,11 @@ Vagrant.configure("2") do |config|
     # Postgres
     bash src/php-persistency/provision-scritps/postgres.sh
 
+    # Java
+    bash src/php-persistency/provision-scritps/java-8.sh
+
+    # Elasticsearch
+    bash src/php-persistency/provision-scritps/elastich-search.sh
+
   SHELL
 end

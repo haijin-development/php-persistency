@@ -3,10 +3,15 @@
 namespace Haijin\Persistency\Database;
 
 use  Haijin\Instantiator\Create;
+use Haijin\Persistency\Types_Converters\Types_Converter;
+use Haijin\Persistency\Statement_Compiler\Query_Statement_Compiler;
+use Haijin\Persistency\Statement_Compiler\Create_Statement_Compiler;
+use Haijin\Persistency\Statement_Compiler\Update_Statement_Compiler;
+use Haijin\Persistency\Statement_Compiler\Delete_Statement_Compiler;
 use Haijin\Persistency\Errors\Connections\Database_Query_Error;
 use Haijin\Persistency\Errors\Connections\Uninitialized_Connection_Error;
 use Haijin\Persistency\Errors\Connections\Connection_Failure_Error;
-use Haijin\Persistency\Types_Converters\Types_Converter;
+use Haijin\Persistency\Errors\Connections\Named_Parameter_Not_Found_Error;
 
 /**
  * Base class for database engines wrappers.
@@ -17,16 +22,21 @@ use Haijin\Persistency\Types_Converters\Types_Converter;
  */
 abstract class Database
 {
+    /**
+     * The handle to an open connection to a Postgresql server.
+     */
+    protected $connection_handle;
+
     protected $types_converter;
 
     /// Initializing
 
     /**
      * Initializes $this instance.
-     * Placeholder method.
      */
     public function __construct()
     {
+        $this->connection_handle = null;
         $this->types_converter = $this->default_types_converter();
     }
 
@@ -59,19 +69,18 @@ abstract class Database
     /// Querying
 
     /**
-     * Compiles the $query_closure and executes the query statement in the database server.
+     * Compiles the $query_closure and executes the compiled query in the server.
      * Returns the rows returned by the query execution.
-     *
-     * @param closure $query_closure A closure to construct the database query.
-     * @param array $named_parameters An associative array of the named parameters values
-     *      referenced in the query closure.
-     *
-     * @return array An associative array with the results of the query execution.
      */
-    abstract public function query($query_closure, $named_parameters = [], $binding = null);
+    public function query($query_closure, $named_parameters = [], $binding = null)
+    {
+        $compiled_query = $this->compile_query_statement( $query_closure, $binding );
+
+        return $this->execute( $compiled_query, $named_parameters );
+    }
 
     /**
-     * Compiles the $create_closure and executes the create statement in the database server.
+     * Compiles the $create_closure and executes the create record query in the database server.
      * Returns the id of the created query.
      *
      * @param closure $create_closure A closure to construct the record creation.
@@ -80,18 +89,26 @@ abstract class Database
      *
      * @return object The unique id of the created record in the database expression.
      */
-    abstract public function create($create_closure, $named_parameters = [], $binding = null);
+    public function create($create_closure, $named_parameters = [], $binding = null)
+    {
+        $compiled_statement = $this->compile_create_statement( $create_closure, $binding );
 
-    abstract public function get_last_created_id();
+        return $this->execute( $compiled_statement, $named_parameters );
+    }
 
     /**
-     * Compiles the $update_closure and executes the update statement in the database server.
+     * Compiles the $update_closure and executes the update record query in the database server.
      *
      * @param closure $update_closure A closure to construct the record creation.
      * @param array $named_parameters An associative array of the named parameters values
      *      referenced in the update_closure.
      */
-    abstract public function update($update_closure, $named_parameters = [], $binding = null);
+    public function update($update_closure, $named_parameters = [], $binding = null)
+    {
+        $compiled_statement = $this->compile_update_statement( $update_closure, $binding );
+
+        return $this->execute( $compiled_statement, $named_parameters );
+    }
 
     /**
      * Compiles the $delete_closure and executes the delete statement in the database server.
@@ -100,9 +117,18 @@ abstract class Database
      * @param array $named_parameters An associative array of the named parameters values
      *      referenced in the delete_closure.
      */
-    abstract public function delete($delete_closure, $named_parameters = [], $binding = null);
+    public function delete($delete_closure, $named_parameters = [], $binding = null)
+    {
+        $compiled_statement = $this->compile_delete_statement( $delete_closure, $binding );
+
+        return $this->execute( $compiled_statement, $named_parameters );
+    }
+
+    abstract public function get_last_created_id();
 
     abstract public function clear_all($collection_name);
+
+    /// Compiling statements
 
     /**
      * Compiles the $query_closure and retunrs the compiled
@@ -113,7 +139,11 @@ abstract class Database
      * @return Haijin\Persistency\Statement_Compiler\Query_Statement The Query_Statement
      *      compiled from the $query_closure evaluation.
      */
-    abstract public function compile_query_statement($query_closure, $binding = null);
+    public function compile_query_statement($query_closure, $binding = null)
+    {
+        return $this->new_query_statement_compiler()
+            ->build( $query_closure, $binding );
+    }
 
     /**
      * Compiles the $create_closure and retunrs the compiled
@@ -124,7 +154,11 @@ abstract class Database
      * @return Haijin\Persistency\Statement_Compiler\Create_Statement The Create_Statement 
      *      compiled from the $create_closure evaluation.
      */
-    abstract public function compile_create_statement($create_closure, $binding = null);
+    public function compile_create_statement($create_closure, $binding = null)
+    {
+        return $this->new_create_expression_compiler()
+            ->build( $create_closure, $binding );
+    }
 
     /**
      * Compiles the $update_closure and retunrs the compiled
@@ -135,7 +169,11 @@ abstract class Database
      * @return Haijin\Persistency\Statement_Compiler\Update_Statement The Update_Statement 
      *      compiled from the $update_closure evaluation.
      */
-    abstract public function compile_update_statement($update_closure, $binding = null);
+    public function compile_update_statement($update_closure, $binding = null)
+    {
+        return $this->new_update_expression_compiler()
+            ->build( $update_closure, $binding );
+    }
 
     /**
      * Compiles the $delete_closure and retunrs the compiled
@@ -146,9 +184,34 @@ abstract class Database
      * @return Haijin\Persistency\Statement_Compiler\Delete_Statement The Delete_Statement 
      *      compiled from the $delete_closure evaluation.
      */
-    abstract public function compile_delete_statement($delete_closure, $binding = null);
+    public function compile_delete_statement($delete_closure, $binding = null)
+    {
+        return $this->new_delete_expression_compiler()
+            ->build( $delete_closure, $binding );
+    }
 
-    /// Executing
+    /// Executing statements
+
+    /**
+     * Executes the $query_statement.
+     * Returns the result of the execution.
+     */
+    abstract public function execute_query_statement($query_statement, $named_parameters);
+
+    /**
+     * Executes the $create_statement.
+     */
+    abstract public function execute_create_statement($create_statement, $named_parameters);
+
+    /**
+     * Executes the $update_statement.
+     */
+    abstract public function execute_update_statement($update_statement, $named_parameters);
+
+    /**
+     * Executes the $delete_statement.
+     */
+    abstract public function execute_delete_statement($delete_statement, $named_parameters);
 
     public function during_transaction_do($closure, $binding = null)
     {
@@ -194,7 +257,12 @@ abstract class Database
      *
      * @return array An associative array with the results of the query execution.
      */
-    abstract public function execute($compiled_statement, $named_parameters = []);
+    public function execute($compiled_statement, $named_parameters = [])
+    {
+        $this->validate_connection_handle();
+
+        return $compiled_statement->execute_in( $this, $named_parameters );
+    }
 
     /// Debugging
 
@@ -223,6 +291,40 @@ abstract class Database
      *
      */
     abstract public function inspect_query($query, $closure, $binding = null);
+
+    /// Creating instances
+
+    protected function new_query_statement_compiler()
+    {
+        return Create::a( Query_Statement_Compiler::class )->with();
+    }
+
+    protected function new_create_expression_compiler()
+    {
+        return Create::a( Create_Statement_Compiler::class )->with();
+    }
+
+    protected function new_update_expression_compiler()
+    {
+        return Create::a( Update_Statement_Compiler::class )->with();
+    }
+
+    protected function new_delete_expression_compiler()
+    {
+        return Create::a( Delete_Statement_Compiler::class )->with();
+    }
+
+    /// Validating
+
+    /**
+     * Validates that the connection_handle to the Mysql server was initialized.
+     */
+    protected function validate_connection_handle()
+    {
+        if( $this->connection_handle === null ) {
+            $this->raise_uninitialized_connection_error();
+        }
+    }
 
     /// Raising errors
 
@@ -260,5 +362,13 @@ abstract class Database
         }
 
         throw Create::a( Uninitialized_Connection_Error::class )->with( $error_message, $this );
+    }
+
+    protected function raise_named_parameter_not_found_error($parameter_name)
+    {
+        throw Create::a( Named_Parameter_Not_Found_Error::class )->with(
+            "The query named parameter '{$parameter_name}' was not found.",
+            $parameter_name
+        );
     }
 }

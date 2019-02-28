@@ -20,7 +20,8 @@
     },
     "require": {
         "haijin/tools": "^1.2",
-        "haijin/instantiator": "^2.0"
+        "haijin/instantiator": "^2.0",
+        "elasticsearch/elasticsearch": "~6.0"
     },
     "require-dev": {
         "haijin/specs": "^1.1"

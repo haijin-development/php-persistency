@@ -45,4 +45,11 @@ class Field_Expression extends Expression
     {
         return $visitor->accept_field_expression( $this );
     }
+
+    /// Asking
+
+    public function is_field_expression()
+    {
+        return true;
+    }
 }

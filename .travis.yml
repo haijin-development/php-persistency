@@ -6,6 +6,7 @@ php:
 services:
   - mysql
   - postgresql
+  - elasticsearch
 
 addons:
   postgresql: "9.4"
@@ -18,5 +19,6 @@ before_install:
 before_script:
   - composer self-update
   - composer install
+  - sleep 10
 
 script: composer specs
