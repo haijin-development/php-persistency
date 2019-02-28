@@ -1979,9 +1979,9 @@ class Users_Persistent_Collection extends Persistent_Collection
         Elasticsearch_Users_Collection::create( $user );
     }
 
-    public function create($user)
+    public function update($user)
     {
-        parent::delete( $user );
+        parent::update( $user );
 
         Elasticsearch_Users_Collection::update( $user );
     }
