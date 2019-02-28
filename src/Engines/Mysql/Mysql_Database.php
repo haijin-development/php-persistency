@@ -73,6 +73,19 @@ class Mysql_Database extends Database
 
     /// Querying
 
+    public function find_by_ids($collection_name, $id_field, $ids_collection)
+    {
+        return $this->query( function($query) use($collection_name, $id_field, $ids_collection) {
+
+            $query->collection( $collection_name );
+
+            $query->filter(
+                $query->in( $query->field( $id_field ), $ids_collection )
+            );
+
+        });
+    }
+
     public function clear_all($collection_name)
     {
         $this->evaluate_sql_string( "truncate {$collection_name};" );
