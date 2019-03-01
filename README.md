@@ -2119,7 +2119,9 @@ Elasticsearch_Users_Collection::do()->create_from_attributes([
 
 #### Records update
 
-Currently a document can be udpate within a `Persistent_Collection` with:
+Currently a document can not be udpated with named parameters.
+
+Updating records in a collection works like with any other collection:
 
 ```php
 Elasticsearch_Users_Collection::do()->update_from_attributes([
@@ -2129,9 +2131,26 @@ Elasticsearch_Users_Collection::do()->update_from_attributes([
 ]);
 ```
 
-However the general `Elasticsearch_Database::update` has not yet been implemented.
+To update records with a query a special sintax is used.
 
-At the moment only a single record can be updated.
+```php
+$elasticsearch_database->update( function($query) {
+
+    $query->collection( "users" );
+
+    $query->script([
+        "lang" => "painless",
+        "source" => "ctx._source.name = 'Margaret'"
+    ]);
+
+    $query->filter(
+        $query->match( "name", "Maggie" )
+    );
+
+});
+```
+
+The [script](https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-scripting-using.html) is the same a defined by Elasticsearch.
 
 #### Elastic sintax
 

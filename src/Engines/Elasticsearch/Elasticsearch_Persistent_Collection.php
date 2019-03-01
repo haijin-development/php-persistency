@@ -15,6 +15,37 @@ class Elasticsearch_Persistent_Collection extends Persistent_Collection
         );
     }
 
+    public function find_by($field_values)
+    {
+        $found_objects = $this->all( function($query) use($field_values) {
+
+            $matches = [];
+
+            foreach( $field_values as $field_name => $value ) {
+                $matches[] = $query->match( $field_name, $value );
+            }
+
+            $query->filter(
+                $query->bool(
+                    $query->must( ...$matches )
+                )
+            );
+
+        });
+
+        $found_count = count( $found_objects );
+
+        if( $found_count == 0 ) {
+            return null;
+        }
+
+        if( $found_count == 1 ) {
+            return $found_objects[ 0 ];
+        }
+
+        $this->raise_more_than_one_record_found_error( $found_count );
+    }
+
     /**
      * Returns the first object in the collection or null if there is none.
      */

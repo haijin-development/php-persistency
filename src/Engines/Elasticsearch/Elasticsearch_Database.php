@@ -270,9 +270,39 @@ class Elasticsearch_Database extends Database
      */
     public function execute_update_statement($update_statement, $named_parameters)
     {
+        $elastic_query = $this->build_elasticsearch_query( $update_statement );
 
-        throw new \RuntimeException( "Currently not supported." );
+        $collection_name = $elastic_query->get_collection_name();
 
+        $body_object = $this->replace_named_parameters_in(
+            $elastic_query->get_body(),
+            $named_parameters
+        );
+
+        $body = [];
+
+        if( isset( $body_object->query ) ) {
+            $body[ 'query' ] = $body_object->query;
+        }
+        if( isset( $body_object->script ) ) {
+            $body[ 'script' ] = $body_object->script;
+        }
+
+        $update_parameters = [
+                'index' => $collection_name,
+                'type' => $collection_name,
+                'body' => $body,
+                'refresh' => true
+            ];
+
+        if( $elastic_query->get_extra_parameters() !== null ) {
+            $update_parameters = array_merge(
+                    $update_parameters,
+                    $elastic_query->get_extra_parameters()
+                );
+        }
+
+        $result = $this->connection_handle->updateByQuery( $update_parameters );
     }
 
     public function update_by_id($id, $values, $collection_name, $type = null)
