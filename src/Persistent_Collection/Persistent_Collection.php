@@ -100,7 +100,7 @@ class Persistent_Collection
             }
         }
 
-        throw new \RuntimeException( "Missing a primary key field in the definition." );
+        $this->raise_missing_primary_key_error();
     }
 
     public function get_object_values_from($object)
@@ -199,7 +199,7 @@ class Persistent_Collection
             return $found_objects[ 0 ];
         }
 
-        throw new Persistency_Error( "find_by found {$found_count} records." );
+        $this->raise_more_than_one_record_found_error($found_count);
     }
 
     public function find_by_if_absent($field_values, $absent_closure, $binding = null)
@@ -335,26 +335,24 @@ class Persistent_Collection
 
     /// Counting
 
+    /**
+     * Compiles the $query_closure and counts the number of matching records.
+     * Returns the number of records.
+     */
     public function count($filter_closure = null, $named_parameters = [], $binding = null)
     {
         $collection_name = $this->collection_name;
 
-        $result = $this->get_database()->query( function($query)
+        return $this->get_database()->count( function($query)
                                             use($collection_name, $filter_closure) {
 
             $query->collection( $collection_name );
-
-            $query->proyect(
-                $query->count() ->as( "count" )
-            );
 
             if( $filter_closure !== null ) {
                 $filter_closure->call( $this, $query );
             }
 
         }, $named_parameters, $binding );
-
-        return $result[ 0 ][ "count" ];
     }
 
     /// Creating
@@ -605,6 +603,23 @@ class Persistent_Collection
             return $mapped_record;
         }
 
+        $this->raise_unkown_instantiator_error();
+    }
+
+    /// Raising errors
+
+    protected function raise_missing_primary_key_error()
+    {
+        throw new \RuntimeException( "Missing a primary key field in the definition." );
+    }
+
+    protected function raise_unkown_instantiator_error()
+    {
         throw new \RuntimeException( "Unkown instantiator." );
+    }
+
+    protected function raise_more_than_one_record_found_error($found_count)
+    {
+        throw new Persistency_Error( "Expected one record, found {$found_count}." );
     }
 }

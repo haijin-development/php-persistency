@@ -18,7 +18,6 @@ class Elasticsearch_Query_Builder extends Abstract_Query_Expression_Visitor
     protected $body;
     protected $order_by_fields;
     protected $record_values;
-    protected $script;
     protected $extra_parameters;
 
     /// Initializing
@@ -30,7 +29,6 @@ class Elasticsearch_Query_Builder extends Abstract_Query_Expression_Visitor
         $this->body = null;
         $this->order_by_fields = [];
         $this->record_values = [];
-        $this->script = null;
         $this->offset = null;
         $this->limit = null;
         $this->extra_parameters = null;
@@ -60,11 +58,6 @@ class Elasticsearch_Query_Builder extends Abstract_Query_Expression_Visitor
     public function get_record_values()
     {
         return $this->record_values;
-    }
-
-    public function get_script()
-    {
-        return $this->script;
     }
 
     public function get_offset()
@@ -147,13 +140,13 @@ class Elasticsearch_Query_Builder extends Abstract_Query_Expression_Visitor
 
         }
 
-        if( $update_statement->has_script_expression() ) {
+        if( $update_statement->has_script() ) {
 
             if( $this->body === null ) {
                 $this->body = new \stdclass();
             }
 
-            $this->body->script = $this->visit( $update_statement->get_script_expression() );
+            $this->body->script = $update_statement->get_script();
         }
 
         if( $update_statement->has_filter_expression() ) {

@@ -4,7 +4,7 @@ use Haijin\Persistency\Engines\Elasticsearch\Elasticsearch_Database;
 use Haijin\Persistency\Persistent_Collection\Persistent_Collection;
 use Haijin\Persistency\Errors\Persistency_Error;
 
-$spec->xdescribe( "When searching an object in a Persistent_Collection in a Elasticsearch database", function() {
+$spec->describe( "When finding an object by its matching fields in a Persistent_Collection in a Elasticsearch database", function() {
 
     $this->before_all( function() {
 
@@ -81,7 +81,7 @@ $spec->xdescribe( "When searching an object in a Persistent_Collection in a Elas
         }) ->to() ->raise(
             Persistency_Error::class,
             function($error) {
-                $this->expect( $error->getMessage() ) ->to() ->equal( "find_by found 3 records." );
+                $this->expect( $error->getMessage() ) ->to() ->equal( "Expected one record, found 3." );
             }
         );
 
@@ -132,7 +132,7 @@ $spec->xdescribe( "When searching an object in a Persistent_Collection in a Elas
             }) ->to() ->raise(
                 Persistency_Error::class,
                 function($error) {
-                    $this->expect( $error->getMessage() ) ->to() ->equal( "find_by found 3 records." );
+                    $this->expect( $error->getMessage() ) ->to() ->equal( "Expected one record, found 3." );
                 }
             );
 

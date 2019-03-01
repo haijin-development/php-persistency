@@ -79,7 +79,7 @@ $spec->describe( "When searching an object in a Persistent_Collection in a MySql
         }) ->to() ->raise(
             Persistency_Error::class,
             function($error) {
-                $this->expect( $error->getMessage() ) ->to() ->equal( "find_by found 3 records." );
+                $this->expect( $error->getMessage() ) ->to() ->equal( "Expected one record, found 3." );
             }
         );
 
@@ -130,7 +130,7 @@ $spec->describe( "When searching an object in a Persistent_Collection in a MySql
             }) ->to() ->raise(
                 Persistency_Error::class,
                 function($error) {
-                    $this->expect( $error->getMessage() ) ->to() ->equal( "find_by found 3 records." );
+                    $this->expect( $error->getMessage() ) ->to() ->equal( "Expected one record, found 3." );
                 }
             );
 
