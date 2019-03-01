@@ -8,7 +8,9 @@ $spec->describe( "When building the collection statement of a Elasticsearch expr
 
         $database = new Elasticsearch_Database();
 
-        $database->connect( [ '127.0.0.1:9200' ] );
+        $database->connect( function($handle) {
+            $handle->setHosts([ '127.0.0.1:9200' ]);
+        });
 
         return $database;
 

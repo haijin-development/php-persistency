@@ -9,7 +9,9 @@ $spec->describe( "When searching an object by its primary key in a Persistent_Co
 
         $this->database = new Elasticsearch_Database();
 
-        $this->database->connect( [ '127.0.0.1:9200' ] );
+        $this->database->connect( function($handle) {
+            $handle->setHosts([ '127.0.0.1:9200' ]);
+        });
 
         Elasticsearch_Users_Collection::get()->set_database( $this->database );
 

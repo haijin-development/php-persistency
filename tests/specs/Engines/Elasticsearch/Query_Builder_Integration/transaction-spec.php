@@ -20,7 +20,9 @@ $spec->describe( "When evaluating transactional statements in a Elasticsearch da
 
         $database = new Elasticsearch_Database();
 
-        $database->connect( [ '127.0.0.1:9200' ] );
+        $database->connect( function($handle) {
+            $handle->setHosts([ '127.0.0.1:9200' ]);
+        });
 
         return $database;
 

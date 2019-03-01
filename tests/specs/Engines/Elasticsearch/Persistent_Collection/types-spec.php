@@ -9,7 +9,9 @@ $spec->describe( "When mapping fields with types in a Persistent_Collection stor
 
         $this->database = new Elasticsearch_Database();
 
-        $this->database->connect( [ '127.0.0.1:9200' ] );
+        $this->database->connect( function($handle) {
+            $handle->setHosts([ '127.0.0.1:9200' ]);
+        });
 
         Elasticsearch_Types_Collection::get()->set_database( $this->database );
 

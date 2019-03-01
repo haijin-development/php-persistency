@@ -8,7 +8,9 @@ $spec->describe( "When using macros in the filter statement of a Elasticsearch e
 
         $database = new Elasticsearch_Database();
 
-        $database->connect( [ '127.0.0.1:9200' ] );
+        $database->connect( function($handle) {
+            $handle->setHosts([ '127.0.0.1:9200' ]);
+        });
 
         return $database;
 

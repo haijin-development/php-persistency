@@ -8,7 +8,9 @@ $spec->describe( "When building the filter statement of a MySql expression", fun
 
         $database = new Elasticsearch_Database();
 
-        $database->connect( [ '127.0.0.1:9200' ] );
+        $database->connect( function($handle) {
+            $handle->setHosts([ '127.0.0.1:9200' ]);
+        });
 
         return $database;
 

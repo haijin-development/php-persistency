@@ -62,9 +62,30 @@ class Elasticsearch_Database extends Database
      */
     public function connect(...$params)
     {
-        $this->connection_handle = ClientBuilder::create()
-                ->setHosts( $params[0] )
-                ->build();
+        $closure = $params[ 0 ];
+
+        if( isset( $params[ 1 ] ) ) {
+            $binding = $params[ 1 ];
+        } else {
+            $binding = null;
+        }
+
+        $this->connection_handle = ClientBuilder::create();
+
+        $this->with_handle_do( $closure, $binding );
+
+        $this->connection_handle = $this->connection_handle->build();
+
+        return $this;
+    }
+
+    public function with_handle_do($closure, $binding = null)
+    {
+        if( $binding === null ) {
+            $binding = $this;
+        }
+
+        return $closure->call( $binding, $this->connection_handle );
     }
 
     /// Transactions
