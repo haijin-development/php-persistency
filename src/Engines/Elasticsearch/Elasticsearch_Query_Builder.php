@@ -19,6 +19,7 @@ class Elasticsearch_Query_Builder extends Abstract_Query_Expression_Visitor
     protected $order_by_fields;
     protected $record_values;
     protected $script;
+    protected $extra_parameters;
 
     /// Initializing
 
@@ -32,7 +33,7 @@ class Elasticsearch_Query_Builder extends Abstract_Query_Expression_Visitor
         $this->script = null;
         $this->offset = null;
         $this->limit = null;
-
+        $this->extra_parameters = null;
     }
 
     /// Acessing
@@ -76,6 +77,10 @@ class Elasticsearch_Query_Builder extends Abstract_Query_Expression_Visitor
         return $this->limit;
     }
 
+    public function get_extra_parameters()
+    {
+        return $this->extra_parameters;
+    }
     /**
      * Accepts a Query_Statement.
      */
@@ -106,6 +111,8 @@ class Elasticsearch_Query_Builder extends Abstract_Query_Expression_Visitor
         if( $query_statement->has_pagination_expression() ) {
             $this->pagination = $this->visit( $query_statement->get_pagination_expression() );
         }
+
+        $this->extra_parameters = $query_statement->get_extra_parameters();
     }
 
     /**
@@ -116,6 +123,9 @@ class Elasticsearch_Query_Builder extends Abstract_Query_Expression_Visitor
         $this->collection_name = $this->visit( $create_statement->get_collection_expression() );
 
         $this->record_values = $this->visit( $create_statement->get_records_values_expression() );
+
+
+        $this->extra_parameters = $create_statement->get_extra_parameters();
     }
 
     /**
@@ -157,6 +167,8 @@ class Elasticsearch_Query_Builder extends Abstract_Query_Expression_Visitor
             );
 
         }
+
+        $this->extra_parameters = $update_statement->get_extra_parameters();
     }
 
     /**
@@ -175,6 +187,8 @@ class Elasticsearch_Query_Builder extends Abstract_Query_Expression_Visitor
             $this->body->query = $this->visit( $delete_statement->get_filter_expression() );
 
         }
+
+        $this->extra_parameters = $delete_statement->get_extra_parameters();
     }
 
     /**

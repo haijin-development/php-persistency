@@ -135,27 +135,17 @@ class Elasticsearch_Database extends Database
 
         $collection_name = $elastic_query->get_collection_name();
 
-        $additional_query_params = [];
-
-        if( isset( $named_parameters[ "_elastic" ] ) ) {
-            $additional_query_params = $named_parameters[ "_elastic" ];
-            unset( $named_parameters[ "_elastic" ] );
-        }
-
         $body = $this->replace_named_parameters_in(
             $elastic_query->get_body(),
             $named_parameters
         );
 
-        $search_parameters = array_merge(
-            [
+        $search_parameters =[
                 'index' => $collection_name,
                 'type' => $collection_name,
                 'body' => $body,
                 'sort' => $elastic_query->get_order_by_fields()
-            ],
-            $additional_query_params
-        );
+            ];
 
         if( $elastic_query->get_proyected_fields() != null ) {
             $search_parameters[ '_source' ] = $elastic_query->get_proyected_fields();
@@ -169,6 +159,13 @@ class Elasticsearch_Database extends Database
             $search_parameters[ 'size' ] = $elastic_query->get_limit();
         }
 
+        if( $elastic_query->get_extra_parameters() !== null ) {
+            $search_parameters = array_merge(
+                    $search_parameters,
+                    $elastic_query->get_extra_parameters()
+                );
+        }
+
         $result = $this->connection_handle->search( $search_parameters );
 
         return $this->process_results_rows( $result );
@@ -180,21 +177,19 @@ class Elasticsearch_Database extends Database
             $type = $collection_name;
         }
 
-        $exists = $this->connection_handle->exists([
+        $search_parameters = [
                 'index' => $collection_name,
                 'type' => $type,
                 'id' => $id
-            ]);
+            ];
+
+        $exists = $this->connection_handle->exists( $search_parameters );
 
         if( ! $exists ) {
             return null;
         }
 
-        $result = $this->connection_handle->get([
-                'index' => $collection_name,
-                'type' => $type,
-                'id' => $id
-            ]);
+        $result = $this->connection_handle->get( $search_parameters );
 
         return $this->process_result_row( $result );
     }
@@ -208,13 +203,6 @@ class Elasticsearch_Database extends Database
 
         $collection_name = $elastic_query->get_collection_name();
 
-        $additional_query_params = [];
-
-        if( isset( $named_parameters[ "_elastic" ] ) ) {
-            $additional_query_params = $named_parameters[ "_elastic" ];
-            unset( $named_parameters[ "_elastic" ] );
-        }
-
         $values = $elastic_query->get_record_values();
 
         if( ! isset( $values[ "_id" ] ) || $values[ "_id" ] === null ) {
@@ -225,16 +213,20 @@ class Elasticsearch_Database extends Database
 
         unset( $values[ "_id" ] );
 
-        $create_parameters = array_merge(
-            [
-                'index' => $collection_name,
-                'type' => $collection_name,
-                'id' => $this->last_created_id,
-                'body' => $values,
-                'refresh' => true
-            ],
-            $additional_query_params
-        );
+        $create_parameters = [
+            'index' => $collection_name,
+            'type' => $collection_name,
+            'id' => $this->last_created_id,
+            'body' => $values,
+            'refresh' => true
+        ];
+
+        if( $elastic_query->get_extra_parameters() !== null ) {
+            $create_parameters = array_merge(
+                    $create_parameters,
+                    $elastic_query->get_extra_parameters()
+                );
+        }
 
         $this->connection_handle->index( $create_parameters );
     }
@@ -277,27 +269,24 @@ class Elasticsearch_Database extends Database
 
         $collection_name = $elastic_query->get_collection_name();
 
-        $additional_query_params = [];
-
-        if( isset( $named_parameters[ "_elastic" ] ) ) {
-            $additional_query_params = $named_parameters[ "_elastic" ];
-            unset( $named_parameters[ "_elastic" ] );
-        }
-
         $body = $this->replace_named_parameters_in(
             $elastic_query->get_body(),
             $named_parameters
         );
 
-        $delete_parameters = array_merge(
-            [
+        $delete_parameters = [
                 'index' => $collection_name,
                 'type' => $collection_name,
                 'body' => $body,
                 'refresh' => true
-            ],
-            $additional_query_params
-        );
+            ];
+
+        if( $elastic_query->get_extra_parameters() !== null ) {
+            $delete_parameters = array_merge(
+                    $delete_parameters,
+                    $elastic_query->get_extra_parameters()
+                );
+        }
 
         $result = $this->connection_handle->deleteByQuery( $delete_parameters );
     }

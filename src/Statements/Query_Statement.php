@@ -4,11 +4,9 @@ namespace Haijin\Persistency\Statements;
 
 use Haijin\Instantiator\Create;
 use Haijin\Ordered_Collection;
-use Haijin\Persistency\Statements\Expressions\Expression;
 
-class Query_Statement extends Expression
+class Query_Statement extends Statement
 {
-    protected $collection_expression;
     protected $proyection_expression;
     protected $filter_expression;
     protected $join_expressions;
@@ -24,7 +22,6 @@ class Query_Statement extends Expression
     {
         parent::__construct( $expression_context );
 
-        $this->collection_expression = null;
         $this->proyection_expression = $this->new_proyection_expression();
         $this->filter_expression = null;
         $this->join_expressions = Create::an( Ordered_Collection::class )->with();
@@ -33,23 +30,6 @@ class Query_Statement extends Expression
     }
 
     /// Accessing
-
-    /**
-     * Returns the collection expression.
-     */
-    public function get_collection_expression()
-    {
-        return $this->collection_expression;
-    }
-
-    /**
-     * Sets the collection_expression.
-     */
-    public function set_collection_expression($collection_expression)
-    {
-        $this->collection_expression = $collection_expression;
-        $this->context->set_current_collection( $collection_expression );
-    }
 
     /**
      * Returns the proyection expression.

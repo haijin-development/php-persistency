@@ -567,18 +567,34 @@ $database->evaluate( "CREATE TABLE `users` (
 
 4. Haijin\Persistency\Engines\Elasticsearch\Elasticsearch_Database
 
-Elasticsearch wrapper does not intend to wrap every feature but to ease the most common use cases for indexing and searching documents.
-
-For the rest of the features it provides the connection handle to allow custom calls.
-
-Elasticsearch implementation is a work in progress.
-
-Connect with:
+Connect with the protocol that provides Elasticseach [ClientBuilder](https://www.elastic.co/guide/en/elasticsearch/client/php-api/current/_configuration.html):
 
 ```php
 $database = new Sqlite_Database();
 
-$database->connect( [ '127.0.0.1:9200' ] );
+$database->connect( function($client_builder) {
+
+    $client_builder->setHosts([ '127.0.0.1:9200' ]);
+
+});
+```
+
+Elasticsearch wrapper does not intend to wrap every available feature but to ease the most common use cases for indexing and searching documents.
+
+For the rest of the features it provides the connection handle to allow custom calls:
+
+```php
+$params = [
+    'index'  => 'test_missing',
+    'type'   => 'test',
+    'client' => [ 'ignore' => [400, 404] ] 
+];
+
+$result = $elasticsearch_database->with_handle_do( function($client) use($params) {
+
+    return $client->get($params);
+
+}, $this );
 ```
 
 `Elasticsearch` mappings has some specifics that are documented in a separated section.
@@ -2016,16 +2032,33 @@ class Users_Collection
 <a name="c-3"></a>
 ### Elasticsearch specifics
 
+#### Persistent_Collection super class
+
+`Elasticsearch` collections must extend from `Haijin\Persistency\Engines\Elasticsearch\Elasticsearch_Persistent_Collection` instead of `Persistent_Collection`.
+
+```php
+use Haijin\Persistency\Engines\Elasticsearch\Elasticsearch_Persistent_Collection;
+
+class Elasticsearch_Users_Persisted_Collection extends Elasticsearch_Persistent_Collection
+{
+    public function definition($collection)
+    {
+        /// ...
+    }
+}
+```
+
 #### `_id` field
 
-A `Persisted_Collection` for Elasticsearch must have a field named `_id`.
+A `Elasticsearch_Persistent_Collection` must have a field named `_id`.
+
 The field is not written in Elasticsearch indices but is required.
 
 
 ```php
-use Haijin\Persistency\Persistent_Collection\Persistent_Collection;
+use Haijin\Persistency\Engines\Elasticsearch\Elasticsearch_Persistent_Collection;
 
-class Elasticsearch_Users_Persisted_Collection extends Persistent_Collection
+class Elasticsearch_Users_Persisted_Collection extends Elasticsearch_Persistent_Collection
 {
     public function definition($collection)
     {
@@ -2072,9 +2105,9 @@ Elasticsearch_Users_Collection::$instance =
     new Elasticsearch_Users_Persisted_Collection();
 ```
 
-#### Records creation
+#### Documents creation
 
-To create a record the `_id` field must be defined. Elasticsearch does not assign ids to documents that do not have one.
+To create a document the `_id` field must be defined. Elasticsearch does not assign ids to documents that do not have one.
 
 ```php
 Elasticsearch_Users_Collection::do()->create_from_attributes([
@@ -2084,43 +2117,31 @@ Elasticsearch_Users_Collection::do()->create_from_attributes([
 ]);
 ```
 
-#### all, first, last
+#### Records update
 
-Functions `Persisted_Collection::all()`, `Persisted_Collection::first()` and `Persisted_Collection::last()` can only be used without parameters if the collection has a `->is_primary_key()` on a sortable field different than the `_id` field.
-
-In Elasticsearch not all fields are sortable with its default configuration. In particular, text fields are not.
-
-In that scenario calling
+Currently a document can be udpate within a `Persistent_Collection` with:
 
 ```php
-Elasticsearch_Users_Collection::get()->all();
-Elasticsearch_Users_Collection::get()->first();
-Elasticsearch_Users_Collection::get()->last();
+Elasticsearch_Users_Collection::do()->update_from_attributes([
+    "id" => 7,
+    "name" => "Lisa"
+    "last_name" => "Simpson"
+]);
 ```
 
-will raise an error.
+However the general `Elasticsearch_Database::update` has not yet been implemented.
 
-A query must be explicetly given:
+At the moment only a single record can be updated.
 
-```php
-Elasticsearch_Users_Collection::get()->first( function($query) {
+#### Elastic sintax
 
-    $query->order_by(
-        $query->field( 'creation_time' ) ->desc();
-    )
+Elasticsearch supports different query sintax.
 
-});
-```
+Currently `haijin/persistency` implements elastic [query dsl](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html) and maps one to one its sintax.
 
-#### Elastic sitaxis
+That means that while `haijin/persistency` library serves as an adaptor to index and retrieve documents from a Elasticsearch server it uses its sintax as it is. No new DSL is built on top of Elasticsearch one.
 
-Elasticsearch supports different query sintaxis.
-
-Currently the `haijin/persistency` maps elastic [query dsl](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html) and maps one to one its sintax.
-
-This means that while `haijin/persistency` library serves as an adaptor to index and retrieve documents from an Elasticsearch engine it uses its sintax as it is. No new DSL is built on top of Elasticsearch one.
-
-`haijin/persistency` will support a wrapper of elastic's [query dsl query](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html) in the future to easy the most common search queries.
+In the future `haijin/persistency` will support a wrapper of Elastic's [query dsl query](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html) in to ease the most common search queries.
 
 Examples:
 
@@ -2173,9 +2194,9 @@ Elasticsearch_Users_Collection::get()->all( function($query) {
 });
 ```
 
-#### Search additional parameters
+#### Elastic additional parameters
 
-To configure additional parameters for elastic searches do:
+To configure additional parameters for elastic calls do:
 
 ```php
 Elasticsearch_Users_Collection::get()->all( function($query) {
@@ -2189,14 +2210,45 @@ Elasticsearch_Users_Collection::get()->all( function($query) {
         )
     );
 
-}, [
-    '_elastic' => [
+    $query->extra_parameters([
         'query_cache' => true,
         'lowercase_expanded_terms' => true
-    ]
-]);
+    ]);
+
+});
 ```
 
+#### Elastic refresh
+
+When modifying a document in an `Elasticsearch` index it uses an asyncronous call unless told otherwise.
+
+By default `haijin/library` tells Elastic to make it sycronous.
+
+To make it asyncronous again pass an extra paramenter in the query:
+
+```php
+$this->elasticsearch_database->create( function($query) {
+
+    $query->collection( "users" );
+
+    $query->record(
+        $query->set( "_id", $query->value( 1 ) ),
+        $query->set( "name", $query->value( "Lisa" ) ),
+        $query->set( "last_name", $query->value( "Simpson" ) )
+    );
+
+    $query->extra_parameters([
+        "refresh" => false
+    ]);
+
+});
+
+$id = $this->database->get_last_created_id();
+
+$this->expect( $id ) ->to() ->equal( 1 );
+
+});
+```
 
 <a name="c-4"></a>
 ## Running the tests
