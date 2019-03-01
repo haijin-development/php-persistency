@@ -122,6 +122,40 @@ class Elasticsearch_Database extends Database
             'refresh' => true
         ]);
     }
+    /**
+     * Compiles the $query_closure and counts the number of matching records.
+     * Returns the number of records.
+     */
+    public function count($filter_closure = null, $named_parameters = [], $binding = null)
+    {
+        $query_statement = $this->compile_query_statement( $filter_closure, $binding );
+
+        $elastic_query = $this->build_elasticsearch_query( $query_statement );
+
+        $collection_name = $elastic_query->get_collection_name();
+
+        $body = $this->replace_named_parameters_in(
+            $elastic_query->get_body(),
+            $named_parameters
+        );
+
+        $count_parameters =[
+                'index' => $collection_name,
+                'type' => $collection_name,
+                'body' => $body
+            ];
+
+        if( $elastic_query->get_extra_parameters() !== null ) {
+            $count_parameters = array_merge(
+                    $count_parameters,
+                    $elastic_query->get_extra_parameters()
+                );
+        }
+
+        $result = $this->connection_handle->count( $count_parameters );
+
+        return $result[ 'count' ];
+    }
 
     /// Executing statements
 

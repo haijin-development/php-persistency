@@ -25,7 +25,7 @@ class Elasticsearch_Persistent_Collection extends Persistent_Collection
             $filter_closure = function($query) {
 
                 $query->order_by(
-                    $query ->field( '_id' )
+                    $query ->field( '_uid' )
                 );
 
             };
@@ -45,7 +45,7 @@ class Elasticsearch_Persistent_Collection extends Persistent_Collection
             $filter_closure = function($query) {
 
                 $query->order_by(
-                    $query ->field( '_id' )
+                    $query ->field( '_uid' )
                 );
 
             };
@@ -63,7 +63,7 @@ class Elasticsearch_Persistent_Collection extends Persistent_Collection
         return parent::first( function($query) {
 
             $query->order_by(
-                $query ->field( '_id' ) ->desc()
+                $query ->field( '_uid' ) ->desc()
             );
 
         });

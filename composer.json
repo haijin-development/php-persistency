@@ -44,11 +44,11 @@
     },
     "require": {
         "haijin/tools": "dev-development",
-        "haijin/instantiator": "dev-development",
-        "elasticsearch/elasticsearch": "~6.0"
+        "haijin/instantiator": "dev-development"
     },
     "require-dev": {
-        "haijin/specs": "dev-development"
+        "haijin/specs": "dev-development",
+        "elasticsearch/elasticsearch": "~6.0"
     },
     "autoload": {
         "psr-4": {

@@ -3,7 +3,7 @@
 use Haijin\Persistency\Engines\Elasticsearch\Elasticsearch_Database;
 use Haijin\Persistency\Persistent_Collection\Persistent_Collection;
 
-$spec->xdescribe( "When counting objects in a Persistent_Collection stored in a Elasticsearch database", function() {
+$spec->describe( "When counting objects in a Persistent_Collection stored in a Elasticsearch database", function() {
 
     $this->before_all( function() {
 
@@ -18,16 +18,19 @@ $spec->xdescribe( "When counting objects in a Persistent_Collection stored in a 
         Elasticsearch_Users_Collection::do()->clear_all();
 
         Elasticsearch_Users_Collection::do()->create_from_attributes([
+            "_id" => 1,
             "name" => "Lisa",
             "last_name" => "Simpson"
         ]);
 
         Elasticsearch_Users_Collection::do()->create_from_attributes([
+            "_id" => 2,
             "name" => "Bart",
             "last_name" => "Simpson"
         ]);
 
         Elasticsearch_Users_Collection::do()->create_from_attributes([
+            "_id" => 3,
             "name" => "Maggie",
             "last_name" => "Simpson"
         ]);
@@ -53,7 +56,9 @@ $spec->xdescribe( "When counting objects in a Persistent_Collection stored in a 
         $count = Elasticsearch_Users_Collection::get()->count( function($query) {
 
             $query->filter(
-                $query->field( "id" ) ->op( ">" ) ->value( 1 )
+                    $query->range(
+                        $query->id( 'gt', 1 )
+                    )
             );
 
         });
@@ -67,7 +72,9 @@ $spec->xdescribe( "When counting objects in a Persistent_Collection stored in a 
         $count = Elasticsearch_Users_Collection::get()->count( function($query) {
 
             $query->filter(
-                $query->field( "id" ) ->op( ">" ) ->value( 4 )
+                    $query->range(
+                        $query->id( 'gt', 4 )
+                    )
             );
 
         });
@@ -81,14 +88,16 @@ $spec->xdescribe( "When counting objects in a Persistent_Collection stored in a 
         $count = Elasticsearch_Users_Collection::get()->count( function($query) {
 
             $query->filter(
-                $query->field( "id" ) ->op( "=" ) ->param( "id" )
+                    $query->range(
+                        $query->id( 'gt', $query->param( 'id' ) )
+                    )
             );
 
         }, [
-            "id" => 1
+            'id' => 1
         ]);
 
-        $this->expect( $count ) ->to() ->equal( 1 );
+        $this->expect( $count ) ->to() ->equal( 2 );
 
     });
 

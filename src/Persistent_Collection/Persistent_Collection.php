@@ -335,26 +335,24 @@ class Persistent_Collection
 
     /// Counting
 
+    /**
+     * Compiles the $query_closure and counts the number of matching records.
+     * Returns the number of records.
+     */
     public function count($filter_closure = null, $named_parameters = [], $binding = null)
     {
         $collection_name = $this->collection_name;
 
-        $result = $this->get_database()->query( function($query)
+        return $this->get_database()->count( function($query)
                                             use($collection_name, $filter_closure) {
 
             $query->collection( $collection_name );
-
-            $query->proyect(
-                $query->count() ->as( "count" )
-            );
 
             if( $filter_closure !== null ) {
                 $filter_closure->call( $this, $query );
             }
 
         }, $named_parameters, $binding );
-
-        return $result[ 0 ][ "count" ];
     }
 
     /// Creating

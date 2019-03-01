@@ -69,6 +69,12 @@ abstract class Database
     /// Querying
 
     /**
+     * Compiles the $query_closure and counts the number of matching records.
+     * Returns the number of records.
+     */
+    abstract public function count($query_closure, $named_parameters = [], $binding = null);
+
+    /**
      * Compiles the $query_closure and executes the compiled query in the server.
      * Returns the rows returned by the query execution.
      */

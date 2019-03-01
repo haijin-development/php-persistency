@@ -15,7 +15,7 @@ use Haijin\Persistency\Sql\Sql_Pagination_Builder;
 use Haijin\Persistency\Sql\Expression_Builders\Sql_Expression_In_Filter_Builder;
 use Haijin\Persistency\Engines\Mysql\Query_Builder\Mysql_Pagination_Builder;
 use Haijin\Persistency\Engines\Mysql\Query_Builder\Mysql_Expression_In_Filter_Builder;
-
+use Haijin\Persistency\Statements\Expressions\Count_Expression;
 
 class Mysql_Database extends Database
 {
@@ -89,6 +89,28 @@ class Mysql_Database extends Database
     public function clear_all($collection_name)
     {
         $this->evaluate_sql_string( "truncate {$collection_name};" );
+    }
+
+    /**
+     * Compiles the $query_closure and counts the number of matching records.
+     * Returns the number of records.
+     */
+    public function count($query_closure, $named_parameters = [], $binding = null)
+    {
+        $compiled_statement = $this->compile_query_statement( $query_closure, $binding );
+
+        if( $compiled_statement->get_proyection_expression()->is_empty() ) {
+
+            $field_expression = Create::a( Count_Expression::class )->with(
+                    $compiled_statement->get_context()
+                );
+
+            $compiled_statement->get_proyection_expression()->add( $field_expression );
+        }
+
+        $result = $this->execute_query_statement( $compiled_statement, $named_parameters );
+
+        return $result[ 0 ][ 'count(*)' ];
     }
 
     /// Executing
