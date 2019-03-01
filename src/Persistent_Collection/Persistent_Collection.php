@@ -318,7 +318,7 @@ class Persistent_Collection
 
         $id_field = $this->get_id_field();
 
-        $records = $this->get_database()->query( function($query) use($collection_name, $id_field) {
+        return $this->first( function($query) use($collection_name, $id_field) {
 
             $query->collection( $collection_name );
 
@@ -331,12 +331,6 @@ class Persistent_Collection
             );
 
         });
-
-        if( empty( $records ) ) {
-            return null;
-        }
-
-        return $this->record_to_object( $records[ 0 ] );
     }
 
     /// Counting
@@ -565,6 +559,10 @@ class Persistent_Collection
      */
     protected function record_to_object($raw_record)
     {
+        if( $raw_record === null ) {
+            return null;
+        }
+
         $mapped_record = [];
 
         foreach( $this->field_mappings as $field_mapping ) {

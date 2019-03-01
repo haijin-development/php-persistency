@@ -32,10 +32,8 @@ $spec->describe( "When building the collection statement of a Elasticsearch expr
         $query = $this->filter_builder->visit( $compiled_query->get_filter_expression() );
 
         $this->expect( $query ) ->to() ->be() ->exactly_like([
-            'query' => [
-                'term' => [
-                    'name' => 'Lisa'
-                ]
+            'term' => [
+                'name' => 'Lisa'
             ]
         ]);
 
@@ -56,10 +54,8 @@ $spec->describe( "When building the collection statement of a Elasticsearch expr
         $query = $this->filter_builder->visit( $compiled_query->get_filter_expression() );
 
         $this->expect( $query ) ->to() ->be() ->exactly_like([
-            'query' => [
-                'term' => [
-                    'name' => 'Lisa'
-                ]
+            'term' => [
+                'name' => 'Lisa'
             ]
         ]);
 
@@ -85,18 +81,16 @@ $spec->describe( "When building the collection statement of a Elasticsearch expr
         $query = $this->filter_builder->visit( $compiled_query->get_filter_expression() );
 
         $this->expect( $query ) ->to() ->be() ->exactly_like([
-            'query' => [
-                'bool' => [
-                    'should' => [
-                        [
-                            'term' => [
-                                'name' => 'Lisa'
-                            ]
-                        ],
-                        [
-                            'term' => [
-                                'last_name' => 'Simpson'
-                            ]
+            'bool' => [
+                'should' => [
+                    [
+                        'term' => [
+                            'name' => 'Lisa'
+                        ]
+                    ],
+                    [
+                        'term' => [
+                            'last_name' => 'Simpson'
                         ]
                     ]
                 ]
@@ -125,18 +119,16 @@ $spec->describe( "When building the collection statement of a Elasticsearch expr
         $query = $this->filter_builder->visit( $compiled_query->get_filter_expression() );
 
         $this->expect( $query ) ->to() ->be() ->exactly_like([
-            'query' => [
-                'bool' => [
-                    'should' => [
-                        [
-                            'term' => [
-                                'name' => 'Lisa'
-                            ]
-                        ],
-                        [
-                            'term' => [
-                                'last_name' => 'Simpson'
-                            ]
+            'bool' => [
+                'should' => [
+                    [
+                        'term' => [
+                            'name' => 'Lisa'
+                        ]
+                    ],
+                    [
+                        'term' => [
+                            'last_name' => 'Simpson'
                         ]
                     ]
                 ]

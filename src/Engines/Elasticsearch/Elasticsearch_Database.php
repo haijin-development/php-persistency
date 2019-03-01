@@ -71,17 +71,14 @@ class Elasticsearch_Database extends Database
 
     public function begin_transaction()
     {
-        throw new \Exception( "begin_transaction" );
     }
 
     public function commit_transaction()
     {
-        throw new \Exception( "commit_transaction" );
     }
 
     public function rollback_transaction()
     {
-        throw new \Exception( "rollback_transaction" );
     }
 
     /// Querying
@@ -113,15 +110,6 @@ class Elasticsearch_Database extends Database
      */
     public function execute_query_statement($query_statement, $named_parameters)
     {
-        if( $id = $this->is_find_by_id_filter( $query_statement, $named_parameters ) ) {
-            $record = $this->find_by_id(
-                $id,
-                $query_statement->get_collection_expression()->get_collection_name()
-            );
-
-            return $record === null ? [] : [ $record ];
-        }
-
         $elastic_query = $this->build_elasticsearch_query( $query_statement );
 
         $collection_name = $elastic_query->get_collection_name();
@@ -133,8 +121,8 @@ class Elasticsearch_Database extends Database
             unset( $named_parameters[ "_elastic" ] );
         }
 
-        $query = $this->replace_named_parameters_in(
-            $elastic_query->get_query(),
+        $body = $this->replace_named_parameters_in(
+            $elastic_query->get_body(),
             $named_parameters
         );
 
@@ -142,11 +130,15 @@ class Elasticsearch_Database extends Database
             [
                 'index' => $collection_name,
                 'type' => $collection_name,
-                'body' => $query,
+                'body' => $body,
                 'sort' => $elastic_query->get_order_by_fields()
             ],
             $additional_query_params
         );
+
+        if( $elastic_query->get_proyected_fields() != null ) {
+            $search_parameters[ '_source' ] = $elastic_query->get_proyected_fields();
+        }
 
         if( $elastic_query->get_offset() != null ) {
             $search_parameters[ 'from' ] = $elastic_query->get_offset();
@@ -159,13 +151,6 @@ class Elasticsearch_Database extends Database
         $result = $this->connection_handle->search( $search_parameters );
 
         return $this->process_results_rows( $result );
-    }
-
-    protected function is_find_by_id_filter($query_statement, $named_parameters)
-    {
-        $builder = Create::a( Elasticsearch_Get_By_Id_Builder::class )->with();
-
-        return $builder->get_id_from( $query_statement );
     }
 
     public function find_by_id($id, $collection_name, $type = null)
@@ -238,27 +223,6 @@ class Elasticsearch_Database extends Database
      */
     public function execute_update_statement($update_statement, $named_parameters)
     {
-        if( $id = $this->is_find_by_id_filter( $update_statement, $named_parameters ) ) {
-
-            $elastic_query = $this->new_elasticsearch_query_builder();
-
-            $collection_name =
-                $elastic_query->visit( $update_statement->get_collection_expression() );
-
-            $values =
-                $elastic_query->visit( $update_statement->get_records_values_expression() );
-
-            if( ! isset( $values[ "_id" ] ) || $values[ "_id" ] === null ) {
-                throw new \RuntimeException( "Must assign an _id." );
-            }
-
-            $id = $values[ "_id" ];
-
-            unset( $values[ "_id" ] );
-
-            return $this->update_by_id( $id, $values, $collection_name );
-
-        }
 
         throw new \RuntimeException( "Currently not supported." );
 
@@ -269,6 +233,8 @@ class Elasticsearch_Database extends Database
         if( $type == null ) {
             $type = $collection_name;
         }
+
+        unset( $values[ "_id" ] );
 
         $result = $this->connection_handle->update([
                 'index' => $collection_name,
@@ -286,13 +252,6 @@ class Elasticsearch_Database extends Database
      */
     public function execute_delete_statement($delete_statement, $named_parameters)
     {
-        if( $id = $this->is_find_by_id_filter( $delete_statement, $named_parameters ) ) {
-            return $this->delete_by_id(
-                $id,
-                $delete_statement->get_collection_expression()->get_collection_name()
-            );
-        }
-
         $elastic_query = $this->build_elasticsearch_query( $delete_statement );
 
         $collection_name = $elastic_query->get_collection_name();
@@ -304,8 +263,8 @@ class Elasticsearch_Database extends Database
             unset( $named_parameters[ "_elastic" ] );
         }
 
-        $query = $this->replace_named_parameters_in(
-            $elastic_query->get_query(),
+        $body = $this->replace_named_parameters_in(
+            $elastic_query->get_body(),
             $named_parameters
         );
 
@@ -313,7 +272,7 @@ class Elasticsearch_Database extends Database
             [
                 'index' => $collection_name,
                 'type' => $collection_name,
-                'body' => $query,
+                'body' => $body,
                 'refresh' => true
             ],
             $additional_query_params

@@ -16,11 +16,7 @@ class Elasticsearch_Filter_Builder extends Abstract_Query_Expression_Visitor
      */
     public function accept_filter_expression($filter_expression)
     {
-        $filter = new \stdclass();
-
-        $filter->query = $this->visit( $filter_expression->get_matching_expression() );
-
-        return $filter;
+        return $this->visit( $filter_expression->get_matching_expression() );
     }
 
     /**

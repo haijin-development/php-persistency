@@ -14,7 +14,8 @@ class Elasticsearch_Query_Builder extends Abstract_Query_Expression_Visitor
     use Query_Visitor_Trait;
 
     protected $collection_name;
-    protected $query;
+    protected $proyected_fields;
+    protected $body;
     protected $order_by_fields;
     protected $record_values;
     protected $script;
@@ -24,7 +25,8 @@ class Elasticsearch_Query_Builder extends Abstract_Query_Expression_Visitor
     public function __construct()
     {
         $this->collection_name = null;
-        $this->query = [ 'query' => [ 'match_all' => new \stdClass() ] ];
+        $this->proyected_fields = null;
+        $this->body = null;
         $this->order_by_fields = [];
         $this->record_values = [];
         $this->script = null;
@@ -40,9 +42,13 @@ class Elasticsearch_Query_Builder extends Abstract_Query_Expression_Visitor
         return $this->collection_name;
     }
 
-    public function get_query()
+    public function get_proyected_fields(){
+        return $this->proyected_fields;
+    }
+
+    public function get_body()
     {
-        return $this->query;
+        return $this->body;
     }
 
     public function get_order_by_fields()
@@ -81,8 +87,20 @@ class Elasticsearch_Query_Builder extends Abstract_Query_Expression_Visitor
             $this->order_by_fields = $this->visit( $query_statement->get_order_by_expression() );
         }
 
+        if( $query_statement->has_proyection_expression() ) {
+
+            $this->proyected_fields =
+                $this->visit( $query_statement->get_proyection_expression() )->to_array();
+
+        }
+
         if( $query_statement->has_filter_expression() ) {
-            $this->query = $this->visit( $query_statement->get_filter_expression() );
+
+            if( $this->body === null ) {
+                $this->body = new \stdclass();
+            }
+
+            $this->body->query = $this->visit( $query_statement->get_filter_expression() );
         }
 
         if( $query_statement->has_pagination_expression() ) {
@@ -120,12 +138,21 @@ class Elasticsearch_Query_Builder extends Abstract_Query_Expression_Visitor
         }
 
         if( $update_statement->has_script_expression() ) {
-            $this->script = $this->visit( $update_statement->get_script_expression() );
+
+            if( $this->body === null ) {
+                $this->body = new \stdclass();
+            }
+
+            $this->body->script = $this->visit( $update_statement->get_script_expression() );
         }
 
         if( $update_statement->has_filter_expression() ) {
 
-            $this->query = $this->visit(
+            if( $this->body === null ) {
+                $this->body = new \stdclass();
+            }
+
+            $this->body->query = $this->visit(
                 $update_statement->get_filter_expression()
             );
 
@@ -140,7 +167,13 @@ class Elasticsearch_Query_Builder extends Abstract_Query_Expression_Visitor
         $this->collection_name = $this->visit( $delete_statement->get_collection_expression() );
 
         if( $delete_statement->has_filter_expression() ) {
-            $this->query = $this->visit( $delete_statement->get_filter_expression() );
+
+            if( $this->body === null ) {
+                $this->body = new \stdclass();
+            }
+
+            $this->body->query = $this->visit( $delete_statement->get_filter_expression() );
+
         }
     }
 
@@ -151,6 +184,19 @@ class Elasticsearch_Query_Builder extends Abstract_Query_Expression_Visitor
     {
         return $collection_expression->get_collection_name();
     }
+
+    /**
+     * Accepts a Proyection_Expression.
+     */
+    public function accept_proyection_expression($proyection_expression)
+    {
+        return $proyection_expression->get_proyected_expressions()->collect( function($exp) {
+
+            return $this->visit( $exp );
+
+        }, $this );
+    }
+
 
     /**
      * Accepts a Filter_Expression.
@@ -234,6 +280,14 @@ class Elasticsearch_Query_Builder extends Abstract_Query_Expression_Visitor
 
         }
 
+    }
+
+    /**
+     * Accepts an All_Fields_Expression.
+     */
+    public function accept_all_fields_expression($all_fields_expression)
+    {
+        return null;
     }
 
     /**

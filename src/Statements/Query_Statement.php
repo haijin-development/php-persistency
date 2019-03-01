@@ -134,9 +134,9 @@ class Query_Statement extends Expression
         return $this->collection_expression !== null;
     }
 
-    public function has_proyections()
+    public function has_proyection_expression()
     {
-        return $this->proyection->not_empty();
+        return $this->proyection_expression->not_empty();
     }
 
     public function has_filter_expression()

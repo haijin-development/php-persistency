@@ -32,12 +32,10 @@ $spec->describe( "When building a match_all statement", function() {
         $query = $this->filter_builder->visit( $compiled_query->get_filter_expression() );
 
         $this->expect( $query ) ->to() ->be() ->exactly_like([
-            'query' => [
-                'match_all' => []
-            ]
+            'match_all' => []
         ]);
 
-        $this->expect( json_encode( $query ) ) ->to() ->equal( '{"query":{"match_all":{}}}' );
+        $this->expect( json_encode( $query ) ) ->to() ->equal( '{"match_all":{}}' );
 
     });
 
@@ -56,15 +54,13 @@ $spec->describe( "When building a match_all statement", function() {
         $query = $this->filter_builder->visit( $compiled_query->get_filter_expression() );
 
         $this->expect( $query ) ->to() ->be() ->exactly_like([
-            'query' => [
-                'match_all' => [
-                    "boost" => 1.2
-                ]
+            'match_all' => [
+                "boost" => 1.2
             ]
         ]);
 
         $this->expect( json_encode( $query ) )
-            ->to() ->equal( '{"query":{"match_all":{"boost":1.2}}}' );
+            ->to() ->equal( '{"match_all":{"boost":1.2}}' );
 
     });
 

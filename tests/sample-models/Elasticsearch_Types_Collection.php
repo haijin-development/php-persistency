@@ -1,8 +1,8 @@
 <?php
 
-use Haijin\Persistency\Persistent_Collection\Persistent_Collection;
+use Haijin\Persistency\Engines\Elasticsearch\Elasticsearch_Persistent_Collection;
 
-class Elasticsearch_Types_Persisted_Collection extends Persistent_Collection
+class Elasticsearch_Types_Persisted_Collection extends Elasticsearch_Persistent_Collection
 {
     public function definition($collection)
     {

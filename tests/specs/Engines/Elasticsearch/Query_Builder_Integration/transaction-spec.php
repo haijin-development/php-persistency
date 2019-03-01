@@ -2,17 +2,17 @@
 
 use Haijin\Persistency\Engines\Elasticsearch\Elasticsearch_Database;
 
-$spec->xdescribe( "When evaluating transactional statements in a Elasticsearch database", function() {
+$spec->describe( "When evaluating transactional statements in a Elasticsearch database", function() {
 
     $this->before_each( function() {
 
-        $this->clear_mysql_tables();
+        $this->clear_elasticsearch_indices();
 
     });
 
     $this->after_all( function() {
 
-        $this->clear_mysql_tables();
+        $this->clear_elasticsearch_indices();
 
     });
 
@@ -35,6 +35,7 @@ $spec->xdescribe( "When evaluating transactional statements in a Elasticsearch d
             $query->collection( "users" );
 
             $query->record(
+                $query->set( "_id", $query->value( 1 ) ),
                 $query->set( "name", $query->value( "Margaret" ) ),
                 $query->set( "last_name", $query->value( "simpson" ) )
             );
@@ -51,7 +52,7 @@ $spec->xdescribe( "When evaluating transactional statements in a Elasticsearch d
 
         $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
-                "id" => 1,
+                "_id" => 1,
                 "name" => "Margaret",
                 "last_name" => "simpson"
             ],
@@ -68,6 +69,7 @@ $spec->xdescribe( "When evaluating transactional statements in a Elasticsearch d
             $query->collection( "users" );
 
             $query->record(
+                $query->set( "_id", $query->value( 1 ) ),
                 $query->set( "name", $query->value( "Margaret" ) ),
                 $query->set( "last_name", $query->value( "Simpson" ) )
             );
@@ -82,7 +84,13 @@ $spec->xdescribe( "When evaluating transactional statements in a Elasticsearch d
 
         });
 
-        $this->expect( $rows ) ->to() ->be() ->exactly_like( [] );
+        $this->expect( $rows ) ->to() ->be() ->exactly_like([
+            [
+                "_id" => 1,
+                "name" => "Margaret",
+                "last_name" => "Simpson"
+            ],
+        ]);
 
     });
 
@@ -95,6 +103,7 @@ $spec->xdescribe( "When evaluating transactional statements in a Elasticsearch d
                 $query->collection( "users" );
 
                 $query->record(
+                    $query->set( "_id", $query->value( 1 ) ),
                     $query->set( "name", $query->value( "Margaret" ) ),
                     $query->set( "last_name", $query->value( "simpson" ) )
                 );
@@ -112,7 +121,7 @@ $spec->xdescribe( "When evaluating transactional statements in a Elasticsearch d
 
         $this->expect( $rows ) ->to() ->be() ->exactly_like([
             [
-                "id" => 1,
+                "_id" => 1,
                 "name" => "Margaret",
                 "last_name" => "simpson"
             ],
@@ -131,6 +140,7 @@ $spec->xdescribe( "When evaluating transactional statements in a Elasticsearch d
                     $query->collection( "users" );
 
                     $query->record(
+                        $query->set( "_id", $query->value( 1 ) ),
                         $query->set( "name", $query->value( "Margaret" ) ),
                         $query->set( "last_name", $query->value( "simpson" ) )
                     );
@@ -151,7 +161,13 @@ $spec->xdescribe( "When evaluating transactional statements in a Elasticsearch d
 
         });
 
-        $this->expect( $rows ) ->to() ->be() ->exactly_like( [] );
+        $this->expect( $rows ) ->to() ->be() ->exactly_like([
+            [
+                "_id" => 1,
+                "name" => "Margaret",
+                "last_name" => "simpson"
+            ],
+        ]);
 
     });
 
@@ -167,6 +183,7 @@ $spec->xdescribe( "When evaluating transactional statements in a Elasticsearch d
                     $query->collection( "users" );
 
                     $query->record(
+                        $query->set( "_id", $query->value( 1 ) ),
                         $query->set( "name", $query->value( "Margaret" ) ),
                         $query->set( "last_name", $query->value( "simpson" ) )
                     );

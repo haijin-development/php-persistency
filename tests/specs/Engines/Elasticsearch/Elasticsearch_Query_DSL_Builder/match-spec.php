@@ -32,15 +32,13 @@ $spec->describe( "When building a match statement", function() {
         $query = $this->filter_builder->visit( $compiled_query->get_filter_expression() );
 
         $this->expect( $query ) ->to() ->be() ->exactly_like([
-            'query' => [
-                'match' => [
-                    "message" => "this is a test"
-                ]
+            'match' => [
+                "message" => "this is a test"
             ]
         ]);
 
         $this->expect( json_encode( $query ) ) ->to()
-            ->equal( '{"query":{"match":{"message":"this is a test"}}}' );
+            ->equal( '{"match":{"message":"this is a test"}}' );
 
     });
 
@@ -64,18 +62,16 @@ $spec->describe( "When building a match statement", function() {
         $query = $this->filter_builder->visit( $compiled_query->get_filter_expression() );
 
         $this->expect( $query ) ->to() ->be() ->exactly_like([
-            'query' => [
-                'match' => [
-                    "message" => [
-                        "query" => "this is a test",
-                        "operator" => "and"
-                    ]
+            'match' => [
+                "message" => [
+                    "query" => "this is a test",
+                    "operator" => "and"
                 ]
             ]
         ]);
 
         $this->expect( json_encode( $query ) ) ->to()
-            ->equal( '{"query":{"match":{"message":{"query":"this is a test","operator":"and"}}}}' );
+            ->equal( '{"match":{"message":{"query":"this is a test","operator":"and"}}}' );
 
     });
 

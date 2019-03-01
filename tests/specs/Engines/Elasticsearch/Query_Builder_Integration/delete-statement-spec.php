@@ -69,7 +69,10 @@ $spec->describe( "When evaluating a delete statement in a Elasticsearch database
             $query->collection( "users" );
 
             $query->filter(
-                $query->match( $query->field( "name" ), $query->value( "Maggie" ) )
+                $query->match(
+                    $query->field( "name" ),
+                    $query->value( "Maggie" )
+                )
             );
 
         });
@@ -106,7 +109,10 @@ $spec->describe( "When evaluating a delete statement in a Elasticsearch database
             $query->collection( "users" );
 
             $query->filter(
-                $query->match( $query->field( "last_name" ), $query->value( "Simpson" ) )
+                $query->match(
+                    $query->field( "last_name" ),
+                    $query->value( "Simpson" )
+                )
             );
 
         });
@@ -125,14 +131,17 @@ $spec->describe( "When evaluating a delete statement in a Elasticsearch database
 
     });
 
-    $this->xit( "deletes a record with parameters", function() {
+    $this->it( "deletes a record with parameters", function() {
 
         $this->database->delete( function($query) {
 
             $query->collection( "users" );
 
             $query->filter(
-                $query->field( "name" ) ->op( "=" ) ->param( "name" )
+                $query->match(
+                    $query->field( "name" ),
+                    $query->param( "name" )
+                )
             );
 
         }, [
@@ -164,14 +173,17 @@ $spec->describe( "When evaluating a delete statement in a Elasticsearch database
 
     });
 
-    $this->xit( "deletes a record with a compiled query", function() {
+    $this->it( "deletes a record with a compiled query", function() {
 
         $compiled_query = $this->database->compile_delete_statement( function($query) {
 
             $query->collection( "users" );
 
             $query->filter(
-                $query->field( "name" ) ->op( "=" ) ->param( "name" )
+                $query->match(
+                    $query->field( "name" ),
+                    $query->param( "name" )
+                )
             );
 
         });

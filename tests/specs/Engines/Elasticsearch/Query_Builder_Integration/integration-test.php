@@ -2,7 +2,7 @@
 
 use Haijin\Persistency\Engines\Elasticsearch\Elasticsearch_Database;
 
-$spec->xdescribe( "When building a Elasticsearch expression", function() {
+$spec->describe( "When building a Elasticsearch expression", function() {
 
     $this->let( "database", function() {
 
@@ -25,36 +25,17 @@ $spec->xdescribe( "When building a Elasticsearch expression", function() {
                 $query->field( "last_name" )
             );
 
-            $query->join( "address_1" ) ->from( "id" ) ->to( "id_user" )
-                ->eval( function($query) {
-                    $query->proyect(
-                        $query->concat(
-                            $query->field( "street_name" ), " ", $query->field( "street_number" )
-                        ) ->as( "address" )
-                    );
-                });
-
             $query->filter(
-                $query->brackets(
-                    $query->brackets(
-                        $query ->field( "name" ) ->op( "=" ) ->value( "Lisa" )
+                $query->bool(
+                    $query->must(
+                        $query->match( 'name', "Lisa" ),
+                        $query->match( 'last_name', 'Simpson' )
                     )
-                    ->and()
-                    ->brackets(
-                        $query ->field( "last_name" ) ->op( "=" ) ->value( "Simpson" )
-                    )
-                )
-                ->or()
-                ->brackets(
-                    $query ->field( "address_1.street_name" ) ->op( "like" )
-                        ->value( "%Evergreen%" )
                 )
             );
 
             $query->order_by(
-                $query->field( "users_read_only.last_name" ) ->desc(),
-                $query->field( "users_read_only.name" ) ->desc(),
-                $query->field( "address" ) ->desc()
+                $query->field( "id" ) ->desc()
             );
 
             $query->pagination(
@@ -65,18 +46,11 @@ $spec->xdescribe( "When building a Elasticsearch expression", function() {
 
         });
 
-        $this->expect( $rows ) ->to() ->be() ->exactly_like([
-            [
-                "name" => "Maggie",
-                "last_name" => "Simpson"
-            ],
+        $this->expect( $rows ) ->to() ->equal([
             [
                 "name" => "Lisa",
-                "last_name" => "Simpson"
-            ],
-            [
-                "name" => "Bart",
-                "last_name" => "Simpson"
+                "last_name" => "Simpson",
+                "_id" => 1
             ]
         ]);
 
@@ -93,46 +67,25 @@ $spec->xdescribe( "When building a Elasticsearch expression", function() {
                 $query->field( "last_name" )
             );
 
-            $query->join( "address_1" ) ->from( "id" ) ->to( "id_user" )
-                ->eval( function($query) {
-
-                    $query->proyect(
-                        $query->concat(
-                            $query->field( "street_name" ), " ", $query->field( "street_number" )
-                        ) ->as( "address" )
-                    );
-
-                    $query->let( "matches_address", function($query) { return
-                        $query->brackets(
-                            $query ->field( "street_name" ) ->op( "like" ) ->value( "%Evergreen%" )
-                        );
-                    });
+            $query->let( "matches_name", function($query) {
+                return $query->match( 'name', "Lisa" );
             });
 
-            $query->let( "matches_name", function($query) { return
-                $query->brackets(
-                    $query ->field( "name" ) ->op( "=" ) ->value( "Lisa" )
-                );
-            });
-
-            $query->let( "matches_last_name", function($query) { return
-                $query->brackets(
-                    $query ->field( "last_name" ) ->op( "=" ) ->value( "Simpson" )
-                );
+            $query->let( "matches_last_name", function($query) {
+                return $query->match( 'last_name', 'Simpson' );
             });
 
             $query->filter(
-                $query->brackets( $query
-                    ->matches_name ->and() ->matches_last_name
+                $query->bool(
+                    $query->must(
+                        $query->matches_name,
+                        $query->matches_last_name
+                    )
                 )
-                ->or()
-                ->matches_address
             );
 
             $query->order_by(
-                $query->field( "users_read_only.last_name" ) ->desc(),
-                $query->field( "users_read_only.name" ) ->desc(),
-                $query->field( "address" ) ->desc()
+                $query->field( "id" ) ->desc()
             );
 
             $query->pagination(
@@ -143,18 +96,11 @@ $spec->xdescribe( "When building a Elasticsearch expression", function() {
 
         });
 
-        $this->expect( $rows ) ->to() ->be() ->exactly_like([
-            [
-                "name" => "Maggie",
-                "last_name" => "Simpson"
-            ],
+        $this->expect( $rows ) ->to() ->equal([
             [
                 "name" => "Lisa",
-                "last_name" => "Simpson"
-            ],
-            [
-                "name" => "Bart",
-                "last_name" => "Simpson"
+                "last_name" => "Simpson",
+                "_id" => 1
             ]
         ]);
 

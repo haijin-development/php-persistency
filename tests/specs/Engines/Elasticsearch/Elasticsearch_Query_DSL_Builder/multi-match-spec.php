@@ -35,16 +35,14 @@ $spec->describe( "When building a multi_match statement", function() {
         $query = $this->filter_builder->visit( $compiled_query->get_filter_expression() );
 
         $this->expect( $query ) ->to() ->be() ->exactly_like([
-            'query' => [
-                'multi_match' => [
-                    "query" => "this is a test",
-                    "fields" => [ "subject", "message" ]
-                ]
+            'multi_match' => [
+                "query" => "this is a test",
+                "fields" => [ "subject", "message" ]
             ]
         ]);
 
         $this->expect( json_encode( $query ) ) ->to()
-            ->equal( '{"query":{"multi_match":{"query":"this is a test","fields":["subject","message"]}}}' );
+            ->equal( '{"multi_match":{"query":"this is a test","fields":["subject","message"]}}' );
 
     });
 
