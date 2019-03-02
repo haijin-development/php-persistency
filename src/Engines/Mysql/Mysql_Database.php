@@ -84,15 +84,19 @@ class Mysql_Database extends Database
      */
     public function count($query_closure, $named_parameters = [], $binding = null)
     {
-        $compiled_statement = $this->compile_query_statement( $query_closure, $binding );
+        $statement_compiler = $this->new_query_statement_compiler();
+
+        $compiled_statement = $statement_compiler->eval( $query_closure, $binding );
 
         if( $compiled_statement->get_proyection_expression()->is_empty() ) {
 
-            $field_expression = Create::a( Count_Expression::class )->with(
-                    $compiled_statement->get_context()
+            $compiled_statement = $statement_compiler->eval( function($query) {
+
+                $query->proyect(
+                    $query->count()
                 );
 
-            $compiled_statement->get_proyection_expression()->add( $field_expression );
+            }, $binding );
         }
 
         $result = $this->execute_query_statement( $compiled_statement, $named_parameters );
