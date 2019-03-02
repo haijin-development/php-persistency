@@ -46,6 +46,17 @@ class Elasticsearch_Persistent_Collection extends Persistent_Collection
         $this->raise_more_than_one_record_found_error( $found_count );
     }
 
+    public function find_all_by_ids($ids_collection)
+    {
+        return $this->all( function($query) use($ids_collection) {
+
+            $query->filter(
+                $query->ids( 'values', $ids_collection )
+            );
+
+        });
+    }
+
     /**
      * Returns the first object in the collection or null if there is none.
      */

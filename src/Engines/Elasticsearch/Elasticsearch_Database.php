@@ -114,14 +114,16 @@ class Elasticsearch_Database extends Database
         $this->connection_handle->deleteByQuery([
             'index' => $collection_name,
             'type' => $collection_name,
-            'body' => [ "query" => [
-                    "match_all" => new \stdClass()
+            'body' => [
+                'query' => [
+                    'match_all' => new \stdClass()
                 ]
             ],
             'conflicts' => 'proceed',
             'refresh' => true
         ]);
     }
+
     /**
      * Compiles the $query_closure and counts the number of matching records.
      * Returns the number of records.
