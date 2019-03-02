@@ -177,16 +177,20 @@ $spec->describe( "When evaluating a delete statement in a Elasticsearch database
 
     $this->it( "deletes a record with a compiled query", function() {
 
-        $compiled_query = $this->database->compile_delete_statement( function($query) {
+        $compiled_query = $this->database->compile( function($compiler) {
 
-            $query->collection( "users" );
+            $compiler->delete( function($query) {
 
-            $query->filter(
-                $query->match(
-                    $query->field( "name" ),
-                    $query->param( "name" )
-                )
-            );
+                $query->collection( "users" );
+
+                $query->filter(
+                    $query->match(
+                        $query->field( "name" ),
+                        $query->param( "name" )
+                    )
+                );
+
+            });
 
         });
 

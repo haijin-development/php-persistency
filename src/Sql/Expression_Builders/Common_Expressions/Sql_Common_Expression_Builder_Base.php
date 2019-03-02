@@ -1,19 +1,16 @@
 <?php
 
-namespace Haijin\Persistency\Sql\Expression_Builders;
+namespace Haijin\Persistency\Sql\Expression_Builders\Common_Expressions;
 
 use Haijin\Instantiator\Create;
-use Haijin\Persistency\Statements_Visitors\Expressions\Expression_Visitor;
-use Haijin\Persistency\Sql\Sql_Builder_Trait;
 use Haijin\Ordered_Collection;
+use Haijin\Persistency\Sql\Expression_Builders\Sql_Expression_Builder;
 
 /**
  * A builder of general expressions used in different query parts.
  */
-class Sql_Expression_Builder_Base extends Expression_Visitor
+class Sql_Common_Expression_Builder_Base extends Sql_Expression_Builder
 {
-    use Sql_Builder_Trait;
-
     /// Visiting
 
     /**
@@ -166,6 +163,9 @@ class Sql_Expression_Builder_Base extends Expression_Visitor
 
     protected function new_sql_expression_builder()
     {
-        return Create::object( get_class( $this ) );
+        return Create::object(
+            get_class( $this ),
+            $this->collected_parameters
+        );
     }
 }

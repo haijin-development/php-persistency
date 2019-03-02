@@ -4,7 +4,7 @@ namespace Haijin\Persistency\Engines\Mysql\Query_Builder;
 
 use Haijin\Instantiator\Create;
 use Haijin\Persistency\Engines\Named_Parameter_Placerholder;
-use Haijin\Persistency\Sql\Expression_Builders\Sql_Expression_In_Filter_Builder;
+use Haijin\Persistency\Sql\Expression_Builders\Common_Expressions\Sql_Expression_In_Filter_Builder;
 
 /**
  * A Sql_Expression_In_Filter_Builder subclass to handle ValueExpressions and 
@@ -14,25 +14,6 @@ use Haijin\Persistency\Sql\Expression_Builders\Sql_Expression_In_Filter_Builder;
  */
 class Mysql_Expression_In_Filter_Builder extends Sql_Expression_In_Filter_Builder
 {
-    /**
-     * An Ordered_Collection with the collected query parameters from ValueExpressions and
-     * from NamedParameterExpressions.
-     */
-    protected $query_parameters;
-
-    /// Initializing
-
-    /**
-     * Initializes $this instance.
-     *
-     * @param Ordered_Collection $query_parameters An Ordered_Collection to collect query parameters
-     * from ValueExpressions and from NamedParameterExpressions.
-     */
-    public function __construct($query_parameters)
-    {
-        $this->query_parameters = $query_parameters;
-    }
-
     /// Visiting
 
     /**
@@ -45,7 +26,7 @@ class Mysql_Expression_In_Filter_Builder extends Sql_Expression_In_Filter_Builde
      */
     public function accept_value_expression($value_expression)
     {
-        $this->query_parameters->add(
+        $this->collected_parameters->add(
             $value_expression->get_value()
         );
 
@@ -63,7 +44,7 @@ class Mysql_Expression_In_Filter_Builder extends Sql_Expression_In_Filter_Builde
      */
     public function accept_named_parameter_expression($named_parameter_expression)
     {
-        $this->query_parameters->add(
+        $this->collected_parameters->add(
             $this->new_named_parameter_placeholder(
                 $named_parameter_expression->get_parameter_name()
             )
@@ -82,10 +63,5 @@ class Mysql_Expression_In_Filter_Builder extends Sql_Expression_In_Filter_Builde
     protected function new_named_parameter_placeholder($parameter_name)
     {
         return Create::a( Named_Parameter_Placerholder::class )->with( $parameter_name );
-    }
-
-    protected function new_sql_expression_builder()
-    {
-        return Create::a( get_class( $this ) )->with( $this->query_parameters );
     }
 }

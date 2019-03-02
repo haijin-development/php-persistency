@@ -318,14 +318,18 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
 
     $this->it( "creates records with a compiled statement", function() {
 
-        $compiled_statement = $this->database->compile_create_statement( function($query) {
+        $compiled_statement = $this->database->compile( function($compiler) {
 
-            $query->collection( "users" );
+            $compiler->create( function($query) {
 
-            $query->record(
-                $query->set( "name", $query->param( "name" ) ),
-                $query->set( "last_name", $query->param( "last_name" ) )
-            );
+                $query->collection( "users" );
+
+                $query->record(
+                    $query->set( "name", $query->param( "name" ) ),
+                    $query->set( "last_name", $query->param( "last_name" ) )
+                );
+
+            });
 
         });
 

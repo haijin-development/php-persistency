@@ -131,17 +131,17 @@ class Persistent_Collection
         ]);
     }
 
-    public function find_by_ids($ids_collection)
+    public function find_all_by_ids($ids_collection)
     {
         $id_field = $this->get_id_field();
 
-        $records = $this->database->find_by_ids(
-            $this->collection_name,
-            $id_field,
-            $ids_collection 
-        );
+        return $this->all( function($query) use($id_field, $ids_collection) {
 
-        return $this->records_to_objects( $records );
+            $query->filter(
+                $query->field( $id_field ) ->in( $ids_collection )
+            );
+
+        });
     }
 
     public function find_by_id_if_absent($id, $absent_closure, $binding = null)

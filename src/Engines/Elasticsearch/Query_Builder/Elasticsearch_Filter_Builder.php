@@ -1,16 +1,13 @@
 <?php
 
-namespace Haijin\Persistency\Engines\Elasticsearch;
+namespace Haijin\Persistency\Engines\Elasticsearch\Query_Builder;
 
 use Haijin\Instantiator\Create;
-use Haijin\Persistency\Statements_Visitors\Abstract_Query_Expression_Visitor;
-use Haijin\Persistency\Statements_Visitors\Query_Visitor_Trait;
+use Haijin\Persistency\Statements_Visitors\Expression_Visitor;
 use Haijin\Persistency\Engines\Named_Parameter_Placerholder;
 
-class Elasticsearch_Filter_Builder extends Abstract_Query_Expression_Visitor
+class Elasticsearch_Filter_Builder extends Expression_Visitor
 {
-    use Query_Visitor_Trait;
-
     /**
      * Accepts a Filter_Expression.
      */

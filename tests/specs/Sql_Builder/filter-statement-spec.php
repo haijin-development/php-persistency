@@ -170,7 +170,7 @@ $spec->describe( "When building the filter statement of a sql expression", funct
 
     });
 
-    $this->it( "builds a unary function expression", function() {
+    $this->it( "builds a message send expression", function() {
 
         $sql = $this->query_builder->build( function($query) {
 
@@ -184,6 +184,24 @@ $spec->describe( "When building the filter statement of a sql expression", funct
 
         $this->expect( $sql ) ->to() ->equal(
             "select users.* from users where uppercase(users.name) is not null;"
+        );
+
+    });
+
+    $this->it( "builds a message send with parameters expression", function() {
+
+        $sql = $this->query_builder->build( function($query) {
+
+            $query->collection( "users" );
+
+            $query->filter(
+                $query->field( "name" ) ->match( '%lisa%' )
+            );
+
+        });
+
+        $this->expect( $sql ) ->to() ->equal(
+            "select users.* from users where match(users.name, '%lisa%');"
         );
 
     });

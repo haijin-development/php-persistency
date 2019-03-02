@@ -1,9 +1,10 @@
 <?php
 
-namespace Haijin\Persistency\Engines\Elasticsearch;
+namespace Haijin\Persistency\Engines\Elasticsearch\Statements_Compiler;
 
 use Haijin\Instantiator\Create;
 use Haijin\Persistency\Statement_Compiler\Update_Statement_Compiler;
+use Haijin\Persistency\Engines\Elasticsearch\Statements\Elasticsearch_Update_Statement;
 
 class Elasticsearch_Update_Statement_Compiler extends Update_Statement_Compiler
 {
@@ -12,15 +13,5 @@ class Elasticsearch_Update_Statement_Compiler extends Update_Statement_Compiler
         $this->statement_expression->set_script( $script );
 
         return $this;
-    }
-
-    /**
-     * Returns the concrete statement instance.
-     */
-    protected function new_statement_expression()
-    {
-        return Create::a( Elasticsearch_Update_Statement::class )->with(
-            $this->context
-        );
     }
 }

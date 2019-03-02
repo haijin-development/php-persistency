@@ -468,18 +468,22 @@ $spec->describe( "When evaluating an update statement in a MySql database", func
 
     $this->it( "updates a record with compiled statements", function() {
 
-        $compiled_statement = $this->database->compile_update_statement( function($query) {
+        $compiled_statement = $this->database->compile( function($compiler) {
 
-            $query->collection( "users" );
+            $compiler->update( function($query) {
 
-            $query->record(
-                $query->set( "name", $query->param( "name" ) ),
-                $query->set( "last_name", $query->param( "last_name" ) )
-            );
+                $query->collection( "users" );
 
-            $query->filter(
-                $query->field( "id" ) ->op( "=" ) ->value( 3 )
-            );
+                $query->record(
+                    $query->set( "name", $query->param( "name" ) ),
+                    $query->set( "last_name", $query->param( "last_name" ) )
+                );
+
+                $query->filter(
+                    $query->field( "id" ) ->op( "=" ) ->value( 3 )
+                );
+
+            });
 
         });
 

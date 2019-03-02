@@ -1,16 +1,12 @@
 <?php
 
-namespace Haijin\Persistency\Sql;
+namespace Haijin\Persistency\Sql\Expression_Builders;
 
 use Haijin\Instantiator\Create;
-use Haijin\Persistency\Statements_Visitors\Expressions\Proyection_Visitor;
-use Haijin\Persistency\Sql\Expression_Builders\Sql_Expression_In_Proyection_Builder;
-use Haijin\Ordered_Collection;
+use Haijin\Persistency\Sql\Expression_Builders\Common_Expressions\Sql_Expression_In_Proyection_Builder;
 
-class Sql_Proyection_Builder extends Proyection_Visitor
+class Sql_Proyection_Builder extends Sql_Expression_Builder
 {
-    use Sql_Builder_Trait;
-
     public function proyections_from($proyection_expression)
     {
         if( $proyection_expression->is_empty() ) {
@@ -32,6 +28,9 @@ class Sql_Proyection_Builder extends Proyection_Visitor
 
     protected function new_sql_expression_builder()
     {
-        return Create::object( Sql_Expression_In_Proyection_Builder::class );
+        return Create::object(
+            Sql_Expression_In_Proyection_Builder::class,
+            $this->collected_parameters
+        );
     }
 }

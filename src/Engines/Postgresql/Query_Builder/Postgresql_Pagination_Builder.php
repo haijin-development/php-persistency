@@ -2,8 +2,7 @@
 
 namespace Haijin\Persistency\Engines\Postgresql\Query_Builder;
 
-use Haijin\Persistency\Sql\Sql_Builder_Trait;
-use Haijin\Persistency\Sql\Sql_Pagination_Builder;
+use Haijin\Persistency\Sql\Expression_Builders\Sql_Pagination_Builder;
 
 /**
  * A Sql_Pagination_Builder subclass to handle PaginationExpressions according to

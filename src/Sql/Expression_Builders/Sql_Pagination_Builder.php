@@ -1,17 +1,14 @@
 <?php
 
-namespace Haijin\Persistency\Sql;
+namespace Haijin\Persistency\Sql\Expression_Builders;
 
 use Haijin\Instantiator\Create;
 use Haijin\Persistency\Errors\Query_Expressions\Missing_Limit_Expression_Error;
 use Haijin\Persistency\Errors\Query_Expressions\Missing_Page_Number_Expression_Error;
 use Haijin\Persistency\Errors\Query_Expressions\Missing_Page_Size_Expression_Error;
-use Haijin\Persistency\Statements_Visitors\Expressions\Pagination_Visitor;
 
-class Sql_Pagination_Builder extends Pagination_Visitor
+class Sql_Pagination_Builder extends Sql_Expression_Builder
 {
-    use Sql_Builder_Trait;
-
     /// Visiting
 
     /**

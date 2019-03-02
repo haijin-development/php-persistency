@@ -8,6 +8,15 @@ use Haijin\Persistency\Database\Database;
 use Elasticsearch\ClientBuilder;
 use Haijin\Persistency\Types_Converters\Null_Converter;
 use Haijin\Persistency\Engines\Named_Parameter_Placerholder;
+use Haijin\Persistency\Engines\Elasticsearch\Statements_Compiler\Elasticsearch_Compiler;
+use Haijin\Persistency\Engines\Elasticsearch\Types_Converters\Elasticsearch_DateTime_Converter;
+use Haijin\Persistency\Engines\Elasticsearch\Query_Builder\Elasticsearch_Query_Builder;
+
+use Haijin\Persistency\Statements\Update_Statement;
+use Haijin\Persistency\Engines\Elasticsearch\Statements\Elasticsearch_Update_Statement;
+
+use Haijin\Persistency\Statement_Compiler\Update_Statement_Compiler;
+use Haijin\Persistency\Engines\Elasticsearch\Statements_Compiler\Elasticsearch_Update_Statement_Compiler;
 
 class Elasticsearch_Database extends Database
 {
@@ -102,6 +111,21 @@ class Elasticsearch_Database extends Database
     {
     }
 
+    /// Compiling
+
+    protected function set_instantiators_during_compilation($factory)
+    {
+        $factory->set(
+            Update_Statement::class,
+            Elasticsearch_Update_Statement::class
+        );
+
+        $factory->set(
+            Update_Statement_Compiler::class,
+            Elasticsearch_Update_Statement_Compiler::class
+        );
+    }
+
     /// Querying
 
     public function get_last_created_id()
@@ -114,21 +138,32 @@ class Elasticsearch_Database extends Database
         $this->connection_handle->deleteByQuery([
             'index' => $collection_name,
             'type' => $collection_name,
-            'body' => [ "query" => [
-                    "match_all" => new \stdClass()
+            'body' => [
+                'query' => [
+                    'match_all' => new \stdClass()
                 ]
             ],
             'conflicts' => 'proceed',
             'refresh' => true
         ]);
     }
+
     /**
      * Compiles the $query_closure and counts the number of matching records.
      * Returns the number of records.
      */
     public function count($filter_closure = null, $named_parameters = [], $binding = null)
     {
-        $query_statement = $this->compile_query_statement( $filter_closure, $binding );
+        $query_statement = $this->compile(
+                                function($compiler) use($filter_closure, $binding) {
+
+            $compiler->query( function($query) use($filter_closure, $binding) {
+
+                $query->eval( $filter_closure, $binding );
+
+            });
+
+        });
 
         $elastic_query = $this->build_elasticsearch_query( $query_statement );
 
@@ -435,11 +470,6 @@ class Elasticsearch_Database extends Database
         $elastic_query_builder->visit( $statement );
 
         return $elastic_query_builder;
-    }
-
-    protected function new_update_expression_compiler()
-    {
-        return Create::a( Elasticsearch_Update_Statement_Compiler::class )->with();
     }
 
     protected function new_elasticsearch_query_builder()

@@ -6,11 +6,7 @@ use Haijin\Instantiator\Create;
 use Haijin\Persistency\Errors\Query_Expressions\Unexpected_Expression_Error;
 
 
-/**
- * A Trait the AbstractQueryExpressionVisitors may use to have a default null implementation
- * on each node acceptance.
- */
-trait Query_Visitor_Trait
+class Expression_Visitor extends Abstract_Expression_Visitor
 {
     /// Visiting
 
