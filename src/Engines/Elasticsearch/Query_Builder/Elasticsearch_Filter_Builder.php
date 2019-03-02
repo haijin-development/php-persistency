@@ -1,6 +1,6 @@
 <?php
 
-namespace Haijin\Persistency\Engines\Elasticsearch;
+namespace Haijin\Persistency\Engines\Elasticsearch\Query_Builder;
 
 use Haijin\Instantiator\Create;
 use Haijin\Persistency\Statements_Visitors\Abstract_Query_Expression_Visitor;

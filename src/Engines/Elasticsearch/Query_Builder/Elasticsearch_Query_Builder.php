@@ -1,6 +1,6 @@
 <?php
 
-namespace Haijin\Persistency\Engines\Elasticsearch;
+namespace Haijin\Persistency\Engines\Elasticsearch\Query_Builder;
 
 use Haijin\Instantiator\Global_Factory;
 use Haijin\Instantiator\Create;

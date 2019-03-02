@@ -1,6 +1,6 @@
 <?php
 
-namespace Haijin\Persistency\Engines\Elasticsearch;
+namespace Haijin\Persistency\Engines\Elasticsearch\Statements;
 
 use Haijin\Persistency\Statements\Update_Statement;
 

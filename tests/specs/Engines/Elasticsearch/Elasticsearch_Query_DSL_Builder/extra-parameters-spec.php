@@ -1,6 +1,6 @@
 <?php
 
-use Haijin\Persistency\Engines\Elasticsearch\Elasticsearch_Filter_Builder;
+use Haijin\Persistency\Engines\Elasticsearch\Query_Builder\Elasticsearch_Filter_Builder;
 use Haijin\Persistency\Statement_Compiler\Create_Statement_Compiler;
 use Haijin\Persistency\Statement_Compiler\Update_Statement_Compiler;
 use Haijin\Persistency\Statement_Compiler\Delete_Statement_Compiler;

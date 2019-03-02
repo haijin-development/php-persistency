@@ -1,6 +1,6 @@
 <?php
 
-namespace Haijin\Persistency\Engines\Elasticsearch;
+namespace Haijin\Persistency\Engines\Elasticsearch\Types_Converters;
 
 class Elasticsearch_DateTime_Converter
 {

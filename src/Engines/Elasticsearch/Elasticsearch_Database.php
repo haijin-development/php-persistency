@@ -8,6 +8,9 @@ use Haijin\Persistency\Database\Database;
 use Elasticsearch\ClientBuilder;
 use Haijin\Persistency\Types_Converters\Null_Converter;
 use Haijin\Persistency\Engines\Named_Parameter_Placerholder;
+use Haijin\Persistency\Engines\Elasticsearch\Statements_Compiler\Elasticsearch_Update_Statement_Compiler;
+use Haijin\Persistency\Engines\Elasticsearch\Types_Converters\Elasticsearch_DateTime_Converter;
+use Haijin\Persistency\Engines\Elasticsearch\Query_Builder\Elasticsearch_Query_Builder;
 
 class Elasticsearch_Database extends Database
 {
