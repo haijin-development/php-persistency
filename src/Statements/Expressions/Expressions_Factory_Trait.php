@@ -5,6 +5,7 @@ namespace Haijin\Persistency\Statements\Expressions;
 use Haijin\Instantiator\Create;
 use Haijin\Persistency\Statement_Compiler\Expression_Context;
 use Haijin\Dictionary;
+use Haijin\Ordered_Collection;
 
 /**
  * Trait with methods to create query expressions.
@@ -174,5 +175,35 @@ trait Expressions_Factory_Trait
     protected function new_macro_expressions_dictionary()
     {
         return Create::a( Dictionary::class )->with();
+    }
+
+    /// Helper methods
+
+    /**
+     * Converts values to expressions.
+     */
+    public function _values_to_expressions($values)
+    {
+        return Ordered_Collection::with_all( $values )
+            ->collect( function($each_parameter) {
+                return $this->_value_to_expression( $each_parameter );
+            }, 
+            $this )->to_array();
+    }
+
+    /**
+     * Converts value to a ValueExpressions if it's not one.
+     */
+    public function _value_to_expression($value)
+    {
+        if( is_a( $value, Expression::class ) ) {
+
+            return $value;
+
+        } else {
+
+            return $this->new_value_expression( $value );
+
+        }
     }
 }

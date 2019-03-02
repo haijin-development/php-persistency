@@ -52,6 +52,11 @@ trait Expression_Trait
 
     public function __call($function_name, $parameters)
     {
-        return $this->new_function_call_expression( $function_name, [ $this ] );
+        $parameters = array_merge( [$this], $parameters );
+
+        return $this->new_function_call_expression(
+            $function_name,
+            $this->_values_to_expressions( $parameters )
+        );
     }
 }

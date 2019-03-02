@@ -2,8 +2,6 @@
 
 namespace Haijin\Persistency\Statements\Expressions;
 
-use Haijin\Ordered_Collection;
-
 /**
  * Trait with methods to create query expressions.
  */
@@ -69,35 +67,5 @@ trait Expressions_DSL_Trait
             $function_name,
             $this->_values_to_expressions( $parameters )
         );
-    }
-
-    /// Helper methods
-
-    /**
-     * Converts values to expressions.
-     */
-    public function _values_to_expressions($values)
-    {
-        return Ordered_Collection::with_all( $values )
-            ->collect( function($each_parameter) {
-                return $this->_value_to_expression( $each_parameter );
-            }, 
-            $this )->to_array();
-    }
-
-    /**
-     * Converts value to a ValueExpressions if it's not one.
-     */
-    public function _value_to_expression($value)
-    {
-        if( is_a( $value, Expression::class ) ) {
-
-            return $value;
-
-        } else {
-
-            return $this->new_value_expression( $value );
-
-        }
     }
 }

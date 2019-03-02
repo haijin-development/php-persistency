@@ -138,7 +138,7 @@ class Persistent_Collection
         return $this->all( function($query) use($id_field, $ids_collection) {
 
             $query->filter(
-                $query->in( $query->field( $id_field ), $ids_collection )
+                $query->field( $id_field ) ->in( $ids_collection )
             );
 
         });
