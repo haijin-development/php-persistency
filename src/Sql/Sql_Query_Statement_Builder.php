@@ -3,15 +3,24 @@
 namespace Haijin\Persistency\Sql;
 
 use Haijin\Instantiator\Create;
-use Haijin\Persistency\Statement_Compiler\Query_Statement_Compiler;
-use Haijin\Persistency\Statements_Visitors\Abstract_Query_Expression_Visitor;
-use Haijin\Persistency\Statements_Visitors\Query_Visitor_Trait;
 use Haijin\Ordered_Collection;
+use Haijin\Persistency\Sql\Expression_Builders\Sql_Expression_Builder;
+use Haijin\Persistency\Statement_Compiler\Query_Statement_Compiler;
 
-class Sql_Query_Statement_Builder extends Abstract_Query_Expression_Visitor
+use Haijin\Persistency\Sql\Expression_Builders\Sql_Collection_Builder;
+use Haijin\Persistency\Sql\Expression_Builders\Sql_Proyection_Builder;
+use Haijin\Persistency\Sql\Expression_Builders\Sql_Join_Builder;
+use Haijin\Persistency\Sql\Expression_Builders\Sql_Filter_Builder;
+use Haijin\Persistency\Sql\Expression_Builders\Sql_Order_By_Builder;
+use Haijin\Persistency\Sql\Expression_Builders\Sql_Pagination_Builder;
+
+
+class Sql_Query_Statement_Builder extends Sql_Expression_Builder
 {
-    use Query_Visitor_Trait;
-    use Sql_Builder_Trait;
+    public function __construct()
+    {
+        parent::__construct( new Ordered_Collection() );
+    }
 
     /// Building
 
@@ -28,7 +37,7 @@ class Sql_Query_Statement_Builder extends Abstract_Query_Expression_Visitor
     public function build( $expression_closure, $binding = null )
     {
         $query_statement = $this->new_query_statement_compiler()
-            ->build( $expression_closure, $binding );
+            ->compile( $expression_closure, $binding );
 
         return $this->build_sql_from( $query_statement );
     }
@@ -197,31 +206,49 @@ class Sql_Query_Statement_Builder extends Abstract_Query_Expression_Visitor
 
     protected function new_sql_proyection_builder()
     {
-        return Create::object( Sql_Proyection_Builder::class );
+        return Create::object(
+            Sql_Proyection_Builder::class,
+            $this->collected_parameters
+        );
     }
 
     protected function new_sql_collection_builder()
     {
-        return Create::object( Sql_Collection_Builder::class );
+        return Create::object(
+            Sql_Collection_Builder::class,
+            $this->collected_parameters
+        );
     }
 
     protected function new_sql_join_builder()
     {
-        return Create::object( Sql_Join_Builder::class );
+        return Create::object(
+            Sql_Join_Builder::class,
+            $this->collected_parameters
+        );
     }
 
     protected function new_sql_order_by_builder()
     {
-        return Create::object( Sql_Order_By_Builder::class );
+        return Create::object(
+            Sql_Order_By_Builder::class,
+            $this->collected_parameters
+        );
     }
 
     protected function new_sql_pagination_builder()
     {
-        return Create::object( Sql_Pagination_Builder::class );
+        return Create::object(
+            Sql_Pagination_Builder::class,
+            $this->collected_parameters
+        );
     }
 
     protected function new_sql_filter_builder()
     {
-        return Create::object( Sql_Filter_Builder::class );
+        return Create::object(
+            Sql_Filter_Builder::class,
+            $this->collected_parameters
+        );
     }   
 }

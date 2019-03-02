@@ -1,14 +1,9 @@
 <?php
 
-namespace Haijin\Persistency\Sql;
+namespace Haijin\Persistency\Sql\Expression_Builders;
 
-use Haijin\Persistency\Statements_Visitors\Abstract_Query_Expression_Visitor;
-use Haijin\Persistency\Statements_Visitors\Expressions\Collection_Visitor;
-
-class Sql_Collection_Builder extends Collection_Visitor
+class Sql_Collection_Builder extends Sql_Expression_Builder
 {
-    use Sql_Builder_Trait;
-
     /// Visiting
 
     /**

@@ -10,7 +10,7 @@ $spec->describe( "When adding extra parameters to a statement", function() {
 
     $this->it( "makes the extra parameters available on a Create_Statement", function() {
 
-        $compiled_query = ( new Create_Statement_Compiler() )->build( function($query) {
+        $compiled_query = ( new Create_Statement_Compiler() )->compile( function($query) {
 
             $query->collection( "users_read_only" );
 
@@ -31,7 +31,7 @@ $spec->describe( "When adding extra parameters to a statement", function() {
 
     $this->it( "makes the extra parameters available on an Update_Statement", function() {
 
-        $compiled_query = ( new Update_Statement_Compiler() )->build( function($query) {
+        $compiled_query = ( new Update_Statement_Compiler() )->compile( function($query) {
 
             $query->collection( "users_read_only" );
 
@@ -52,7 +52,7 @@ $spec->describe( "When adding extra parameters to a statement", function() {
 
     $this->it( "makes the extra parameters available on an Delete_Statement", function() {
 
-        $compiled_query = ( new Delete_Statement_Compiler() )->build( function($query) {
+        $compiled_query = ( new Delete_Statement_Compiler() )->compile( function($query) {
 
             $query->collection( "users_read_only" );
 
@@ -73,7 +73,7 @@ $spec->describe( "When adding extra parameters to a statement", function() {
 
     $this->it( "makes the extra parameters available on an Query_Statement", function() {
 
-        $compiled_query = ( new Query_Statement_Compiler() )->build( function($query) {
+        $compiled_query = ( new Query_Statement_Compiler() )->compile( function($query) {
 
             $query->collection( "users_read_only" );
 

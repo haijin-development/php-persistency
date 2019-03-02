@@ -3,15 +3,17 @@
 namespace Haijin\Persistency\Sql;
 
 use Haijin\Instantiator\Create;
-use Haijin\Persistency\Statements_Visitors\Abstract_Query_Expression_Visitor;
-use Haijin\Persistency\Statements_Visitors\Query_Visitor_Trait;
-use Haijin\Persistency\Sql\Expression_Builders\Sql_Expression_In_Filter_Builder;
 use Haijin\Ordered_Collection;
+use Haijin\Persistency\Sql\Expression_Builders\Sql_Expression_Builder;
+use Haijin\Persistency\Sql\Expression_Builders\Common_Expressions\Sql_Expression_In_Filter_Builder;
+use Haijin\Persistency\Sql\Expression_Builders\Sql_Filter_Builder;
 
-class Sql_Update_Statement_Builder extends Abstract_Query_Expression_Visitor
+class Sql_Update_Statement_Builder extends Sql_Expression_Builder
 {
-    use Query_Visitor_Trait;
-    use Sql_Builder_Trait;
+    public function __construct()
+    {
+        parent::__construct( new Ordered_Collection() );
+    }
 
     /// Building
 
@@ -28,7 +30,7 @@ class Sql_Update_Statement_Builder extends Abstract_Query_Expression_Visitor
     public function build( $expression_closure, $binding = null )
     {
         $create_statement = $this->new_create_statement_compiler()
-            ->build( $expression_closure, $binding );
+            ->compile( $expression_closure, $binding );
 
         return $this->build_sql_from( $create_statement );
     }
@@ -101,11 +103,17 @@ class Sql_Update_Statement_Builder extends Abstract_Query_Expression_Visitor
 
     protected function new_sql_expression_builder()
     {
-        return Create::object( Sql_Expression_In_Filter_Builder::class );
+        return Create::object(
+            Sql_Expression_In_Filter_Builder::class,
+            $this->collected_parameters
+        );
     }
 
     protected function new_sql_filter_builder()
     {
-        return Create::object( Sql_Filter_Builder::class );
+        return Create::object(
+            Sql_Filter_Builder::class,
+            $this->collected_parameters
+        );
     }   
 }

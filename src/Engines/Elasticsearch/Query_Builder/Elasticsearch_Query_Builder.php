@@ -4,15 +4,12 @@ namespace Haijin\Persistency\Engines\Elasticsearch\Query_Builder;
 
 use Haijin\Instantiator\Global_Factory;
 use Haijin\Instantiator\Create;
-use Haijin\Persistency\Statements_Visitors\Abstract_Query_Expression_Visitor;
-use Haijin\Persistency\Statements_Visitors\Query_Visitor_Trait;
+use Haijin\Persistency\Statements_Visitors\Expression_Visitor;
 use Haijin\Persistency\Errors\Query_Expressions\Missing_Page_Number_Expression_Error;
 use Haijin\Persistency\Errors\Query_Expressions\Missing_Page_Size_Expression_Error;
 
-class Elasticsearch_Query_Builder extends Abstract_Query_Expression_Visitor
+class Elasticsearch_Query_Builder extends Expression_Visitor
 {
-    use Query_Visitor_Trait;
-
     protected $collection_name;
     protected $proyected_fields;
     protected $body;

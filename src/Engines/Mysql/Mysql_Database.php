@@ -2,7 +2,6 @@
 
 namespace Haijin\Persistency\Engines\Mysql;
 
-use Haijin\Instantiator\Global_Factory;
 use  Haijin\Instantiator\Create;
 use Haijin\Dictionary;
 use Haijin\Ordered_Collection;
@@ -11,11 +10,10 @@ use Haijin\Persistency\Sql\Sql_Query_Statement_Builder;
 use Haijin\Persistency\Sql\Sql_Create_Statement_Builder;
 use Haijin\Persistency\Sql\Sql_Update_Statement_Builder;
 use Haijin\Persistency\Sql\Sql_Delete_Statement_Builder;
-use Haijin\Persistency\Sql\Sql_Pagination_Builder;
-use Haijin\Persistency\Sql\Expression_Builders\Sql_Expression_In_Filter_Builder;
+use Haijin\Persistency\Sql\Expression_Builders\Sql_Pagination_Builder;
+use Haijin\Persistency\Sql\Expression_Builders\Common_Expressions\Sql_Expression_In_Filter_Builder;
 use Haijin\Persistency\Engines\Mysql\Query_Builder\Mysql_Pagination_Builder;
 use Haijin\Persistency\Engines\Mysql\Query_Builder\Mysql_Expression_In_Filter_Builder;
-use Haijin\Persistency\Statements\Expressions\Count_Expression;
 
 class Mysql_Database extends Database
 {
@@ -84,27 +82,54 @@ class Mysql_Database extends Database
      */
     public function count($query_closure, $named_parameters = [], $binding = null)
     {
-        $statement_compiler = $this->new_query_statement_compiler();
+        $compiler = $this->new_compiler();
 
-        $compiled_statement = $statement_compiler->eval( $query_closure, $binding );
+        $compiled_statement = $compiler->compile(
+                                function($compiler) use($query_closure, $binding) {
+
+            $compiler->query( function($query) use($query_closure, $binding) {
+
+                $query->eval( $query_closure, $binding );
+
+            });
+
+        });
 
         if( $compiled_statement->get_proyection_expression()->is_empty() ) {
 
-            $compiled_statement = $statement_compiler->eval( function($query) {
+            $compiled_statement = $compiler->eval( function($compiler) {
 
-                $query->proyect(
-                    $query->count()
-                );
+                $compiler->query( function($query) {
 
-            }, $binding );
+                    $query->proyect(
+                        $query->count()
+                    );
+
+                });
+
+            });
+
         }
 
-        $result = $this->execute_query_statement( $compiled_statement, $named_parameters );
+        $result = $this->execute( $compiled_statement, $named_parameters );
 
         return $result[ 0 ][ 'count(*)' ];
     }
 
     /// Executing
+
+    protected function set_instantiators_during_execution($factory)
+    {
+        $factory->set(
+            Sql_Pagination_Builder::class,
+            Mysql_Pagination_Builder::class
+        );
+
+        $factory->set(
+            Sql_Expression_In_Filter_Builder::class,
+            Mysql_Expression_In_Filter_Builder::class
+        );
+    }
 
     /**
      * Executes the $query_statement.
@@ -112,17 +137,14 @@ class Mysql_Database extends Database
      */
     public function execute_query_statement($query_statement, $named_parameters)
     {
-        $query_parameters = Create::an( Ordered_Collection::class )->with();
+        $builder = $this->new_sql_query_statement_builder();
 
-        $sql = $this->while_building_sql_do($query_statement, $query_parameters,
-                    function() use($query_statement, $query_parameters) {
+        $sql = $builder->build_sql_from( $query_statement );
 
-                    return $this->new_sql_query_statement_builder( $query_parameters )
-                                ->build_sql_from( $query_statement );
+        $query_parameters = $builder->get_collected_parameters();
 
-                });
-
-        $sql_parameters = $this->collect_parameters_from( $named_parameters, $query_parameters );
+        $sql_parameters =
+            $this->collect_parameters_from( $named_parameters, $query_parameters );
 
         return $this->execute_sql_string( $sql, $sql_parameters );
     }
@@ -132,19 +154,16 @@ class Mysql_Database extends Database
      */
     public function execute_create_statement($create_statement, $named_parameters)
     {
-        $query_parameters = Create::an( Ordered_Collection::class )->with();
+        $builder = $this->new_sql_create_statement_builder();
 
-        $sql = $this->while_building_sql_do($create_statement, $query_parameters,
-                    function() use($create_statement, $query_parameters) {
+        $sql = $builder->build_sql_from( $create_statement );
 
-                    return $this->new_sql_create_statement_builder( $query_parameters )
-                                ->build_sql_from( $create_statement );
+        $query_parameters = $builder->get_collected_parameters();
 
-                });
+        $sql_parameters =
+            $this->collect_parameters_from( $named_parameters, $query_parameters );
 
-        $sql_parameters = $this->collect_parameters_from( $named_parameters, $query_parameters );
-
-        $this->evaluate_sql_string( $sql, $sql_parameters );
+        return $this->evaluate_sql_string( $sql, $sql_parameters );
     }
 
     /**
@@ -152,19 +171,16 @@ class Mysql_Database extends Database
      */
     public function execute_update_statement($update_statement, $named_parameters)
     {
-        $query_parameters = Create::an( Ordered_Collection::class )->with();
+        $builder = $this->new_sql_update_statement_builder();
 
-        $sql = $this->while_building_sql_do($update_statement, $query_parameters,
-                    function() use($update_statement, $query_parameters) {
+        $sql = $builder->build_sql_from( $update_statement );
 
-                    return $this->new_sql_update_statement_builder( $query_parameters )
-                                ->build_sql_from( $update_statement );
+        $query_parameters = $builder->get_collected_parameters();
 
-                });
+        $sql_parameters =
+            $this->collect_parameters_from( $named_parameters, $query_parameters );
 
-        $sql_parameters = $this->collect_parameters_from( $named_parameters, $query_parameters );
-
-        $this->evaluate_sql_string( $sql, $sql_parameters );
+        return $this->evaluate_sql_string( $sql, $sql_parameters );
     }
 
     /**
@@ -172,19 +188,16 @@ class Mysql_Database extends Database
      */
     public function execute_delete_statement($delete_statement, $named_parameters)
     {
-        $query_parameters = Create::an( Ordered_Collection::class )->with();
+        $builder = $this->new_sql_delete_statement_builder();
 
-        $sql = $this->while_building_sql_do($delete_statement, $query_parameters,
-                    function() use($delete_statement, $query_parameters) {
+        $sql = $builder->build_sql_from( $delete_statement );
 
-                    return $this->new_sql_delete_statement_builder( $query_parameters )
-                                ->build_sql_from( $delete_statement );
+        $query_parameters = $builder->get_collected_parameters();
 
-                });
+        $sql_parameters =
+            $this->collect_parameters_from( $named_parameters, $query_parameters );
 
-        $sql_parameters = $this->collect_parameters_from( $named_parameters, $query_parameters );
-
-        $this->evaluate_sql_string( $sql, $sql_parameters );
+        return $this->evaluate_sql_string( $sql, $sql_parameters );
     }
 
     /**
@@ -313,25 +326,6 @@ class Mysql_Database extends Database
     protected function process_result_rows($result_rows)
     {
         return $result_rows;
-    }
-
-    protected function while_building_sql_do($statement, $query_parameters, $closure)
-    {
-        return Global_Factory::with_factory_do( function($factory) use($closure, $query_parameters) {
-
-            $factory->set( Sql_Pagination_Builder::class, Mysql_Pagination_Builder::class );
-
-            $factory->set(
-                Sql_Expression_In_Filter_Builder::class,
-                function() use($query_parameters) {
-                    return Create::a( Mysql_Expression_In_Filter_Builder::class )
-                                ->with( $query_parameters );
-                }
-            );
-
-            return $closure->call( $this );
-
-        }, $this);
     }
 
     /// Creating instances

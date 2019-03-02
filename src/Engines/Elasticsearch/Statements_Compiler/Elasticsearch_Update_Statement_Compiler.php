@@ -14,14 +14,4 @@ class Elasticsearch_Update_Statement_Compiler extends Update_Statement_Compiler
 
         return $this;
     }
-
-    /**
-     * Returns the concrete statement instance.
-     */
-    protected function new_statement_expression()
-    {
-        return Create::a( Elasticsearch_Update_Statement::class )->with(
-            $this->context
-        );
-    }
 }

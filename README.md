@@ -237,7 +237,7 @@ It is possible to use parametrized values instead of values in a query using the
 $database = new Mysql_Database();
 $database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
 
-$database->compile_query_statement( function($query) {
+$database->query( function($query) {
 
     $query->collection( "users" );
 
@@ -254,32 +254,26 @@ Or compile the query once and execute many times with different values:
 $database = new Mysql_Database();
 $database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
 
-$compiled_statement = $database->compile_query_statement( function($query) {
+$compiled_statement = $database->compile( function($compiler) {
 
-    $query->collection( "users" );
+    $compiler->query( function($query) {
 
-    $query->filter(
-        $query ->field( "name" ) ->op( "=" ) ->param( "q" )
-    );
+        $query->collection( "users" );
+
+        $query->filter(
+            $query ->field( "name" ) ->op( "=" ) ->param( "q" )
+        );
+
+    });
 
 });
+
 
 $rows = $database->execute( $compiled_statement, [ "q" => "Lisa" ] );
 
 $rows = $database->execute( $compiled_statement, [ "q" => "Bart" ] );
 ```
 
-To compile statements call:
-
-```php
-$compiled_statement = $database->compile_query_statement($query_closure);
-
-$compiled_statement = $database->compile_create_statement($create_closure);
-
-$compiled_statement = $database->compile_update_statement($update_closure);
-
-$compiled_statement = $database->compile_delete_statement($delete_closure);
-```
 
 <a name="c-2-1-4"></a>
 #### Calling query functions

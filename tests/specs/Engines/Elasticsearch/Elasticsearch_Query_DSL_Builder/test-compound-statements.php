@@ -19,7 +19,7 @@ $spec->describe( "When building the collection statement of a Elasticsearch expr
 
     $this->it( "builds a single leaf query clause", function() {
 
-        $compiled_query = $this->query_compiler->build( function($query) {
+        $compiled_query = $this->query_compiler->compile( function($query) {
 
             $query->collection( "users_read_only" );
 
@@ -41,7 +41,7 @@ $spec->describe( "When building the collection statement of a Elasticsearch expr
 
     $this->it( "builds a single leaf query clause with literals", function() {
 
-        $compiled_query = $this->query_compiler->build( function($query) {
+        $compiled_query = $this->query_compiler->compile( function($query) {
 
             $query->collection( "users_read_only" );
 
@@ -63,7 +63,7 @@ $spec->describe( "When building the collection statement of a Elasticsearch expr
 
     $this->it( "builds mutliple leaf query clauses", function() {
 
-        $compiled_query = $this->query_compiler->build( function($query) {
+        $compiled_query = $this->query_compiler->compile( function($query) {
 
             $query->collection( "users_read_only" );
 
@@ -101,7 +101,7 @@ $spec->describe( "When building the collection statement of a Elasticsearch expr
 
     $this->it( "builds a compound query clause", function() {
 
-        $compiled_query = $this->query_compiler->build( function($query) {
+        $compiled_query = $this->query_compiler->compile( function($query) {
 
             $query->collection( "users_read_only" );
 

@@ -2,7 +2,7 @@
 
 namespace Haijin\Persistency\Statements_Visitors;
 
-abstract class Abstract_Query_Expression_Visitor
+abstract class Abstract_Expression_Visitor
 {
     /// Visiting
 

@@ -79,7 +79,7 @@ abstract class Statement_Compiler
     /// Building expression
 
     /**
-     * Builds and returns a new Statement_Expression.
+     * Compiles and returns a new Statement_Expression.
      *
      * @param closure $expression_closure The closure to build the Statement_Expression
      *      using a DSL.
@@ -88,7 +88,7 @@ abstract class Statement_Compiler
      *
      * @return Statement_Expression The built Statement_Expression.
      */
-    public function build( $expression_closure, $binding = null )
+    public function compile($expression_closure, $binding = null)
     {
         $this->statement_expression = $this->new_statement_expression();
 

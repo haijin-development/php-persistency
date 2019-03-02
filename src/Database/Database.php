@@ -2,12 +2,10 @@
 
 namespace Haijin\Persistency\Database;
 
+use Haijin\Instantiator\Global_Factory;
 use  Haijin\Instantiator\Create;
 use Haijin\Persistency\Types_Converters\Types_Converter;
-use Haijin\Persistency\Statement_Compiler\Query_Statement_Compiler;
-use Haijin\Persistency\Statement_Compiler\Create_Statement_Compiler;
-use Haijin\Persistency\Statement_Compiler\Update_Statement_Compiler;
-use Haijin\Persistency\Statement_Compiler\Delete_Statement_Compiler;
+use Haijin\Persistency\Statement_Compiler\Compiler;
 use Haijin\Persistency\Errors\Connections\Database_Query_Error;
 use Haijin\Persistency\Errors\Connections\Uninitialized_Connection_Error;
 use Haijin\Persistency\Errors\Connections\Connection_Failure_Error;
@@ -80,9 +78,18 @@ abstract class Database
      */
     public function query($query_closure, $named_parameters = [], $binding = null)
     {
-        $compiled_query = $this->compile_query_statement( $query_closure, $binding );
+        $compiled_statement =
+            $this->compile( function($compiler) use($query_closure, $binding) {
 
-        return $this->execute( $compiled_query, $named_parameters );
+                $compiler->query( function($query) use($query_closure, $binding) {
+
+                    $query->eval( $query_closure, $binding );
+
+                });
+
+            });
+
+        return $this->execute( $compiled_statement, $named_parameters );
     }
 
     /**
@@ -97,7 +104,16 @@ abstract class Database
      */
     public function create($create_closure, $named_parameters = [], $binding = null)
     {
-        $compiled_statement = $this->compile_create_statement( $create_closure, $binding );
+        $compiled_statement =
+            $this->compile( function($compiler) use($create_closure, $binding) {
+
+                $compiler->create( function($query) use($create_closure, $binding) {
+
+                    $query->eval( $create_closure, $binding );
+
+                });
+
+            });
 
         return $this->execute( $compiled_statement, $named_parameters );
     }
@@ -111,7 +127,16 @@ abstract class Database
      */
     public function update($update_closure, $named_parameters = [], $binding = null)
     {
-        $compiled_statement = $this->compile_update_statement( $update_closure, $binding );
+        $compiled_statement =
+            $this->compile( function($compiler) use($update_closure, $binding) {
+
+                $compiler->update( function($query) use($update_closure, $binding) {
+
+                    $query->eval( $update_closure, $binding );
+
+                });
+
+            });
 
         return $this->execute( $compiled_statement, $named_parameters );
     }
@@ -125,7 +150,16 @@ abstract class Database
      */
     public function delete($delete_closure, $named_parameters = [], $binding = null)
     {
-        $compiled_statement = $this->compile_delete_statement( $delete_closure, $binding );
+        $compiled_statement =
+            $this->compile( function($compiler) use($delete_closure, $binding) {
+
+                $compiler->delete( function($query) use($delete_closure, $binding) {
+
+                    $query->eval( $delete_closure, $binding );
+
+                });
+
+            });
 
         return $this->execute( $compiled_statement, $named_parameters );
     }
@@ -136,64 +170,20 @@ abstract class Database
 
     /// Compiling statements
 
-    /**
-     * Compiles the $query_closure and retunrs the compiled
-     *      Haijin\Persistency\Statement_Compiler\Query_Statement.
-     *
-     * @param closure $query_closure A closure to construct the database statement.
-     *
-     * @return Haijin\Persistency\Statement_Compiler\Query_Statement The Query_Statement
-     *      compiled from the $query_closure evaluation.
-     */
-    public function compile_query_statement($query_closure, $binding = null)
+    public function compile($closure, $binding = null)
     {
-        return $this->new_query_statement_compiler()
-            ->build( $query_closure, $binding );
+        return Global_Factory::with_factory_do( function($factory)
+                                        use($closure, $binding) {
+
+            $this->set_instantiators_during_compilation( $factory );
+
+            return $this->new_compiler()->compile( $closure, $binding );
+
+        }, $this );
     }
 
-    /**
-     * Compiles the $create_closure and retunrs the compiled
-     *      Haijin\Persistency\Statement_Compiler\Create_Statement.
-     *
-     * @param closure $create_closure A closure to construct the database statement.
-     *
-     * @return Haijin\Persistency\Statement_Compiler\Create_Statement The Create_Statement 
-     *      compiled from the $create_closure evaluation.
-     */
-    public function compile_create_statement($create_closure, $binding = null)
+    protected function set_instantiators_during_compilation($factory)
     {
-        return $this->new_create_expression_compiler()
-            ->build( $create_closure, $binding );
-    }
-
-    /**
-     * Compiles the $update_closure and retunrs the compiled
-     *      Haijin\Persistency\Statement_Compiler\Update_Statement.
-     *
-     * @param closure $update_closure A closure to construct the database statement.
-     *
-     * @return Haijin\Persistency\Statement_Compiler\Update_Statement The Update_Statement 
-     *      compiled from the $update_closure evaluation.
-     */
-    public function compile_update_statement($update_closure, $binding = null)
-    {
-        return $this->new_update_expression_compiler()
-            ->build( $update_closure, $binding );
-    }
-
-    /**
-     * Compiles the $delete_closure and retunrs the compiled
-     *      Haijin\Persistency\Statement_Compiler\Delete_Statement.
-     *
-     * @param closure $delete_closure A closure to construct the database statement.
-     *
-     * @return Haijin\Persistency\Statement_Compiler\Delete_Statement The Delete_Statement 
-     *      compiled from the $delete_closure evaluation.
-     */
-    public function compile_delete_statement($delete_closure, $binding = null)
-    {
-        return $this->new_delete_expression_compiler()
-            ->build( $delete_closure, $binding );
     }
 
     /// Executing statements
@@ -267,7 +257,20 @@ abstract class Database
     {
         $this->validate_connection_handle();
 
-        return $compiled_statement->execute_in( $this, $named_parameters );
+        return Global_Factory::with_factory_do( function($factory)
+                                        use($compiled_statement, $named_parameters) {
+
+            $this->set_instantiators_during_execution( $factory );
+
+            return $compiled_statement->execute_in( $this, $named_parameters );
+
+        }, $this );
+
+    }
+
+    protected function set_instantiators_during_execution($factory)
+    {
+
     }
 
     /// Debugging
@@ -300,24 +303,9 @@ abstract class Database
 
     /// Creating instances
 
-    protected function new_query_statement_compiler()
+    protected function new_compiler()
     {
-        return Create::a( Query_Statement_Compiler::class )->with();
-    }
-
-    protected function new_create_expression_compiler()
-    {
-        return Create::a( Create_Statement_Compiler::class )->with();
-    }
-
-    protected function new_update_expression_compiler()
-    {
-        return Create::a( Update_Statement_Compiler::class )->with();
-    }
-
-    protected function new_delete_expression_compiler()
-    {
-        return Create::a( Delete_Statement_Compiler::class )->with();
+        return Create::a( Compiler::class )->with();
     }
 
     /// Validating

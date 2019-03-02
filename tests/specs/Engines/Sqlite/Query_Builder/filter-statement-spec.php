@@ -369,13 +369,17 @@ $spec->describe( "When building the filter statement of a Sqlite expression", fu
 
         $this->it( "get the results for each evaluation", function() {
 
-            $compiled_statement = $this->database->compile_query_statement( function($query) {
+            $compiled_statement = $this->database->compile( function($compiler) {
 
-                $query->collection( "users_read_only" );
+                $compiler->query( function($query) {
 
-                $query->filter(
-                    $query ->field( "name" ) ->op( "=" ) ->param( "name" )
-                );
+                    $query->collection( "users_read_only" );
+
+                    $query->filter(
+                        $query ->field( "name" ) ->op( "=" ) ->param( "name" )
+                    );
+
+                });
 
             });
 

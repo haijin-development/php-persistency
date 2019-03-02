@@ -19,7 +19,7 @@ $spec->describe( "When building a multi_match statement", function() {
 
     $this->it( "builds the statement with two parameters", function() {
 
-        $compiled_query = $this->query_compiler->build( function($query) {
+        $compiled_query = $this->query_compiler->compile( function($query) {
 
             $query->collection( "users_read_only" );
 

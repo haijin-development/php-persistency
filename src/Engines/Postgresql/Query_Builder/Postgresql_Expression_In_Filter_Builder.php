@@ -4,35 +4,16 @@ namespace Haijin\Persistency\Engines\Postgresql\Query_Builder;
 
 use Haijin\Instantiator\Create;
 use Haijin\Persistency\Engines\Named_Parameter_Placerholder;
-use Haijin\Persistency\Sql\Expression_Builders\Sql_Expression_In_Filter_Builder;
+use Haijin\Persistency\Sql\Expression_Builders\Common_Expressions\Sql_Expression_In_Filter_Builder;
 
 /**
  * A Sql_Expression_In_Filter_Builder subclass to handle ValueExpressions and 
  * NamedParameterExpressions according to Postgresql queries requirements.
- * See Haijin\Persistency\Sql\Expression_Builders\Sql_Expression_In_Filter_Builder
+ * See Haijin\Persistency\Sql\Expression_Builders\Common_Expressions\Sql_Expression_In_Filter_Builder
  * class for the complete protocol of this class.
  */
 class Postgresql_Expression_In_Filter_Builder extends Sql_Expression_In_Filter_Builder
 {
-    /**
-     * An Ordered_Collection with the collected query parameters from ValueExpressions and
-     * from NamedParameterExpressions.
-     */
-    protected $query_parameters;
-
-    /// Initializing
-
-    /**
-     * Initializes $this instance.
-     *
-     * @param Ordered_Collection $query_parameters An Ordered_Collection to collect query parameters
-     * from ValueExpressions and from NamedParameterExpressions.
-     */
-    public function __construct($query_parameters)
-    {
-        $this->query_parameters = $query_parameters;
-    }
-
     /// Visiting
 
     /**
@@ -45,11 +26,11 @@ class Postgresql_Expression_In_Filter_Builder extends Sql_Expression_In_Filter_B
      */
     public function accept_value_expression($value_expression)
     {
-        $this->query_parameters->add(
+        $this->collected_parameters->add(
             $value_expression->get_value()
         );
 
-        $param_index = $this->query_parameters->size();
+        $param_index = $this->collected_parameters->size();
 
         return "\${$param_index}";
     }
@@ -65,13 +46,13 @@ class Postgresql_Expression_In_Filter_Builder extends Sql_Expression_In_Filter_B
      */
     public function accept_named_parameter_expression($named_parameter_expression)
     {
-        $this->query_parameters->add(
+        $this->collected_parameters->add(
             $this->new_named_parameter_placeholder(
                 $named_parameter_expression->get_parameter_name()
             )
         );
 
-        $param_index = $this->query_parameters->size();
+        $param_index = $this->collected_parameters->size();
 
         return "\${$param_index}";
     }
@@ -90,6 +71,9 @@ class Postgresql_Expression_In_Filter_Builder extends Sql_Expression_In_Filter_B
 
     protected function new_sql_expression_builder()
     {
-        return Create::a( get_class( $this ) )->with( $this->query_parameters );
+        return Create::object(
+            get_class( $this ),
+            $this->collected_parameters
+        );
     }
 }

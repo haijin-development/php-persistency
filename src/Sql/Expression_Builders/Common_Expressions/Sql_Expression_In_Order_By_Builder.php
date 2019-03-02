@@ -1,11 +1,11 @@
 <?php
 
-namespace Haijin\Persistency\Sql\Expression_Builders;
+namespace Haijin\Persistency\Sql\Expression_Builders\Common_Expressions;
 
 /**
  * A builder of general expressions used in order by statements.
  */
-class Sql_Expression_In_Order_By_Builder extends Sql_Expression_Builder_Base
+class Sql_Expression_In_Order_By_Builder extends Sql_Common_Expression_Builder_Base
 {
     public function accept_field_expression($field_expression)
     {

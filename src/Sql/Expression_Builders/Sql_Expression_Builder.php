@@ -1,11 +1,28 @@
 <?php
 
-namespace Haijin\Persistency\Sql;
+namespace Haijin\Persistency\Sql\Expression_Builders;
 
 use Haijin\Instantiator\Create;
+use Haijin\Persistency\Statements_Visitors\Expression_Visitor;
 
-trait Sql_Builder_Trait
+/**
+ * Base class for objects building SQL from a
+ * \Haijin\Persistency\Statements\Expressions\Expression subclass.
+ */
+class Sql_Expression_Builder extends Expression_Visitor
 {
+    protected $collected_parameters;
+
+    public function __construct($collected_parameters)
+    {
+        $this->collected_parameters = $collected_parameters;
+    }
+
+    public function get_collected_parameters()
+    {
+        return $this->collected_parameters;
+    }
+
     /// Building
 
     public function build_sql_from($expression)

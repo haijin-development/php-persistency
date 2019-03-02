@@ -19,7 +19,7 @@ $spec->describe( "When building a match_all statement", function() {
 
     $this->it( "builds the statement with no parameters", function() {
 
-        $compiled_query = $this->query_compiler->build( function($query) {
+        $compiled_query = $this->query_compiler->compile( function($query) {
 
             $query->collection( "users_read_only" );
 
@@ -41,7 +41,7 @@ $spec->describe( "When building a match_all statement", function() {
 
     $this->it( "builds the statement with parameters", function() {
 
-        $compiled_query = $this->query_compiler->build( function($query) {
+        $compiled_query = $this->query_compiler->compile( function($query) {
 
             $query->collection( "users_read_only" );
 
