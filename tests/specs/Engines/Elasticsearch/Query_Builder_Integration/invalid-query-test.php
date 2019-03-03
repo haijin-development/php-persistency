@@ -2,7 +2,7 @@
 
 use Haijin\Persistency\Engines\Elasticsearch\Elasticsearch_Database;
 
-$spec->describe( "When building an invalid Mysql query", function() {
+$spec->describe( "When building an invalid Elasticsearch query", function() {
 
     $this->let( "database", function() {
 

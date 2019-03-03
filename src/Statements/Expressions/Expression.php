@@ -60,4 +60,9 @@ abstract class Expression
     {
         return false;
     }
+
+    public function is_ignore_expression()
+    {
+        return false;
+    }
 }

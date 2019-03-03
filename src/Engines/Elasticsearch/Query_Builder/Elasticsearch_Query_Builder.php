@@ -95,7 +95,7 @@ class Elasticsearch_Query_Builder extends Expression_Visitor
                 $this->body = new \stdclass();
             }
 
-            $this->body->query = $this->visit( $query_statement->get_filter_expression() );
+            $this->visit( $query_statement->get_filter_expression() );
         }
 
         if( $query_statement->has_pagination_expression() ) {
@@ -152,9 +152,7 @@ class Elasticsearch_Query_Builder extends Expression_Visitor
                 $this->body = new \stdclass();
             }
 
-            $this->body->query = $this->visit(
-                $update_statement->get_filter_expression()
-            );
+            $this->visit( $update_statement->get_filter_expression() );
 
         }
 
@@ -174,7 +172,7 @@ class Elasticsearch_Query_Builder extends Expression_Visitor
                 $this->body = new \stdclass();
             }
 
-            $this->body->query = $this->visit( $delete_statement->get_filter_expression() );
+            $this->visit( $delete_statement->get_filter_expression() );
 
         }
 
@@ -207,8 +205,12 @@ class Elasticsearch_Query_Builder extends Expression_Visitor
      */
     public function accept_filter_expression($filter_expression)
     {
-        return Create::a( Elasticsearch_Filter_Builder::class )->with()
+        $query = Create::a( Elasticsearch_Filter_Builder::class )->with()
             ->visit( $filter_expression );
+
+        if( $query !== null ) {
+            $this->body->query = $query;
+        }
     }
 
     /**

@@ -187,6 +187,10 @@ class Elasticsearch_Database extends Database
                 );
         }
 
+        if( $this->query_inspector_closure != null ) {
+            $this->query_inspector_closure->call( $this, $count_parameters );
+        }
+
         $result = $this->connection_handle->count( $count_parameters );
 
         return $result[ 'count' ];
@@ -235,6 +239,10 @@ class Elasticsearch_Database extends Database
                 );
         }
 
+        if( $this->query_inspector_closure != null ) {
+            $this->query_inspector_closure->call( $this, $search_parameters );
+        }
+
         $result = $this->connection_handle->search( $search_parameters );
 
         return $this->process_results_rows( $result );
@@ -251,6 +259,10 @@ class Elasticsearch_Database extends Database
                 'type' => $type,
                 'id' => $id
             ];
+
+        if( $this->query_inspector_closure != null ) {
+            $this->query_inspector_closure->call( $this, $search_parameters );
+        }
 
         $exists = $this->connection_handle->exists( $search_parameters );
 
@@ -297,6 +309,10 @@ class Elasticsearch_Database extends Database
                 );
         }
 
+        if( $this->query_inspector_closure != null ) {
+            $this->query_inspector_closure->call( $this, $create_parameters );
+        }
+
         $this->connection_handle->index( $create_parameters );
     }
 
@@ -337,6 +353,10 @@ class Elasticsearch_Database extends Database
                 );
         }
 
+        if( $this->query_inspector_closure != null ) {
+            $this->query_inspector_closure->call( $this, $update_parameters );
+        }
+
         $result = $this->connection_handle->updateByQuery( $update_parameters );
     }
 
@@ -348,15 +368,21 @@ class Elasticsearch_Database extends Database
 
         unset( $values[ "_id" ] );
 
-        $result = $this->connection_handle->update([
-                'index' => $collection_name,
-                'type' => $type,
-                'id' => $id,
-                'body' => [
-                    'doc' => $values
-                ],
-                'refresh' => true
-            ]);
+        $update_parameters = [
+            'index' => $collection_name,
+            'type' => $type,
+            'id' => $id,
+            'body' => [
+                'doc' => $values
+            ],
+            'refresh' => true
+        ];
+
+        if( $this->query_inspector_closure != null ) {
+            $this->query_inspector_closure->call( $this, $update_parameters );
+        }
+
+        $result = $this->connection_handle->update( $update_parameters );
     }
 
     /**
@@ -387,6 +413,10 @@ class Elasticsearch_Database extends Database
                 );
         }
 
+        if( $this->query_inspector_closure != null ) {
+            $this->query_inspector_closure->call( $this, $delete_parameters );
+        }
+
         $result = $this->connection_handle->deleteByQuery( $delete_parameters );
     }
 
@@ -396,12 +426,18 @@ class Elasticsearch_Database extends Database
             $type = $collection_name;
         }
 
-        $result = $this->connection_handle->delete([
-                'index' => $collection_name,
-                'type' => $type,
-                'id' => $id,
-                'refresh' => true
-            ]);
+        $delete_parameters = [
+            'index' => $collection_name,
+            'type' => $type,
+            'id' => $id,
+            'refresh' => true
+        ];
+
+        if( $this->query_inspector_closure != null ) {
+            $this->query_inspector_closure->call( $this, $delete_parameters );
+        }
+
+        $this->connection_handle->delete( $delete_parameters );
     }
 
     protected function process_results_rows($result)

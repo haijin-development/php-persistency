@@ -64,20 +64,34 @@ class Sql_Common_Expression_Builder_Base extends Sql_Expression_Builder
     }
 
     /**
+     * Accepts an Ignore_Expression.
+     */
+    public function accept_ignore_expression($ignore_expression)
+    {
+        return '';
+    }
+
+    /**
      * Accepts a Function_Call_Expression.
      */
     public function accept_function_call_expression($function_call_expression)
     {
         $function_name = $function_call_expression->get_function_name();
+
         if( in_array( $function_name, $this->special_sintax_functions() ) ) {
-            return $this->unary_function_sql( $function_name, $function_call_expression );
+
+            return $this->special_sintax_function_sql(
+                $function_name,
+                $function_call_expression
+            );
+
         }
 
         $sql = $this->escape_sql( $function_call_expression->get_function_name() );
         $sql .= "(";
 
         $sql .= $this->expressions_list(
-            Ordered_Collection::with_all( $function_call_expression->get_parameters() )
+            $function_call_expression->get_parameters()
         );
 
         $sql .= ")";
@@ -96,7 +110,7 @@ class Sql_Common_Expression_Builder_Base extends Sql_Expression_Builder
         ];
     }
 
-    protected function unary_function_sql($function_name, $function_call_expression)
+    protected function special_sintax_function_sql($function_name, $function_call_expression)
     {
         if( $function_name == "is_null" ) {
             $receiver = $function_call_expression->get_parameters()[0];
@@ -140,7 +154,17 @@ class Sql_Common_Expression_Builder_Base extends Sql_Expression_Builder
      */
     public function accept_binary_operator_expression($binary_operator_expression)
     {
-        $sql = $this->visit( $binary_operator_expression->get_parameter_1() );
+        $parameter_1 = $binary_operator_expression->get_parameter_1();
+        $parameter_2 = $binary_operator_expression->get_parameter_2();
+
+        if( $parameter_1->is_ignore_expression() ) {
+            return $this->visit( $parameter_2 );
+        }
+        if( $parameter_2->is_ignore_expression() ) {
+            return $this->visit( $parameter_1 );
+        }
+
+        $sql = $this->visit( $parameter_1 );
 
         $sql .= " ";
 
@@ -148,7 +172,7 @@ class Sql_Common_Expression_Builder_Base extends Sql_Expression_Builder
 
         $sql .= " ";
 
-        $sql .= $this->visit( $binary_operator_expression->get_parameter_2() );
+        $sql .= $this->visit( $parameter_2 );
 
         return $sql;
     }

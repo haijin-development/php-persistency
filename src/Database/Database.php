@@ -27,6 +27,8 @@ abstract class Database
 
     protected $types_converter;
 
+    protected $query_inspector_closure;
+
     /// Initializing
 
     /**
@@ -36,6 +38,7 @@ abstract class Database
     {
         $this->connection_handle = null;
         $this->types_converter = $this->default_types_converter();
+        $this->query_inspector_closure = null;
     }
 
     /// Type convertions
@@ -276,30 +279,33 @@ abstract class Database
     /// Debugging
 
     /**
-     * Evaluates the $closure with the debugging information about the built query.
-     * Each Database subclass defines the $closure parameters. For instance, for
-     * sql database one parameter can be the built sql string.
+     * Evaluates the $inspector_closure with the debugging information about the
+     * built query.
+     * Each Database subclass defines the $inspector_closure parameters. For instance,
+     * for sql database one parameter can be the built sql string.
      * This method is intenteded for debugging purposes, not to use in production.
      *
-     * @param $query Query_Statement_Compiler The parameter of the query_closure.
      * @param closure $closure A closure with the debugging information as its parametets.
-     * @param object $binding Optional - An optional object to bind to the evaluation of
-     *      the $closure. If none is given the $closure is bound to $this object.
      *
      * Example of use:
      *
-     *      $database->query( function($query) use($database) {
-     *
-     *      $query->collection( "users" );
-     *
-     *      $database->inspect_query( $query, function($sql, $query_parameters) {
+     *      $database->inspect_query_with( function($sql, $query_parameters) {
      *          var_dump( $sql );
      *          var_dump( $query_parameters );
      *      });
-     *  });
      *
+     *      $database->query( function($query) use($database) {
+     *
+     *          $query->collection( "users" );
+     *
+     *      });
+     *
+     *      $database->inspect_query_with( null );
      */
-    abstract public function inspect_query($query, $closure, $binding = null);
+    public function inspect_query_with($closure)
+    {
+        $this->query_inspector_closure = $closure;
+    }
 
     /// Creating instances
 

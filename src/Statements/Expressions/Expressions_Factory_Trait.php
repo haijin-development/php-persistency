@@ -160,6 +160,13 @@ trait Expressions_Factory_Trait
         );
     }
 
+    protected function new_ignore_expression()
+    {
+        return Create::a( Ignore_Expression::class )->with(
+            $this->context
+        );
+    }
+
     protected function new_expression_context($macro_expressions = null, $current_collection = null)
     {
         if( $macro_expressions === null ) {

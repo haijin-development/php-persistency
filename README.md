@@ -228,6 +228,83 @@ $database->query( function($query) {
 });
 ```
 
+##### ignore()
+
+A special case of a semantic expression is the `ignore()` statement.
+
+The `ignore()` statement ignores the expression in boolean expressions and in function parameters, making the query more expressive and clear when the filter depends on the values or the presence of its parameters.
+
+Example:
+
+```php
+function find_by_name_and_last_name($searched_name, $searched_last_name)
+{
+    $this->database->query( function($query) {
+
+        $query->collection( "users" );
+
+        $query->proyect(
+            $query->field( "name" ),
+            $query->field( "last_name" )
+        );
+
+        $query->let( "matches_name", function($query) {
+
+            if( $searched_name != null ) {
+
+                return $this->brackets(
+                    $this
+                        ->field( "name" )
+                        ->op( "=" )
+                        ->value( $searched_name )
+                );
+
+            } else {
+
+                return $this->ignore();
+
+            }
+
+        });
+
+        $query->let( "matches_last_name", function($query) {
+
+            if( $searched_last_name != null ) {
+
+                return $this->brackets(
+                    $this 
+                        ->field( "last_name" )
+                        ->op( "=" ) 
+                        ->value( $searched_last_name )
+                );
+
+            } else {
+
+                return $this->ignore();
+
+            }
+
+        });
+
+        $query->filter(
+            $query
+                ->matches_name ->and() ->matches_last_name
+        );
+
+        $query->order_by(
+            $query->field( "last_name" ),
+            $query->field( "name" )
+        );
+
+        $query->pagination(
+            $query
+                ->offset( 0 )
+                ->limit( 10 )
+        );
+    });
+}
+```
+
 <a name="c-2-1-3"></a>
 #### Using named parameters
 
@@ -297,11 +374,19 @@ the `concat(...)` function was not declared anywhere in the DSL for Mysql nor fo
 <a name="c-2-1-5"></a>
 #### Debugging the query
 
-The functions `query`, `create`, `update` and `delete` accepts another closure as its third parameter to debug the statement:
+Each database accepts a closure to inspect a query and its parameters just before executing it.
+
+To inspect a SQL query do
 
 ```php
 $database = new Mysql_Database();
+
 $database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
+
+$database->inspect_query_with( function($sql, $query_parameters) {
+    var_dump( $sql );
+    var_dump( $query_parameters );
+});
 
 $database->query( function($query) use($database) {
 
@@ -311,22 +396,6 @@ $database->query( function($query) use($database) {
         $query->field( "name" ),
         $query->field( "last_name" )
     );
-
-    $query->join( "address_1" ) ->from( "id" ) ->to( "id_user" )
-        ->eval( function($query) {
-
-            $query->proyect(
-                $query->concat(
-                    $query->field( "street_name" ), " ", $query->field( "street_number" )
-                ) ->as( "address" )
-            );
-
-            $query->let( "matches_address", function($query) {
-                return $query->brackets(
-                    $query ->field( "street_name" ) ->op( "like" ) ->value( "%Evergreen%" )
-                );
-            });
-    });
 
     $query->let( "matches_name", function($query) {
         return $query->brackets(
@@ -341,11 +410,8 @@ $database->query( function($query) use($database) {
     });
 
     $query->filter(
-        $query->brackets( $query
+        $query
             ->matches_name ->and() ->matches_last_name
-        )
-        ->or()
-        ->matches_address
     );
 
     $query->order_by(
@@ -360,10 +426,39 @@ $database->query( function($query) use($database) {
             ->limit( 10 )
     );
 
-}, function($sql, $query_parameters) {
-        var_dump( $sql );
-        var_dump( $query_parameters );
 });
+```
+
+To inspect a `Elasticsearch` query do:
+
+```php
+$database = new Elasticsearch_Database();
+
+$database->connect( function($handle) {
+    $handle->setHosts([ '127.0.0.1:9200' ]);
+});
+
+$database->inspect_query_with( function($json_parameters) {
+    var_dump( $json_parameters );
+});
+
+$count = $database->count( function($query) {
+
+    $query->collection( "users_read_only" );
+
+    $query->filter(
+        $query->range(
+            $query->id( 'gt', 1 )
+        )
+    );
+
+});
+```
+
+To stop inspecting the queries do:
+
+```php
+$database->inspect_query_with( null );
 ```
 
 <a name="c-2-1-6"></a>

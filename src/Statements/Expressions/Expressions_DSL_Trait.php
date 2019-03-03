@@ -57,6 +57,11 @@ trait Expressions_DSL_Trait
         return $this->new_brackets_expression( $expression );
     }
 
+    public function ignore()
+    {
+        return $this->new_ignore_expression();
+    }
+
     /**
      * Assumes that an unkown function call is a query function call, therefore creates and
      * returns a Function_Call_Expression.

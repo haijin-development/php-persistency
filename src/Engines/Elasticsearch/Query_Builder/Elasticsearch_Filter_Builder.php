@@ -51,7 +51,9 @@ class Elasticsearch_Filter_Builder extends Expression_Visitor
 
         foreach( $parameters as $function_expression ) {
 
-            $filter->$function_name[] = $this->visit( $function_expression );
+            if( ! $function_expression->is_ignore_expression() ) {
+                $filter->$function_name[] = $this->visit( $function_expression );
+            }
         }
 
         $params_count = count( $filter->$function_name );
@@ -79,6 +81,7 @@ class Elasticsearch_Filter_Builder extends Expression_Visitor
             ]
         ];
     }
+
     /**
      * Accepts a Field_Expression.
      */
@@ -103,6 +106,14 @@ class Elasticsearch_Filter_Builder extends Expression_Visitor
         return $this->new_named_parameter_placeholder(
                 $named_parameter_expression->get_parameter_name()
             );
+    }
+
+    /**
+     * Accepts an Ignore_Expression.
+     */
+    public function accept_ignore_expression($ignore_expression)
+    {
+        return null;
     }
 
     protected function new_named_parameter_placeholder($parameter_name)

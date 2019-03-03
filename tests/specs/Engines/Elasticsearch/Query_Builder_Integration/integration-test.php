@@ -30,7 +30,7 @@ $spec->describe( "When building a Elasticsearch expression", function() {
             $query->filter(
                 $query->bool(
                     $query->must(
-                        $query->match( 'name', "Lisa" ),
+                        $query->match( 'name', 'Lisa' ),
                         $query->match( 'last_name', 'Simpson' )
                     )
                 )
@@ -70,11 +70,11 @@ $spec->describe( "When building a Elasticsearch expression", function() {
             );
 
             $query->let( "matches_name", function($query) {
-                return $query->match( 'name', "Lisa" );
+                return $query->field( 'name' ) ->match( 'Lisa' );
             });
 
             $query->let( "matches_last_name", function($query) {
-                return $query->match( 'last_name', 'Simpson' );
+                return $query->field( 'last_name' ) ->match( 'Simpson' );
             });
 
             $query->filter(

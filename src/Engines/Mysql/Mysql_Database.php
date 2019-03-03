@@ -206,6 +206,10 @@ class Mysql_Database extends Database
      */
     public function execute_sql_string($sql, $sql_parameters = [])
     {
+        if( $this->query_inspector_closure !== null ) {
+            $this->query_inspector_closure->call( $this, $sql, $sql_parameters );
+        }
+
         $statement_handle = $this->connection_handle->prepare( $sql );
 
         if( $statement_handle === false ) {
