@@ -188,7 +188,7 @@ class Elasticsearch_Database extends Database
         }
 
         if( $this->query_inspector_closure != null ) {
-            $this->query_inspector_closure->call( $this, $count_parameters );
+            ($this->query_inspector_closure)( $count_parameters );
         }
 
         $result = $this->connection_handle->count( $count_parameters );
@@ -240,7 +240,7 @@ class Elasticsearch_Database extends Database
         }
 
         if( $this->query_inspector_closure != null ) {
-            $this->query_inspector_closure->call( $this, $search_parameters );
+            ($this->query_inspector_closure)( $search_parameters );
         }
 
         $result = $this->connection_handle->search( $search_parameters );
@@ -261,7 +261,7 @@ class Elasticsearch_Database extends Database
             ];
 
         if( $this->query_inspector_closure != null ) {
-            $this->query_inspector_closure->call( $this, $search_parameters );
+            ($this->query_inspector_closure)( $search_parameters );
         }
 
         $exists = $this->connection_handle->exists( $search_parameters );
@@ -310,7 +310,7 @@ class Elasticsearch_Database extends Database
         }
 
         if( $this->query_inspector_closure != null ) {
-            $this->query_inspector_closure->call( $this, $create_parameters );
+            ($this->query_inspector_closure)( $create_parameters );
         }
 
         $this->connection_handle->index( $create_parameters );
@@ -354,7 +354,7 @@ class Elasticsearch_Database extends Database
         }
 
         if( $this->query_inspector_closure != null ) {
-            $this->query_inspector_closure->call( $this, $update_parameters );
+            ($this->query_inspector_closure)( $update_parameters );
         }
 
         $result = $this->connection_handle->updateByQuery( $update_parameters );
@@ -379,7 +379,7 @@ class Elasticsearch_Database extends Database
         ];
 
         if( $this->query_inspector_closure != null ) {
-            $this->query_inspector_closure->call( $this, $update_parameters );
+            ($this->query_inspector_closure)( $update_parameters );
         }
 
         $result = $this->connection_handle->update( $update_parameters );
@@ -414,7 +414,7 @@ class Elasticsearch_Database extends Database
         }
 
         if( $this->query_inspector_closure != null ) {
-            $this->query_inspector_closure->call( $this, $delete_parameters );
+            ($this->query_inspector_closure)( $delete_parameters );
         }
 
         $result = $this->connection_handle->deleteByQuery( $delete_parameters );
@@ -434,7 +434,7 @@ class Elasticsearch_Database extends Database
         ];
 
         if( $this->query_inspector_closure != null ) {
-            $this->query_inspector_closure->call( $this, $delete_parameters );
+            ($this->query_inspector_closure)( $delete_parameters );
         }
 
         $this->connection_handle->delete( $delete_parameters );
@@ -466,9 +466,23 @@ class Elasticsearch_Database extends Database
             return $query;
         }
 
-        foreach( $query as $key => $value) {
+        if( is_array( $query ) ) {
+            $iterable = $query;
+        } elseif( is_object( $query ) ) {
+            $iterable = get_object_vars( $query );
+        } else {
+            $iterable = [];
+        }
+
+        foreach( $iterable as $key => $value ) {
 
             if( is_a( $value, Named_Parameter_Placerholder::class ) ) {
+
+                if( ! isset( $named_parameters[ $value->get_parameter_name() ] ) ) {
+                    $this->raise_named_parameter_not_found_error(
+                            $value->get_parameter_name()
+                        );
+                }
 
                 $named_value = $named_parameters[ $value->get_parameter_name() ];
 

@@ -1,14 +1,16 @@
 <?php
 
-use Haijin\Persistency\Engines\Mysql\Mysql_Database;
+use Haijin\Persistency\Engines\Postgresql\Postgresql_Database;
 
-$spec->describe( "When inspecting a statement of a MySql expression", function() {
+$spec->describe( "When inspecting a statement of a Postgresql expression", function() {
 
     $this->let( "database", function() {
 
-        $database = new Mysql_Database();
+        $database = new Postgresql_Database();
 
-        $database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
+        $database->connect(
+            "host=localhost port=5432 dbname=haijin-persistency user=haijin password=123456"
+        );
 
         return $database;
 
@@ -23,7 +25,7 @@ $spec->describe( "When inspecting a statement of a MySql expression", function()
             $this->inspected_was_called = true;
 
             $this->expect( $sql ) ->to()
-                ->equal( "select users_read_only.* from users_read_only where users_read_only.name = ? and users_read_only.last_name = ?;" );
+                ->equal( "select users_read_only.* from users_read_only where users_read_only.name = $1 and users_read_only.last_name = $2;" );
 
             $this->expect( $params ) ->to() ->equal( ['Lisa', 'Simpson' ] );
 

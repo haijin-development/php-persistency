@@ -3,7 +3,7 @@
 namespace Haijin\Persistency\Database;
 
 use Haijin\Instantiator\Global_Factory;
-use  Haijin\Instantiator\Create;
+use Haijin\Instantiator\Create;
 use Haijin\Persistency\Types_Converters\Types_Converter;
 use Haijin\Persistency\Statement_Compiler\Compiler;
 use Haijin\Persistency\Errors\Connections\Database_Query_Error;
@@ -82,15 +82,15 @@ abstract class Database
     public function query($query_closure, $named_parameters = [], $binding = null)
     {
         $compiled_statement =
-            $this->compile( function($compiler) use($query_closure, $binding) {
+            $this->compile( function($compiler) use($query_closure) {
 
-                $compiler->query( function($query) use($query_closure, $binding) {
+                $compiler->query( function($query) use($query_closure) {
 
-                    $query->eval( $query_closure, $binding );
+                    $query->eval( $query_closure, $this );
 
-                });
+                }, $this );
 
-            });
+            }, $binding );
 
         return $this->execute( $compiled_statement, $named_parameters );
     }
@@ -108,15 +108,15 @@ abstract class Database
     public function create($create_closure, $named_parameters = [], $binding = null)
     {
         $compiled_statement =
-            $this->compile( function($compiler) use($create_closure, $binding) {
+            $this->compile( function($compiler) use($create_closure) {
 
-                $compiler->create( function($query) use($create_closure, $binding) {
+                $compiler->create( function($query) use($create_closure) {
 
-                    $query->eval( $create_closure, $binding );
+                    $query->eval( $create_closure, $this );
 
-                });
+                }, $this );
 
-            });
+            }, $binding );
 
         return $this->execute( $compiled_statement, $named_parameters );
     }
@@ -131,15 +131,15 @@ abstract class Database
     public function update($update_closure, $named_parameters = [], $binding = null)
     {
         $compiled_statement =
-            $this->compile( function($compiler) use($update_closure, $binding) {
+            $this->compile( function($compiler) use($update_closure) {
 
-                $compiler->update( function($query) use($update_closure, $binding) {
+                $compiler->update( function($query) use($update_closure) {
 
-                    $query->eval( $update_closure, $binding );
+                    $query->eval( $update_closure, $this );
 
-                });
+                }, $this );
 
-            });
+            }, $binding );
 
         return $this->execute( $compiled_statement, $named_parameters );
     }
@@ -154,15 +154,15 @@ abstract class Database
     public function delete($delete_closure, $named_parameters = [], $binding = null)
     {
         $compiled_statement =
-            $this->compile( function($compiler) use($delete_closure, $binding) {
+            $this->compile( function($compiler) use($delete_closure) {
 
-                $compiler->delete( function($query) use($delete_closure, $binding) {
+                $compiler->delete( function($query) use($delete_closure ) {
 
-                    $query->eval( $delete_closure, $binding );
+                    $query->eval( $delete_closure, $this );
 
-                });
+                }, $this );
 
-            });
+            }, $binding );
 
         return $this->execute( $compiled_statement, $named_parameters );
     }

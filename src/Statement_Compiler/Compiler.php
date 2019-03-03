@@ -29,7 +29,7 @@ class Compiler
         $this->compiled_statement = null;
         $this->compiler = null;
 
-        return $this->eval($closure, $binding);
+        return $this->eval( $closure, $binding );
     }
 
     public function eval($closure, $binding = null)

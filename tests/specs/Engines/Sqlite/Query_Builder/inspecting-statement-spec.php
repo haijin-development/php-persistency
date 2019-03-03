@@ -1,14 +1,14 @@
 <?php
 
-use Haijin\Persistency\Engines\Mysql\Mysql_Database;
+use Haijin\Persistency\Engines\Sqlite\Sqlite_Database;
 
-$spec->describe( "When inspecting a statement of a MySql expression", function() {
+$spec->describe( "When inspecting a statement of a Sqlite expression", function() {
 
     $this->let( "database", function() {
 
-        $database = new Mysql_Database();
+        $database = new Sqlite_Database();
 
-        $database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
+        $database->connect( $this->sqlite_file );
 
         return $database;
 

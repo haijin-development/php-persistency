@@ -2,7 +2,7 @@
 
 namespace Haijin\Persistency\Engines\Mysql;
 
-use  Haijin\Instantiator\Create;
+use Haijin\Instantiator\Create;
 use Haijin\Dictionary;
 use Haijin\Ordered_Collection;
 use Haijin\Persistency\Database\Database;
@@ -85,15 +85,15 @@ class Mysql_Database extends Database
         $compiler = $this->new_compiler();
 
         $compiled_statement = $compiler->compile(
-                                function($compiler) use($query_closure, $binding) {
+                                function($compiler) use($query_closure) {
 
-            $compiler->query( function($query) use($query_closure, $binding) {
+            $compiler->query( function($query) use($query_closure) {
 
-                $query->eval( $query_closure, $binding );
+                $query->eval( $query_closure, $this );
 
-            });
+            }, $this );
 
-        });
+        }, $binding );
 
         if( $compiled_statement->get_proyection_expression()->is_empty() ) {
 
@@ -207,7 +207,7 @@ class Mysql_Database extends Database
     public function execute_sql_string($sql, $sql_parameters = [])
     {
         if( $this->query_inspector_closure !== null ) {
-            $this->query_inspector_closure->call( $this, $sql, $sql_parameters );
+            ($this->query_inspector_closure)( $sql, $sql_parameters );
         }
 
         $statement_handle = $this->connection_handle->prepare( $sql );
