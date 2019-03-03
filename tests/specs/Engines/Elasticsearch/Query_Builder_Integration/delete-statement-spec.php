@@ -71,10 +71,7 @@ $spec->describe( "When evaluating a delete statement in a Elasticsearch database
             $query->collection( "users" );
 
             $query->filter(
-                $query->match(
-                    $query->field( "name" ),
-                    $query->value( "Maggie" )
-                )
+                $query->field( "name" ) ->match( "Maggie" )
             );
 
         });
@@ -111,10 +108,7 @@ $spec->describe( "When evaluating a delete statement in a Elasticsearch database
             $query->collection( "users" );
 
             $query->filter(
-                $query->match(
-                    $query->field( "last_name" ),
-                    $query->value( "Simpson" )
-                )
+                $query->field( "last_name" ) ->match( "Simpson" )
             );
 
         });

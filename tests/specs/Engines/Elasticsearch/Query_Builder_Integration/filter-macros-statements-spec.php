@@ -23,7 +23,7 @@ $spec->describe( "When using macros in the filter statement of a Elasticsearch e
             $query->collection( "users_read_only" );
 
             $query->let( "matches_name", function($query) {
-                return $query ->match( $query->field( "name" ), $query->value( "Lisa" ) );
+                return $query->field( "name" ) ->match( "Lisa" );
             });
 
             $query->filter(
@@ -48,11 +48,11 @@ $spec->describe( "When using macros in the filter statement of a Elasticsearch e
             $query->collection( "users_read_only" );
 
             $query->let( "matches_name", function($query) {
-                return $query ->match( $query->field( "name" ), "Lisa" );
+                return $query->field( "name" ) ->match( "Lisa" );
             });
 
             $query->let( "matches_last_name", function($query) {
-                return $query ->match( $query->field( "last_name" ), "Simpson" );
+                return $query->field( "last_name" ) ->match( "Simpson" );
             });
 
             $query->filter(

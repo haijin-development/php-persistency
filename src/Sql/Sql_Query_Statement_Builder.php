@@ -60,7 +60,6 @@ class Sql_Query_Statement_Builder extends Sql_Expression_Builder
         $sql .= $this->join_expressions_sql_from( $query_statement );
 
         if( $query_statement->has_filter_expression() ) {
-            $sql .= " where ";
             $sql .= $this->visit( $query_statement->get_filter_expression() );
         }
 
@@ -154,8 +153,14 @@ class Sql_Query_Statement_Builder extends Sql_Expression_Builder
      */
     public function accept_filter_expression($filter_expression)
     {
-        return $this->new_sql_filter_builder()
-            ->build_sql_from( $filter_expression );
+        $sql = $this->new_sql_filter_builder()
+                    ->build_sql_from( $filter_expression );
+
+        if( $sql == '' ) {
+            return '';
+        }
+
+        return ' where ' . $sql ;
     }
 
     /**

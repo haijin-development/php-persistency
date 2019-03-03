@@ -14,7 +14,7 @@ class Sql_Proyection_Builder extends Sql_Expression_Builder
         }
 
         return $this->expressions_list(
-            $proyection_expression->get_proyected_expressions()
+            $proyection_expression->get_proyected_expressions()->to_array()
         );
     }
 

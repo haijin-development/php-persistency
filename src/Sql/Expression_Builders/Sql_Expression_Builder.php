@@ -59,17 +59,24 @@ class Sql_Expression_Builder extends Expression_Visitor
     {
         $expression_compiler = $this->new_sql_expression_builder();
 
-        return $expressions->collect(
-            function($expression) use($expression_compiler){
-                return $this->expression_sql_from( $expression, $expression_compiler );
-            },
-            $this
-        );
+        $collected_expressions = [];
+
+        foreach( $expressions as $expression ) {
+
+            if( ! $expression->is_ignore_expression() ) {
+
+                $collected_expressions[] =
+                    $this->expression_sql_from( $expression, $expression_compiler );
+
+            }
+
+        }
+
+        return $collected_expressions;
     }
 
     protected function expressions_list($expressions)
     {
-        return $this->collect_expressions_sql( $expressions )
-            ->join_with( ", " );        
+        return join( ', ', $this->collect_expressions_sql( $expressions ) );        
     }
 }

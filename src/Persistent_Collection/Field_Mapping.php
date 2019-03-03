@@ -70,6 +70,10 @@ class Field_Mapping
 
     public function get_mapped_value($raw_record, $database)
     {
+        if( ! isset( $raw_record[ $this->field_name ] ) ) {
+            return null;
+        }
+
         return $this->convert_value_from_db(
             $raw_record[ $this->field_name ],
             $database
@@ -94,7 +98,8 @@ class Field_Mapping
             return $value;
         }
 
-        return $database->get_types_converter()->convert_from_database( $this->type, $value );
+        return $database->get_types_converter()
+                ->convert_from_database( $this->type, $value );
     }
 
     /**
@@ -106,6 +111,7 @@ class Field_Mapping
             return;
         }
 
-        $this->value_writter->write_value_to( $object, $value, $mapped_record, $raw_record );
+        $this->value_writter
+                ->write_value_to( $object, $value, $mapped_record, $raw_record );
     }
 }

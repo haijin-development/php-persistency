@@ -15,7 +15,7 @@ class Sql_Order_By_Builder extends Sql_Expression_Builder
     public function accept_order_by_expression($order_by_expression)
     {
         return $this->expressions_list(
-                $order_by_expression->get_order_by_expressions()
+                $order_by_expression->get_order_by_expressions()->to_array()
             );
     }
 
