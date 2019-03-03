@@ -239,6 +239,10 @@ class Sqlite_Database extends Database
      */
     public function execute_sql_string($sql, $sql_parameters = [])
     {
+        if( $this->query_inspector_closure !== null ) {
+            ($this->query_inspector_closure)( $sql, $sql_parameters );
+        }
+
         $result_handle = $this->evaluate_sql_string( $sql, $sql_parameters );
 
         $rows = [];
@@ -372,5 +376,12 @@ class Sqlite_Database extends Database
         );
 
         return $closure->call( $binding, $sql, $query_parameters );
+    }
+
+    /// Double disptach
+
+    public function visit($visitor)
+    {
+        return $visitor->accept_sqlite_database( $this );
     }
 }

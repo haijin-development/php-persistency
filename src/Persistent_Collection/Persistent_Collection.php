@@ -185,7 +185,7 @@ class Persistent_Collection
                 }
             }
 
-            $this->filter( $expression );
+            $query->filter( $expression );
 
         });
 
@@ -515,7 +515,7 @@ class Persistent_Collection
                 $query ->field( $id_field ) ->op( "=" ) ->value( $id )
             );
 
-        });
+        }, [] );
 
         return $object;
     }

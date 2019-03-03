@@ -115,9 +115,6 @@ abstract class Statement_Compiler
             $binding = $this;
         }
 
-        // temporary using $this instead of $binding because of an error
-        $binding = $this;
-
         $expression_closure->call( $binding, $this );
 
         return $this->statement_expression;

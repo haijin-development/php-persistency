@@ -2,7 +2,7 @@
 
 namespace Haijin\Persistency\Engines\Postgresql;
 
-use  Haijin\Instantiator\Create;
+use Haijin\Instantiator\Create;
 use Haijin\Dictionary;
 use Haijin\Ordered_Collection;
 use Haijin\Persistency\Database\Database;
@@ -216,6 +216,10 @@ class Postgresql_Database extends Database
      */
     public function execute_sql_string($sql, $sql_parameters = [])
     {
+        if( $this->query_inspector_closure !== null ) {
+            ($this->query_inspector_closure)( $sql, $sql_parameters );
+        }
+
         $result_handle = $this->evaluate_sql_string( $sql, $sql_parameters );
 
         $rows = pg_fetch_all( $result_handle );
@@ -356,5 +360,12 @@ class Postgresql_Database extends Database
         );
 
         return $closure->call( $binding, $sql, $query_parameters );
+    }
+
+    /// Double disptach
+
+    public function visit($visitor)
+    {
+        return $visitor->accept_postgres_database( $this );
     }
 }
