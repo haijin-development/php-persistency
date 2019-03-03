@@ -1,0 +1,15 @@
+#!/usr/bin/env php
+<?php
+
+use Haijin\Persistency\Migrations\Database_CLI;
+
+require_once "vendor/autoload.php";
+
+/**
+ * This script is the entry point to the command line to evaluate the specs files.
+ */
+
+
+$cli = new Database_CLI();
+
+$cli->evaluate( $argv );

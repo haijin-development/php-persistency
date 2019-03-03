@@ -377,4 +377,11 @@ class Sqlite_Database extends Database
 
         return $closure->call( $binding, $sql, $query_parameters );
     }
+
+    /// Double disptach
+
+    public function visit($visitor)
+    {
+        return $visitor->accept_sqlite_database( $this );
+    }
 }

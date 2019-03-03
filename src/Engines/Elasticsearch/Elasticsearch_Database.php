@@ -558,4 +558,10 @@ class Elasticsearch_Database extends Database
         throw new \Exception( "inspect_query" );
     }
 
+    /// Double disptach
+
+    public function visit($visitor)
+    {
+        return $visitor->accept_elasticsearch_database( $this );
+    }
 }

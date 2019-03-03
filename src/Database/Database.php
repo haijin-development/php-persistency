@@ -326,6 +326,10 @@ abstract class Database
         }
     }
 
+    /// Double disptach
+
+    abstract public function visit($visitor);
+
     /// Raising errors
 
     /**
