@@ -61,23 +61,56 @@ class Field_Mapping
         $this->value_reader = $value_reader;
     }
 
+    public function get_value_reader()
+    {
+        return $this->value_reader;
+    }
+
     public function set_value_writter($value_writter)
     {
         $this->value_writter = $value_writter;
     }
 
+    public function get_value_writter()
+    {
+        return $this->value_writter;
+    }
+
+    /// Asking
+
+    public function reads_from_object()
+    {
+        return $this->value_reader !== null;
+    }
+
     /// Field values
 
-    public function get_mapped_value($raw_record, $database)
+    public function convert_value_from_db(
+            $raw_record, $field_name, $database, $object, $object_id, $value_writter
+        )
     {
-        if( ! isset( $raw_record[ $this->field_name ] ) ) {
-            return null;
+        if( $this->type === null ) {
+            return isset( $raw_record[ $field_name ] ) ? 
+                $raw_record[ $field_name ] : null;
         }
 
-        return $this->convert_value_from_db(
-            $raw_record[ $this->field_name ],
-            $database
+        return $this->type->convert_from_database(
+            $raw_record,
+            $field_name,
+            $database,
+            $object,
+            $object_id,
+            $value_writter
         );
+    }
+
+    public function convert_value_to_db($value, $database)
+    {
+        if( $this->type === null || $value === null ) {
+            return $value;
+        }
+
+        return $this->type->convert_to_database( $value, $database );
     }
 
     /**
@@ -90,16 +123,6 @@ class Field_Mapping
         }
 
         return $this->value_reader->read_value_from( $object );
-    }
-
-    public function convert_value_from_db($value, $database)
-    {
-        if( $this->type === null || $value === null ) {
-            return $value;
-        }
-
-        return $database->get_types_converter()
-                ->convert_from_database( $this->type, $value );
     }
 
     /**

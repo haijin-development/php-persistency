@@ -9,13 +9,13 @@ $spec->describe( "When building the order by statement of a sql expression", fun
         $this->clear_sqlite_tables();
 
         $this->sqlite->query(
-            "INSERT INTO users VALUES ( 1, 'Lisa', 'Simpson' );"
+            "INSERT INTO users VALUES ( 1, 'Lisa', 'Simpson', null );"
         );
         $this->sqlite->query(
-            "INSERT INTO users VALUES ( 2, 'Marge', 'Bouvier' );"
+            "INSERT INTO users VALUES ( 2, 'Marge', 'Bouvier', null );"
         );
         $this->sqlite->query(
-            "INSERT INTO users VALUES ( 3, 'Maggie', 'Simpson' );"
+            "INSERT INTO users VALUES ( 3, 'Maggie', 'Simpson', null );"
         );
 
     });

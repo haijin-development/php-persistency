@@ -64,13 +64,6 @@ class Sqlite_Methods
                 );"
             );
             $this->sqlite->query(
-                "CREATE TABLE `users` (
-                    `id` INTEGER PRIMARY KEY,
-                    `name` VARCHAR(45) NULL,
-                    `last_name` VARCHAR(45) NULL
-                );"
-            );
-            $this->sqlite->query(
                 "CREATE TABLE `address_1` (
                     `id` INTEGER PRIMARY KEY,
                     `id_user` INT NOT NULL,
@@ -92,6 +85,15 @@ class Sqlite_Methods
                 "CREATE TABLE `cities` (
                     `id` INTEGER PRIMARY KEY,
                     `name` VARCHAR(45) NULL
+                );"
+            );
+
+            $this->sqlite->query(
+                "CREATE TABLE `users` (
+                    `id` INTEGER PRIMARY KEY,
+                    `name` VARCHAR(45) NULL,
+                    `last_name` VARCHAR(45) NULL,
+                    `address_id` INTEGER NULL
                 );"
             );
             $this->sqlite->query(

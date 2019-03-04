@@ -103,13 +103,7 @@ $spec->describe( "When instantiating objects from a Elasticsearch database", fun
                 $collection->collection_name = "users";
 
                 $collection->instantiate_objects_with =
-                                        function($mapped_record, $raw_record) use($spec) {
-
-                    $spec->expect( $mapped_record ) ->to() ->be() ->array();
-
-                    $spec->expect( $mapped_record ) ->to() ->be() ->exactly_like([
-                        "id" => function($value) {},
-                     ]);
+                                                function($raw_record) use($spec) {
 
                     $spec->expect( $raw_record ) ->to() ->be() ->array();
 

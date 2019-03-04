@@ -9,13 +9,13 @@ $spec->describe( "When evaluating a delete statement in a MySql database", funct
         $this->clear_sqlite_tables();
 
         $this->sqlite->query(
-            "INSERT INTO users VALUES ( 1, 'Lisa', 'Simpson' );"
+            "INSERT INTO users VALUES ( 1, 'Lisa', 'Simpson', null );"
         );
         $this->sqlite->query(
-            "INSERT INTO users VALUES ( 2, 'Bart', 'Simpson' );"
+            "INSERT INTO users VALUES ( 2, 'Bart', 'Simpson', null );"
         );
         $this->sqlite->query(
-            "INSERT INTO users VALUES ( 3, 'Maggie', 'Simpson' );"
+            "INSERT INTO users VALUES ( 3, 'Maggie', 'Simpson', null );"
         );
 
     });

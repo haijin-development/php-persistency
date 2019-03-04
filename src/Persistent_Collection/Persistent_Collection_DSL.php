@@ -8,6 +8,10 @@ use \Haijin\Persistency\Persistent_Collection\Object_Accessors\Property_Accessor
 use \Haijin\Persistency\Persistent_Collection\Object_Accessors\Array_Accessor;
 use \Haijin\Persistency\Persistent_Collection\Object_Accessors\Closure_Accessor;
 
+use \Haijin\Persistency\Persistent_Collection\Field_Types\Value_Type;
+use \Haijin\Persistency\Persistent_Collection\Field_Types\Reference_To_Object_In_Collection_Type;
+use \Haijin\Persistency\Persistent_Collection\Field_Types\Reference_From_Object_In_Collection_Type;
+
 class Persistent_Collection_DSL
 {
     protected $persistent_collection;
@@ -97,7 +101,28 @@ class Persistent_Collection_DSL
 
     public function type($type)
     {
-        $this->current_field_mapping->set_type( $type );
+        $this->current_field_mapping->set_type( new Value_Type( $type ) );
+
+        return $this;
+    }
+
+    public function reference_to($persistent_collection)
+    {
+        $this->current_field_mapping->set_type(
+            new Reference_To_Object_In_Collection_Type( $persistent_collection )
+        );
+
+        return $this;
+    }
+
+    public function reference_from($other_persistent_collection, $other_id_field)
+    {
+        $this->current_field_mapping->set_type(
+            new Reference_From_Object_In_Collection_Type(
+                $other_persistent_collection,
+                $other_id_field
+            )
+        );
 
         return $this;
     }

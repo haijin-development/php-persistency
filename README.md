@@ -45,6 +45,8 @@ If you like it a lot you may contribute by [financing](https://github.com/haijin
                 3. [type](#c-2-2-4-4-3)
                 4. [read_with](#c-2-2-4-4-4)
                 5. [write_with](#c-2-2-4-4-5)
+                6. [reference_to($persistent_collection)](#c-2-2-4-4-6)
+                7. [reference_from($persistent_collection, $id_field)](#c-2-2-4-4-7)
         5. [Creating objects](#c-2-2-5)
             1. [create](#c-2-2-5-1)
             2. [create_from_attributes](#c-2-2-5-2)
@@ -1305,6 +1307,90 @@ public function definition($collection)
 }
 ```
 
+<a name="c-2-2-4-4-6"></a>
+##### reference_to($persistent_collection)
+
+Declares that a field has an id that references to an object in another `$persistent_collection`.
+
+Example:
+
+```php
+public function definition($collection)
+{
+    $collection->database = null;
+
+    $collection->collection_name = "users";
+
+    $collection->instantiate_objects_with = User::class;
+
+    $collection->field_mappings = function($mapping) {
+
+        $mapping->field( "id" ) ->is_primary_key()
+            ->read_with( "get_id()" )
+            ->write_with( "set_id()" );
+
+        $mapping->field( "name" )
+            ->read_with( "get_name()" )
+            ->write_with( "set_name()" );
+
+        $mapping->field( "last_name" )
+            ->read_with( "get_last_name()" )
+            ->write_with( "set_last_name()" );
+
+
+        $mapping->field( "address_id" )
+            ->reference_to( Addresses_Collection::class )
+            ->read_with( "get_address()" )
+            ->write_with( "set_address()" );
+    };
+
+}
+```
+
+<a name="c-2-2-4-4-7"></a>
+##### reference_from($persistent_collection, $id_field)
+
+A `has_one` relationship.
+
+Declares that a virtual field is referenced by an object in another `$persistent_collection` from its `$persistent_collection.id_field`.
+
+Example:
+
+```php
+public function definition($collection)
+{
+    $collection->database = null;
+
+    $collection->collection_name = "users";
+
+    $collection->instantiate_objects_with = User::class;
+
+    $collection->field_mappings = function($mapping) {
+
+        $mapping->field( "id" ) ->is_primary_key()
+            ->read_with( "get_id()" )
+            ->write_with( "set_id()" );
+
+        $mapping->field( "name" )
+            ->read_with( "get_name()" )
+            ->write_with( "set_name()" );
+
+        $mapping->field( "last_name" )
+            ->read_with( "get_last_name()" )
+            ->write_with( "set_last_name()" );
+
+        $mapping->field( "address" )
+            ->reference_from( 'Addresses_Collection', 'user_id' )
+            ->write_with( "set_address()" );
+    };
+
+}
+```
+
+Note that the `->field( "address" )` does not exist in the `users` table and does not have a `->read_with()` declaration. If the `->read_with()` would be present the library would try to read the field from the `$user` object and write it to the `users` table and an error will be raised.
+
+The declaration of the `$persistent_collection.id_field` is mandatory, the library does not assume any naming convention.
+
 <a name="c-2-2-5"></a>
 #### Creating objects
 
@@ -1993,11 +2079,11 @@ class Users_Persistent_Collection extends Persistent_Collection
                 ->write_with( "set_is_admin()" );
 
             $mapping->field( "address" )
-                ->one_referenced_from( Address_Collection::class, "id_user" )
+                ->reference_from( Address_Collection::class, "id_user" )
                 ->write_with( "set_address()" );
 
             $mapping->field( "books" )
-                ->many_referenced_from( Books_Collection::class, "id_user" )
+                ->many_reference_from( Books_Collection::class, "id_user" )
                 ->write_with( "set_books()" );
         };
     }
@@ -2068,11 +2154,11 @@ class Users_Persistent_Collection extends Persistent_Collection
                 ->write_with( "set_is_admin()" );
 
             $mapping->field( "address" )
-                ->one_referenced_from( Address_Collection::class, "id_user" )
+                ->reference_from( Address_Collection::class, "id_user" )
                 ->write_with( "set_address()" );
 
             $mapping->field( "books" )
-                ->many_referenced_from( Books_Collection::class, "id_user" )
+                ->many_reference_from( Books_Collection::class, "id_user" )
                 ->write_with( "set_books()" );
         };
     }

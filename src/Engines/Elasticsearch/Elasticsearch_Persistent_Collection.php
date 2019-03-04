@@ -115,7 +115,7 @@ class Elasticsearch_Persistent_Collection extends Persistent_Collection
 
     public function update($object)
     {
-        $record_values = $this->get_object_values_from( $object );
+        $record_values = $this->get_record_values_from( $object );
 
         $this->get_database()->update_by_id(
             $this->get_id_of( $object ),
