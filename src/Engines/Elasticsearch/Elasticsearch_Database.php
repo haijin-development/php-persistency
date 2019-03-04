@@ -39,17 +39,21 @@ class Elasticsearch_Database extends Database
         return parent::default_types_converter()->define( function($types_converter) {
 
             $types_converter->set_type_converter( "boolean", new Null_Converter() );
+
             $types_converter->set_type_converter( "date",
                 new Elasticsearch_DateTime_Converter()
             );
+
             $types_converter->set_type_converter(
                 "time",
                 new Elasticsearch_DateTime_Converter()
             );
+
             $types_converter->set_type_converter(
                 "date_time",
                 new Elasticsearch_DateTime_Converter()
             );
+
             $types_converter->set_type_converter(
                 "json",
                 new Null_Converter()
