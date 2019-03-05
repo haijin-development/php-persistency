@@ -51,37 +51,37 @@ class Postgresql_Methods
             pg_query(
                 $this->postgresql, 
                 "CREATE TABLE users_read_only (
-                    id INT PRIMARY KEY,
-                    name VARCHAR(45) NULL,
-                    last_name VARCHAR(45) NULL
+                    id integer PRIMARY KEY,
+                    name varchar(45) NULL,
+                    last_name varchar(45) NULL
                 );"
             );
 
             pg_query(
                 $this->postgresql, 
                 "CREATE TABLE address_1 (
-                    id INT PRIMARY KEY,
-                    id_user INT NOT NULL,
-                    id_city INT NOT NULL,
-                    street_name VARCHAR(45) NULL,
-                    street_number VARCHAR(45) NULL
+                    id integer PRIMARY KEY,
+                    id_user integer NOT NULL,
+                    id_city integer NOT NULL,
+                    street_name varchar(45) NULL,
+                    street_number varchar(45) NULL
                 );"
             );
             pg_query(
                 $this->postgresql, 
                 "CREATE TABLE address_2 (
-                    id INT PRIMARY KEY,
-                    id_user INT NOT NULL,
-                    id_city INT NOT NULL,
-                    street_name VARCHAR(45) NULL,
-                    street_number VARCHAR(45) NULL
+                    id integer PRIMARY KEY,
+                    id_user integer NOT NULL,
+                    id_city integer NOT NULL,
+                    street_name varchar(45) NULL,
+                    street_number varchar(45) NULL
                 );"
             );
             pg_query(
                 $this->postgresql, 
                 "CREATE TABLE cities (
-                    id INT PRIMARY KEY,
-                    name VARCHAR(45) NULL
+                    id int PRIMARY KEY,
+                    name varchar(45) NULL
                 );"
             );
 
@@ -89,8 +89,9 @@ class Postgresql_Methods
                 $this->postgresql, 
                 "CREATE TABLE users (
                     id SERIAL PRIMARY KEY,
-                    name VARCHAR(45) NULL,
-                    last_name VARCHAR(45) NULL
+                    name varchar(45) NULL,
+                    last_name varchar(45) NULL,
+                    address_id integer NULL
                 );"
             );
 

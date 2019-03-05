@@ -41,6 +41,7 @@ class Mysql_Methods
             $this->mysql->query( "DROP TABLE IF EXISTS cities;" );
 
             $this->mysql->query( "DROP TABLE IF EXISTS users;" );
+            $this->mysql->query( "DROP TABLE IF EXISTS addresses;" );
             $this->mysql->query( "DROP TABLE IF EXISTS types;" );
         });
 
@@ -87,6 +88,18 @@ class Mysql_Methods
                     `id` INT NOT NULL AUTO_INCREMENT,
                     `name` VARCHAR(45) NULL,
                     `last_name` VARCHAR(45) NULL,
+                    `address_id` INT NULL,
+                    PRIMARY KEY (`id`)
+                );"
+            );
+
+            $this->mysql->query(
+                "CREATE TABLE `haijin-persistency`.`addresses` (
+                    `id` INT NOT NULL AUTO_INCREMENT,
+                    `user_id` INT NULL,
+                    `street_1` VARCHAR(45) NULL,
+                    `street_2` VARCHAR(45) NULL,
+                    `city` INT NULL,
                     PRIMARY KEY (`id`)
                 );"
             );

@@ -100,20 +100,15 @@ $spec->describe( "When instantiating objects from a Postgresql database", functi
                 $collection->collection_name = "users";
 
                 $collection->instantiate_objects_with =
-                                        function($mapped_record, $raw_record) use($spec) {
-
-                    $spec->expect( $mapped_record ) ->to() ->be() ->array();
-
-                    $spec->expect( $mapped_record ) ->to() ->be() ->exactly_like([
-                        "id" => function($value) {},
-                     ]);
+                                                function($raw_record) use($spec) {
 
                     $spec->expect( $raw_record ) ->to() ->be() ->array();
 
                     $spec->expect( $raw_record ) ->to() ->be() ->exactly_like([
                         "id" => function($value) {},
                         "name" => function($value) {},
-                        "last_name" => function($value) {}
+                        "last_name" => function($value) {},
+                        "address_id" => function($value) {}
                      ]);
 
                     return new User( $raw_record[ "name" ], $raw_record["last_name"] );

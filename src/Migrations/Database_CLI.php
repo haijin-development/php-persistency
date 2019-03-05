@@ -31,8 +31,6 @@ class Database_CLI
             $app_mode = $argv[ 2 ];
         }
 
-        var_dump( $app_mode );
-
         require "src/Config/{$app_mode}/databases.php";
 
         $migrations_builder = $this->new_migrations_builder()

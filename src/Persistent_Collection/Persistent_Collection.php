@@ -103,13 +103,19 @@ class Persistent_Collection
         $this->raise_missing_primary_key_error();
     }
 
-    public function get_object_values_from($object)
+    public function get_record_values_from($object)
     {
         $values = [];
 
         foreach( $this->field_mappings as $field_mapping ) {
 
+            if( ! $field_mapping->reads_from_object() ) {
+                continue;
+            }
+
             $value = $field_mapping->read_value_from( $object );
+
+            $value = $field_mapping->convert_value_to_db( $value, $this->database );
 
             if( $field_mapping->is_primary_key() && $value === null ) {
                 continue;
@@ -359,7 +365,7 @@ class Persistent_Collection
 
     public function create($object)
     {
-        $record_values = $this->get_object_values_from( $object );
+        $record_values = $this->get_record_values_from( $object );
 
         $collection_name = $this->collection_name;
 
@@ -402,7 +408,13 @@ class Persistent_Collection
 
     public function create_from_attributes($attributes)
     {
-        $object = $this->instantiate_object( $attributes, $attributes );
+        if( ! is_array( $attributes ) ) {
+            throw new \RuntimeException(
+                "create_from_attributes() expects an associative array."
+            );
+        }
+
+        $object = $this->instantiate_object( $attributes );
 
         foreach( $this->field_mappings as $mapping ) {
 
@@ -427,6 +439,12 @@ class Persistent_Collection
 
     public function update_from_attributes($object, $attributes)
     {
+        if( ! is_array( $attributes ) ) {
+            throw new \RuntimeException(
+                "create_from_attributes() expects an associative array."
+            );
+        }
+
         foreach( $this->field_mappings as $mapping ) {
 
             $field_name = $mapping->get_field_name();
@@ -450,7 +468,7 @@ class Persistent_Collection
     {
         $id_field = $this->get_id_field();
         $id = $this->get_id_of( $object );
-        $record_values = $this->get_object_values_from( $object );
+        $record_values = $this->get_record_values_from( $object );
 
         $collection_name = $this->collection_name;
 
@@ -563,14 +581,26 @@ class Persistent_Collection
 
         $mapped_record = [];
 
+        $object = $this->instantiate_object( $raw_record );
+
+        $object_id = $raw_record[ $this->get_id_field() ];
+
         foreach( $this->field_mappings as $field_mapping ) {
 
-            $mapped_record[ $field_mapping->get_field_name() ] =
-                $field_mapping->get_mapped_value( $raw_record, $this->database );
+            $field_name = $field_mapping->get_field_name();
+
+            $mapped_value = $field_mapping->convert_value_from_db(
+                $raw_record,
+                $field_name,
+                $this->database,
+                $object,
+                $object_id,
+                $field_mapping->get_value_writter() 
+            );
+
+            $mapped_record[ $field_name ] = $mapped_value;
 
         }
-
-        $object = $this->instantiate_object( $raw_record, $mapped_record );
 
         foreach( $this->field_mappings as $field_mapping ) {
 
@@ -589,18 +619,18 @@ class Persistent_Collection
     /**
      * Maps a single record to a object.
      */
-    protected function instantiate_object($raw_record, $mapped_record)
+    protected function instantiate_object($raw_record)
     {
         if( is_string( $this->objects_instantiator ) ) {
             return Create::a( $this->objects_instantiator )->with();
         }
 
         if( is_a( $this->objects_instantiator, \Closure::class ) ) {
-            return $this->objects_instantiator->call( $this, $mapped_record, $raw_record );
+            return $this->objects_instantiator->call( $this, $raw_record );
         }
 
         if( $this->objects_instantiator === null ) {
-            return $mapped_record;
+            return $raw_record;
         }
 
         $this->raise_unkown_instantiator_error();

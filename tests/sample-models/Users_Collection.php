@@ -25,6 +25,16 @@ class Users_Persistent_Collection extends Persistent_Collection
             $mapping->field( "last_name" )
                 ->read_with( "get_last_name()" )
                 ->write_with( "set_last_name()" );
+
+
+            $mapping->field( "address_id" )
+                ->reference_to( 'Addresses_Collection' )
+                ->read_with( "get_address()" )
+                ->write_with( "set_address()" );
+
+            $mapping->field( "address_2" )
+                ->reference_from( 'Addresses_Collection', 'user_id' )
+                ->write_with( "set_address_2()" );
         };
 
     }

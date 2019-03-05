@@ -11,6 +11,89 @@ use Haijin\Persistency\Sql\Expression_Builders\Sql_Expression_Builder;
  */
 class Sql_Common_Expression_Builder_Base extends Sql_Expression_Builder
 {
+    protected $function_handlers;
+
+    /// Initializing
+
+    public function __construct($collected_parameters)
+    {
+        parent::__construct( $collected_parameters );
+
+        $this->function_handlers = [];
+
+        $this->definition();
+    }
+
+    /// Defining
+
+    public function definition()
+    {
+        $this->function_handlers[ 'is_null' ] = function($function_call_expression) {
+
+            $receiver = $function_call_expression->get_parameters()[0];
+
+            return $this->expression_sql_from( $receiver ) . " is null";
+
+        };
+
+        $this->function_handlers[ 'is_not_null' ] = function($function_call_expression) {
+
+            $receiver = $function_call_expression->get_parameters()[0];
+
+            return $this->expression_sql_from( $receiver ) . " is not null";
+
+        };
+
+        $this->function_handlers[ 'desc' ] = function($function_call_expression) {
+
+            $receiver = $function_call_expression->get_parameters()[0];
+
+            return $this->expression_sql_from( $receiver ) . " desc";
+
+        };
+
+        $this->function_handlers[ 'asc' ] = function($function_call_expression) {
+
+            $receiver = $function_call_expression->get_parameters()[0];
+
+            return $this->expression_sql_from( $receiver ) . " asc";
+
+        };
+
+        $this->function_handlers[ 'in' ] = function($function_call_expression) {
+
+            $sql = $this->visit( $function_call_expression->get_parameters()[0] );
+
+            $sql .= " in (";
+
+            $ids = [];
+            foreach( $function_call_expression->get_parameters()[ 1 ]->get_value() as $id ) {
+                $ids[] = $this->value_to_sql( $id );
+            }
+
+            $sql .= join( ", ", $ids );
+            $sql .= ")";
+
+            return $sql;
+
+        };
+
+        $this->function_handlers[ '_default' ] = function($function_call_expression) {
+
+            $sql = $this->escape_sql( $function_call_expression->get_function_name() );
+            $sql .= "(";
+
+            $sql .= $this->expressions_list(
+                $function_call_expression->get_parameters()
+            );
+
+            $sql .= ")";
+
+            return $sql;
+
+        };
+    }
+
     /// Visiting
 
     /**
@@ -78,75 +161,16 @@ class Sql_Common_Expression_Builder_Base extends Sql_Expression_Builder
     {
         $function_name = $function_call_expression->get_function_name();
 
-        if( in_array( $function_name, $this->special_sintax_functions() ) ) {
+        if( isset( $this->function_handlers[ $function_name ] ) ) {
 
-            return $this->special_sintax_function_sql(
-                $function_name,
-                $function_call_expression
-            );
+            $handler = $this->function_handlers[ $function_name ];
 
+            return $handler->call( $this, $function_call_expression );
         }
 
-        $sql = $this->escape_sql( $function_call_expression->get_function_name() );
-        $sql .= "(";
+        $handler = $this->function_handlers[ '_default' ];
 
-        $sql .= $this->expressions_list(
-            $function_call_expression->get_parameters()
-        );
-
-        $sql .= ")";
-
-        return $sql;
-    }
-
-    protected function special_sintax_functions()
-    {
-        return [
-            "is_null",
-            "is_not_null",
-            "desc",
-            "asc",
-            "in"
-        ];
-    }
-
-    protected function special_sintax_function_sql($function_name, $function_call_expression)
-    {
-        if( $function_name == "is_null" ) {
-            $receiver = $function_call_expression->get_parameters()[0];
-            return $this->expression_sql_from( $receiver ) . " is null";
-        }
-
-        if( $function_name == "is_not_null" ) {
-            $receiver = $function_call_expression->get_parameters()[0];
-            return $this->expression_sql_from( $receiver ) . " is not null";
-        }
-
-        if( $function_name == "desc" ) {
-            $receiver = $function_call_expression->get_parameters()[0];
-            return $this->expression_sql_from( $receiver ) . " desc";
-        }
-
-        if( $function_name == "asc" ) {
-            $receiver = $function_call_expression->get_parameters()[0];
-            return $this->expression_sql_from( $receiver ) . " asc";
-        }
-
-        if( $function_name == "in" ) {
-            $sql = $this->visit( $function_call_expression->get_parameters()[0] );
-
-            $sql .= " in (";
-
-            $ids = [];
-            foreach( $function_call_expression->get_parameters()[ 1 ]->get_value() as $id ) {
-                $ids[] = $this->value_to_sql( $id );
-            }
-
-            $sql .= join( ", ", $ids );
-            $sql .= ")";
-
-            return $sql;
-        }
+        return $handler->call( $this, $function_call_expression );
     }
 
     /**

@@ -227,7 +227,8 @@ $spec->describe( "When accessing object values", function() {
                             $spec->expect( $raw_record ) ->to() ->be() ->exactly_like([
                                 "id" => 1,
                                 "name" => "Margaret",
-                                "last_name" => "Simpson"
+                                "last_name" => "Simpson",
+                                "address_id" => null
                             ]);
 
                         });
