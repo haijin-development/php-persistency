@@ -108,33 +108,41 @@ class Persistent_Collection_DSL
         return $this;
     }
 
-    public function reference_to($persistent_collection)
+    public function reference_to(
+            $persistent_collection, $config = []
+        )
     {
         $this->current_field_mapping->set_type(
-            new Reference_To_Object_In_Collection_Type( $persistent_collection )
+            new Reference_To_Object_In_Collection_Type( $persistent_collection, $config )
         );
 
         return $this;
     }
 
-    public function reference_from($other_persistent_collection, $other_id_field)
+    public function reference_from(
+            $other_persistent_collection, $other_id_field, $config = []
+        )
     {
         $this->current_field_mapping->set_type(
             new Reference_From_Object_In_Collection_Type(
                 $other_persistent_collection,
-                $other_id_field
+                $other_id_field,
+                $config
             )
         );
 
         return $this;
     }
 
-    public function reference_collection_from($other_persistent_collection, $other_id_field)
+    public function reference_collection_from(
+            $other_persistent_collection, $other_id_field, $config = []
+        )
     {
         $this->current_field_mapping->set_type(
             new Reference_Collection_From_Collection_Type(
                 $other_persistent_collection,
-                $other_id_field
+                $other_id_field,
+                $config
             )
         );
 
@@ -142,7 +150,7 @@ class Persistent_Collection_DSL
     }
 
     public function reference_collection_through(
-            $middle_table, $left_id_field, $right_id_field, $other_collection
+            $middle_table, $left_id_field, $right_id_field, $other_collection, $config = []
         )
     {
         $this->current_field_mapping->set_type(
@@ -150,9 +158,17 @@ class Persistent_Collection_DSL
                 $middle_table,
                 $left_id_field,
                 $right_id_field,
-                $other_collection
+                $other_collection,
+                $config
             )
         );
+
+        return $this;
+    }
+
+    public function write_to_database($boolean)
+    {
+        $this->current_field_mapping->set_writes_to_database( $boolean );
 
         return $this;
     }

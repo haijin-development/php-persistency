@@ -59,7 +59,11 @@ $spec->describe( "When inspecting a statement of a Elasticsearch expression", fu
                 )
             );
 
-        }, [ 'ln' => 'Simpson' ]);
+        }, [
+            'parameters' => [
+                'ln' => 'Simpson'
+            ]
+        ]);
 
         $this->expect( $this->inspected_was_called ) ->to() ->be() ->true();
 

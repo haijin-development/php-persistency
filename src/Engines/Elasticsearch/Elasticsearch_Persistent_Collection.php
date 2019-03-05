@@ -8,14 +8,14 @@ class Elasticsearch_Persistent_Collection extends Persistent_Collection
 {
     /// Querying
 
-    public function find_by_id($id)
+    public function find_by_id($id, $named_parameters = [])
     {
         return $this->record_to_object(
             $this->get_database()->find_by_id( $id, $this->collection_name )
         );
     }
 
-    public function find_by($field_values)
+    public function find_by($field_values, $named_parameters = [])
     {
         $found_objects = $this->all( function($query) use($field_values) {
 
@@ -46,7 +46,7 @@ class Elasticsearch_Persistent_Collection extends Persistent_Collection
         $this->raise_more_than_one_record_found_error( $found_count );
     }
 
-    public function find_all_by_ids($ids_collection)
+    public function find_all_by_ids($ids_collection, $named_parameters = [])
     {
         return $this->all( function($query) use($ids_collection) {
 

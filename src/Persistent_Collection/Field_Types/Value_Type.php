@@ -2,7 +2,7 @@
 
 namespace Haijin\Persistency\Persistent_Collection\Field_Types;
 
-class Value_Type
+class Value_Type extends Abstract_Type
 {
     protected $type;
 
@@ -12,6 +12,15 @@ class Value_Type
     {
         $this->type = $type;
     }
+
+    /// Asking
+
+    public function references_other_collection()
+    {
+        return false;
+    }
+
+    /// Converting
 
     public function convert_from_database(
             $raw_record, $owner_object, $owner_field, $owners_collection, $database

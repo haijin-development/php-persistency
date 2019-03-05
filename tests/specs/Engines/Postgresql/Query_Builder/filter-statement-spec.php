@@ -318,7 +318,9 @@ $spec->describe( "When building the filter statement of a Postgresql expression"
             );
         },
         [
-            "name" => "Maggie"
+            'parameters' => [
+                "name" => "Maggie"
+            ]
         ]);
 
         $this->expect( $rows ) ->to() ->be() ->exactly_like([
@@ -385,7 +387,11 @@ $spec->describe( "When building the filter statement of a Postgresql expression"
 
             });
 
-            $rows = $this->database->execute( $compiled_statement, [ "name" => "Lisa" ] );
+            $rows = $this->database->execute( $compiled_statement, [
+                'parameters' => [
+                    "name" => "Lisa"
+                ]
+            ]);
 
             $this->expect( $rows ) ->to() ->be() ->exactly_like([
                 [
@@ -395,7 +401,11 @@ $spec->describe( "When building the filter statement of a Postgresql expression"
                 ]
             ]);
 
-            $rows = $this->database->execute( $compiled_statement, [ "name" => "Maggie" ] );
+            $rows = $this->database->execute( $compiled_statement, [
+                'parameters' => [
+                    "name" => "Maggie"
+                ]
+            ]);
 
             $this->expect( $rows ) ->to() ->be() ->exactly_like([
                 [

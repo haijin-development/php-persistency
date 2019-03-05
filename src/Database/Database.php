@@ -192,6 +192,37 @@ abstract class Database
     /// Executing statements
 
     /**
+     * Executes the $compiled_statement with the database server.
+     * Returns the result of the execution.
+     *
+     * @param Haijin\Persistency\Statement_Compiler\Expression $compiled_statement A statement.
+     * @param array $named_parameters An associative array of the named parameters values
+     *      referenced in the statement.
+     *
+     * @return array An associative array with the results of the query execution.
+     */
+    public function execute($compiled_statement, $named_parameters = [])
+    {
+        $this->validate_named_parameters( $named_parameters );
+
+        if( ! isset( $named_parameters[ 'parameters' ] ) ) {
+            $named_parameters[ 'parameters' ] = [];
+        }
+
+        $this->validate_connection_handle();
+
+        return Global_Factory::with_factory_do( function($factory)
+                                        use($compiled_statement, $named_parameters) {
+
+            $this->set_instantiators_during_execution( $factory );
+
+            return $compiled_statement->execute_in( $this, $named_parameters );
+
+        }, $this );
+
+    }
+
+    /**
      * Executes the $query_statement.
      * Returns the result of the execution.
      */
@@ -245,31 +276,6 @@ abstract class Database
     abstract public function begin_transaction();
     abstract public function commit_transaction();
     abstract public function rollback_transaction();
-
-    /**
-     * Executes the $compiled_statement with the database server.
-     * Returns the result of the execution.
-     *
-     * @param Haijin\Persistency\Statement_Compiler\Expression $compiled_statement A statement.
-     * @param array $named_parameters An associative array of the named parameters values
-     *      referenced in the statement.
-     *
-     * @return array An associative array with the results of the query execution.
-     */
-    public function execute($compiled_statement, $named_parameters = [])
-    {
-        $this->validate_connection_handle();
-
-        return Global_Factory::with_factory_do( function($factory)
-                                        use($compiled_statement, $named_parameters) {
-
-            $this->set_instantiators_during_execution( $factory );
-
-            return $compiled_statement->execute_in( $this, $named_parameters );
-
-        }, $this );
-
-    }
 
     protected function set_instantiators_during_execution($factory)
     {
@@ -326,6 +332,13 @@ abstract class Database
         }
     }
 
+    protected function validate_named_parameters($named_parameters)
+    {
+        if( ! is_array( $named_parameters ) ) {
+            $this->raise_invalid_named_parameter_error();
+        }
+    }
+
     /// Double disptach
 
     abstract public function visit($visitor);
@@ -373,6 +386,13 @@ abstract class Database
         throw Create::a( Named_Parameter_Not_Found_Error::class )->with(
             "The query named parameter '{$parameter_name}' was not found.",
             $parameter_name
+        );
+    }
+
+    protected function raise_invalid_named_parameter_error()
+    {
+        throw new \RuntimeException(
+            "Expected parameter to be an associative array"
         );
     }
 }

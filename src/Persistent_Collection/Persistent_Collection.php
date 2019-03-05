@@ -84,6 +84,10 @@ class Persistent_Collection
 
     public function get_field_mapping_at($field_name)
     {
+        if( ! isset( $this->field_mappings[ $field_name ] ) ) {
+            $this->raise_field_mapping_not_found_error( $field_name );
+        }
+
         return $this->field_mappings[ $field_name ];
     }
 
@@ -114,7 +118,7 @@ class Persistent_Collection
 
         foreach( $this->field_mappings as $field_mapping ) {
 
-            if( ! $field_mapping->reads_from_object() ) {
+            if( $field_mapping->writes_to_database() === false ) {
                 continue;
             }
 
@@ -135,14 +139,14 @@ class Persistent_Collection
 
     /// Searching
 
-    public function find_by_id($id)
+    public function find_by_id($id, $named_parameters = [])
     {
         return $this->find_by([
             $this->get_id_field() => $id
         ]);
     }
 
-    public function find_all_by_ids($ids_collection)
+    public function find_all_by_ids($ids_collection, $named_parameters = [])
     {
         $id_field = $this->get_id_field();
 
@@ -155,7 +159,9 @@ class Persistent_Collection
         });
     }
 
-    public function find_by_id_if_absent($id, $absent_closure, $binding = null)
+    public function find_by_id_if_absent(
+            $id, $absent_closure, $named_parameters = [], $binding = null
+        )
     {
         $object = $this->find_by_id( $id );
 
@@ -170,7 +176,7 @@ class Persistent_Collection
         return $absent_closure->call( $binding, $id );
     }
 
-    public function find_by($field_values)
+    public function find_by($field_values, $named_parameters = [])
     {
         $found_objects = $this->all( function($query) use($field_values) {
 
@@ -213,7 +219,9 @@ class Persistent_Collection
         $this->raise_more_than_one_record_found_error($found_count);
     }
 
-    public function find_by_if_absent($field_values, $absent_closure, $binding = null)
+    public function find_by_if_absent(
+            $field_values, $absent_closure, $named_parameters = [], $binding = null
+        )
     {
         $object = $this->find_by( $field_values );
 
@@ -268,7 +276,9 @@ class Persistent_Collection
 
         }, $named_parameters, $binding );
 
-        return $this->records_to_objects( $records );
+        $objects = $this->records_to_objects( $records );
+
+        return $this->process_returned_objects( $objects, $named_parameters );
     }
 
     /**
@@ -294,12 +304,7 @@ class Persistent_Collection
 
         }
 
-        $collection_name = $this->collection_name;
-
-        $records = $this->get_database()->query( function($query)
-                                            use($collection_name, $filter_closure) {
-
-            $query->collection( $collection_name );
+        $objects = $this->all( function($query) use($filter_closure) {
 
             if( $filter_closure !== null ) {
 
@@ -313,11 +318,11 @@ class Persistent_Collection
 
         }, $named_parameters, $binding );
 
-        if( empty( $records ) ) {
+        if( empty( $objects ) ) {
             return null;
         }
 
-        return $this->record_to_object( $records[ 0 ] );
+        return $objects[ 0 ];
     }
 
     /**
@@ -425,7 +430,7 @@ class Persistent_Collection
     {
         if( ! is_array( $record_values ) ) {
             throw new \RuntimeException(
-                "create_from_attributes() expects an associative array."
+                "insert_record() expects an associative array."
             );
         }
 
@@ -659,6 +664,24 @@ class Persistent_Collection
         $this->raise_unkown_instantiator_error();
     }
 
+    protected function process_returned_objects($objects, $named_parameters)
+    {
+        if( ! isset( $named_parameters[ 'eager_fetch'] ) ) {
+            return $objects;
+        }
+
+        return $this->eager_fetch( $objects, $named_parameters[ 'eager_fetch' ] );
+    }
+
+    protected function eager_fetch($objects, $fetch_spec)
+    {
+        $eager_fetcher = new Eager_Fetcher();
+
+        $eager_fetcher->resolve_references_in_collection( $this, $objects, $fetch_spec );
+
+        return $objects;
+    }
+
     /// Raising errors
 
     protected function raise_missing_primary_key_error()
@@ -674,5 +697,14 @@ class Persistent_Collection
     protected function raise_more_than_one_record_found_error($found_count)
     {
         throw new Persistency_Error( "Expected one record, found {$found_count}." );
+    }
+
+    protected function raise_field_mapping_not_found_error($field_name)
+    {
+        $class_name = get_class( $this );
+
+        throw new \RuntimeException(
+            "Field mapping at field '{$field_name}' in class {$class_name} not found."
+        );        
     }
 }

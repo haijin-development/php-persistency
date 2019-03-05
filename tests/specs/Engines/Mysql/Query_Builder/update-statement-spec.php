@@ -432,8 +432,10 @@ $spec->describe( "When evaluating an update statement in a MySql database", func
             );
 
         }, [
-            "name" => "Margaret",
-            "last_name" => "simpson"
+            'parameters' => [
+                "name" => "Margaret",
+                "last_name" => "simpson"
+            ]
         ]);
 
         $rows = $this->database->query( function($query) {
@@ -488,8 +490,10 @@ $spec->describe( "When evaluating an update statement in a MySql database", func
         });
 
         $this->database->execute( $compiled_statement, [
-            "name" => "Margaret",
-            "last_name" => "simpson"
+            'parameters' => [
+                "name" => "Margaret",
+                "last_name" => "simpson"
+            ]
         ]);
 
         $rows = $this->database->query( function($query) {
@@ -522,8 +526,10 @@ $spec->describe( "When evaluating an update statement in a MySql database", func
 
 
         $this->database->execute( $compiled_statement, [
-            "name" => "margaret",
-            "last_name" => "simpson"
+            'parameters' => [
+                "name" => "margaret",
+                "last_name" => "simpson"
+            ]
         ]);
 
         $rows = $this->database->query( function($query) {

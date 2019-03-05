@@ -11,13 +11,21 @@ class Object_In_Collection_Proxy extends Reference_Proxy
 
     public function __construct(
             $persistent_collection, $object_id,
-            $owner_object, $owner_field, $owners_collection
+            $owner_object, $owner_field, $owners_collection,
+            $config
         )
     {
-        parent::__construct( $owner_object, $owner_field, $owners_collection );
+        parent::__construct( $owner_object, $owner_field, $owners_collection, $config );
 
         $this->persistent_collection = $persistent_collection;
         $this->object_id = $object_id;
+    }
+
+    /// Accessing
+
+    public function get_object_id()
+    {
+        return $this->object_id;
     }
 
     /// Resolving reference

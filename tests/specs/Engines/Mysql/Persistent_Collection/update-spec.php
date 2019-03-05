@@ -157,7 +157,12 @@ $spec->describe( "When updating an object in a Persistent_Collection in a MySql 
 
             );
 
-        }, [ "last_name" => "simpson", "id" => 2 ] );
+        }, [
+            'parameters' => [
+                "last_name" => "simpson",
+                "id" => 2
+            ]
+        ]);
 
         $users = Users_Collection::get()->all();
 

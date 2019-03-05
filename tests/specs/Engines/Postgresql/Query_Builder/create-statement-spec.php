@@ -294,8 +294,10 @@ $spec->describe( "When evaluating a create statement in a Postgresql database", 
             );
 
         }, [
-            "name" => "Homer",
-            "last_name" => "Simpson"
+            'parameters' => [
+                "name" => "Homer",
+                "last_name" => "Simpson"
+            ]
         ]);
 
         $rows = $this->database->query( function($query) {
@@ -336,13 +338,17 @@ $spec->describe( "When evaluating a create statement in a Postgresql database", 
         });
 
         $this->database->execute( $compiled_statement, [
-            "name" => "Homer",
-            "last_name" => "Simpson"
+            'parameters' => [
+                "name" => "Homer",
+                "last_name" => "Simpson"
+            ]
         ]);
 
         $this->database->execute( $compiled_statement, [
-            "name" => "Marge",
-            "last_name" => "Simpson"
+            'parameters' => [
+                "name" => "Marge",
+                "last_name" => "Simpson"
+            ]
         ]);
 
         $rows = $this->database->query( function($query) {

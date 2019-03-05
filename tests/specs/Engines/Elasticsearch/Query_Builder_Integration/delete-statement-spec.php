@@ -141,7 +141,9 @@ $spec->describe( "When evaluating a delete statement in a Elasticsearch database
             );
 
         }, [
-            "name" => "Maggie"
+            'parameters' => [
+                "name" => "Maggie"
+            ]
         ]);
 
         $rows = $this->database->query( function($query) {
@@ -189,7 +191,9 @@ $spec->describe( "When evaluating a delete statement in a Elasticsearch database
         });
 
         $this->database->execute( $compiled_query, [
-            "name" => "Maggie"
+            'parameters' => [
+                "name" => "Maggie"
+            ]
         ]);
 
         $rows = $this->database->query( function($query) {
@@ -217,7 +221,9 @@ $spec->describe( "When evaluating a delete statement in a Elasticsearch database
 
 
         $this->database->execute( $compiled_query, [
-            "name" => "Bart"
+            'parameters' => [
+                "name" => "Bart"
+            ]
         ]);
 
         $rows = $this->database->query( function($query) {

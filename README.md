@@ -326,7 +326,11 @@ $database->query( function($query) {
         $query ->field( "name" ) ->op( "=" ) ->param( "q" )
     );
 
-}, [ "q" => "Lisa" ] );
+}, [ 
+    "parameters" => [
+        "q" => "Lisa"
+    ]
+]);
 ```
 
 Or compile the query once and execute many times with different values:
@@ -350,9 +354,17 @@ $compiled_statement = $database->compile( function($compiler) {
 });
 
 
-$rows = $database->execute( $compiled_statement, [ "q" => "Lisa" ] );
+$rows = $database->execute( $compiled_statement, [ 
+    "parameters" => [
+        "q" => "Lisa"
+    ]
+]);
 
-$rows = $database->execute( $compiled_statement, [ "q" => "Bart" ] );
+$rows = $database->execute( $compiled_statement, [ 
+    "parameters" => [
+        "q" => "Bart"
+    ]
+]);
 ```
 
 
@@ -1389,8 +1401,6 @@ public function definition($collection)
 }
 ```
 
-Note that the `->field( "address" )` does not exist in the `users` table and does not have a `->read_with()` declaration. If the `->read_with()` would be present the library would try to read the field from the `$user` object and write it to the `users` table and an error will be raised.
-
 The declaration of the `$persistent_collection.id_field` is mandatory, the library does not assume any naming convention.
 
 <a name="c-2-2-4-4-8"></a>
@@ -1432,8 +1442,6 @@ public function definition($collection)
 
 }
 ```
-
-Note that the `->field( "addresses" )` does not exist in the `users` table and does not have a `->read_with()` declaration. If the `->read_with()` would be present the library would try to read the field from the `$user` object and write it to the `users` table and an error will be raised.
 
 The declaration of the `$persistent_collection.id_field` is mandatory, the library does not assume any naming convention.
 
@@ -1486,9 +1494,7 @@ public function definition($collection)
 }
 ```
 
-Note that the `->field( "addresses" )` does not exist in the `users` table and does not have a `->read_with()` declaration. If the `->read_with()` would be present the library would try to read the field from the `$user` object and write it to the `users` table and an error will be raised.
-
-Also note that the the first parameter of `->reference_collection_through` is the middle table name, not a `Persistent_Collection`. That is not to force the creation of a `Persistent_Collection` class for a middle table that implements a `many to many` relationship but does not persist an actual object.
+Note that the the first parameter of `->reference_collection_through` is the middle table name, not a `Persistent_Collection`. That is not to force the creation of a `Persistent_Collection` class for a middle table that implements a `many to many` relationship but does not persist an actual object.
 
 The declaration of all of  fields in `->reference_collection_through` is mandatory, the library does not assume any naming convention.
 
@@ -1594,7 +1600,12 @@ Users_Collection::do()->update_all( function($query) {
 
     );
 
-}, [ "last_name" => "simpson", "id" => 2 ] );
+}, [
+    "parameters" => [
+        "last_name" => "simpson",
+        "id" => 2
+    ]
+]);
 ```
 
 <a name="c-2-2-7"></a>
@@ -1639,7 +1650,11 @@ Users_Collection::do()->delete_all( function($query) {
 
     );
 
-}, [ "id" => 2 ] );
+}, [
+    "parameters" => [
+        "id" => 2
+    ]
+]);
 ```
 
 <a name="c-2-2-7-3"></a>
@@ -1786,7 +1801,11 @@ $count = Users_Collection::get()->count( function($query) {
 
     );
 
-}, [ "ln" => "Simpson" ] );
+}, [
+    "parameters" => [
+        "ln" => "Simpson"
+    ]
+]);
 ```
 
 <a name="c-2-2-10"></a>
@@ -1822,7 +1841,11 @@ $users = Users_Collection::get()->all( function($query) {
 
     );
 
-}, [ "ln" => "Simpson" ] );
+}, [
+    "parameters" => [
+        "ln" => "Simpson"
+    ]
+]);
 ```
 
 Get all the objects in the collection. Mostly useful when testing:
@@ -1872,7 +1895,11 @@ $user = Users_Collection::get()->first( function($query) {
 
     );
 
-}, [ "ln" => "Simpson" ] );
+}, [
+    "parameters" => [
+        "ln" => "Simpson"
+    ]
+]);
 ```
 
 

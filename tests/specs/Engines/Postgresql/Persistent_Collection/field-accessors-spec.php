@@ -283,4 +283,58 @@ $spec->describe( "When accessing object values", function() {
 
     });
 
+    $this->describe( "when disabling the field with ->write_to_database( false ) ", function() {
+
+        $this->it( "does not write the value to the database", function() {
+
+            $db = $this->database;
+
+            $this->users_collection->define( function($collection) use($db) {
+
+                $collection->database = $db;
+
+                $collection->collection_name = "users";
+
+                $collection->instantiate_objects_with = User::class;
+
+                $collection->field_mappings = function($mapping) {
+
+                    $mapping->field( "id" ) ->is_primary_key()
+                        ->read_with( "get_id()" )
+                        ->write_with( "set_id()" );
+
+                    $mapping->field( "name" )
+                        ->write_to_database( false )
+                        ->read_with( "get_name()" )
+                        ->write_with( "set_name()" );
+
+                    $mapping->field( "last_name" )
+                        ->read_with( "get_last_name()" )
+                        ->write_with( "set_last_name()" );
+                };
+
+            });
+
+            $user = new User();
+
+            $user->set_id( 1 );
+            $user->set_name( "Margaret" );
+            $user->set_last_name( "Simpson" );
+
+            $this->users_collection->create( $user );
+
+            $user = $this->users_collection->last();
+
+            $this->expect( $user ) ->to() ->be() ->a( User::class );
+
+            $this->expect( $user ) ->to() ->be() ->exactly_like([
+                "get_id()" => 1,
+                "get_name()" => null,
+                "get_last_name()" => "Simpson"
+            ]);
+
+        });
+
+    });
+
 });

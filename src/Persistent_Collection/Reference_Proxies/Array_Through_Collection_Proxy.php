@@ -15,10 +15,11 @@ class Array_Through_Collection_Proxy extends Reference_Proxy
 
     public function __construct(
             $middle_table, $left_id_field, $right_id_field, $other_collection,
-            $owner_object, $owner_field, $owners_collection
+            $owner_object, $owner_field, $owners_collection,
+            $config
         )
     {
-        parent::__construct( $owner_object, $owner_field, $owners_collection );
+        parent::__construct( $owner_object, $owner_field, $owners_collection, $config );
 
         $this->middle_table = $middle_table;
         $this->left_id_field = $left_id_field;

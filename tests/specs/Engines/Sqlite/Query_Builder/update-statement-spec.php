@@ -432,8 +432,10 @@ $spec->describe( "When evaluating an update statement in a SQlite database", fun
             );
 
         }, [
-            "name" => "Margaret",
-            "last_name" => "simpson"
+            'parameters' => [
+                "name" => "Margaret",
+                "last_name" => "simpson"
+            ]
         ]);
 
         $rows = $this->database->query( function($query) {
@@ -488,8 +490,10 @@ $spec->describe( "When evaluating an update statement in a SQlite database", fun
         });
 
         $this->database->execute( $compiled_statement, [
-            "name" => "Margaret",
-            "last_name" => "simpson"
+            'parameters' => [
+                "name" => "Margaret",
+                "last_name" => "simpson"
+        ]
         ]);
 
         $rows = $this->database->query( function($query) {
@@ -523,8 +527,10 @@ $spec->describe( "When evaluating an update statement in a SQlite database", fun
 
 
         $this->database->execute( $compiled_statement, [
-            "name" => "margaret",
-            "last_name" => "simpson"
+            'parameters' => [
+                "name" => "margaret",
+                "last_name" => "simpson"
+            ]
         ]);
 
         $rows = $this->database->query( function($query) {

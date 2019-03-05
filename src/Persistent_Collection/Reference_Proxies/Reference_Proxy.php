@@ -7,14 +7,17 @@ abstract class Reference_Proxy
     protected $owner_object;
     protected $owner_field;
     protected $owners_collection;
+    protected $config;
 
     /// Initializing
 
-    public function __construct($owner_object, $owner_field, $owners_collection)
+    public function __construct($owner_object, $owner_field, $owners_collection, $config)
     {
         $this->owner_object = $owner_object;
         $this->owner_field = $owner_field;
         $this->owners_collection = $owners_collection;
+
+        $this->config = $config;
     }
 
     /// Resolving reference
@@ -59,6 +62,8 @@ abstract class Reference_Proxy
 
     public function __call($method_name, $params)
     {
+        $this->validate_lazy_resolution();
+
         return $this->resolve_reference()->$method_name( ...$params );
     }
 
@@ -70,5 +75,28 @@ abstract class Reference_Proxy
     public function __get($property_name)
     {
         return $this->resolve_reference()->$property_name;
+    }
+
+    protected function validate_lazy_resolution()
+    {
+        if( isset( $this->config[ 'lazy_fetch_warning' ] ) && 
+            $this->config[ 'lazy_fetch_warning' ] === true ) {
+
+            $collection_name = get_class( $this->owners_collection );
+
+            trigger_error(
+                "The mapping '{$collection_name}.{$this->owner_field}' was lazyly resolved."
+            );
+        }
+
+        if( isset( $this->config[ 'lazy_fetch_error' ] ) && 
+            $this->config[ 'lazy_fetch_error' ] === true ) {
+
+            $collection_name = get_class( $this->owners_collection );
+
+            throw new \RuntimeException(
+                "The mapping '{$collection_name}.{$this->owner_field}' was lazyly resolved."
+            );
+        }
     }
 }

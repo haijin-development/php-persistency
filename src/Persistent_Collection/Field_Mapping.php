@@ -10,6 +10,7 @@ class Field_Mapping
     protected $field_name;
     protected $is_primary_key;
     protected $type;
+    protected $writes_to_database;
     protected $value_reader;
     protected $value_writter;
 
@@ -20,6 +21,7 @@ class Field_Mapping
         $this->field_name = $field_name;
         $this->is_primary_key = false;
         $this->type = null;
+        $this->writes_to_database = true;
         $this->value_reader = null;
         $this->value_writter = null;
     }
@@ -56,6 +58,11 @@ class Field_Mapping
         $this->type = $type;
     }
 
+    public function set_writes_to_database($boolean)
+    {
+        $this->writes_to_database = $boolean;
+    }
+
     public function set_value_reader($value_reader)
     {
         $this->value_reader = $value_reader;
@@ -76,11 +83,29 @@ class Field_Mapping
         return $this->value_writter;
     }
 
+    public function get_referenced_collection()
+    {
+        return $this->type->get_referenced_collection();
+    }
+
     /// Asking
 
-    public function reads_from_object()
+    public function writes_to_database()
     {
-        return $this->value_reader !== null;
+        if( $this->type === null ) {
+            return $this->writes_to_database;
+        }
+
+        return $this->type->can_write_to_database() && $this->writes_to_database;
+    }
+
+    public function references_other_collection()
+    {
+        if( $this->type === null ) {
+            return false;
+        }
+
+        return $this->type->references_other_collection();
     }
 
     /// Field values

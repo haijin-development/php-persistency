@@ -98,7 +98,11 @@ $spec->describe( "When deleting an object from a Persistent_Collection in a Sqli
                 $query->field( "id" ) ->op( "<=" ) ->param( "id" )
             );
 
-        }, [ "id" => 2 ] );
+        }, [
+            'parameters' => [
+                "id" => 2
+            ]
+        ]);
 
         $users = Users_Collection::get()->all();
 

@@ -158,6 +158,10 @@ class Elasticsearch_Database extends Database
      */
     public function count($filter_closure = null, $named_parameters = [], $binding = null)
     {
+        if( ! isset( $named_parameters[ 'parameters' ] ) ) {
+            $named_parameters[ 'parameters' ] = [];
+        }
+
         $query_statement = $this->compile(
                                 function($compiler) use($filter_closure, $binding) {
 
@@ -175,7 +179,7 @@ class Elasticsearch_Database extends Database
 
         $body = $this->replace_named_parameters_in(
             $elastic_query->get_body(),
-            $named_parameters
+            $named_parameters[ 'parameters' ]
         );
 
         $count_parameters =[
@@ -214,7 +218,7 @@ class Elasticsearch_Database extends Database
 
         $body = $this->replace_named_parameters_in(
             $elastic_query->get_body(),
-            $named_parameters
+            $named_parameters[ 'parameters' ]
         );
 
         $search_parameters =[
@@ -331,7 +335,7 @@ class Elasticsearch_Database extends Database
 
         $body_object = $this->replace_named_parameters_in(
             $elastic_query->get_body(),
-            $named_parameters
+            $named_parameters[ 'parameters' ]
         );
 
         $body = [];
@@ -400,7 +404,7 @@ class Elasticsearch_Database extends Database
 
         $body = $this->replace_named_parameters_in(
             $elastic_query->get_body(),
-            $named_parameters
+            $named_parameters[ 'parameters' ]
         );
 
         $delete_parameters = [

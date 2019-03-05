@@ -13,10 +13,10 @@ class Array_From_Collection_Proxy extends Reference_Proxy
 
     public function __construct(
             $persistent_collection, $id_field,
-            $owner_object, $owner_field, $owners_collection
+            $owner_object, $owner_field, $owners_collection, $config
         )
     {
-        parent::__construct( $owner_object, $owner_field, $owners_collection );
+        parent::__construct( $owner_object, $owner_field, $owners_collection, $config );
 
         $this->persistent_collection = $persistent_collection;
         $this->id_field = $id_field;
