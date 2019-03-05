@@ -7,6 +7,8 @@ class User
     protected $last_name;
     protected $address;
     protected $address_2;
+    protected $all_addresses;
+    protected $all_indirect_addresses;
 
     public function __construct($name = null, $last_name = null)
     {
@@ -15,6 +17,8 @@ class User
         $this->last_name = $last_name;
         $this->address = null;
         $this->address_2 = null;
+        $this->all_addresses = [];
+        $this->all_indirect_addresses = [];
     }
 
     public function get_id()
@@ -65,5 +69,25 @@ class User
     public function set_address_2($address)
     {
         $this->address_2 = $address;
+    }
+
+    public function get_all_addresses()
+    {
+        return $this->all_addresses;
+    }
+
+    public function set_all_addresses($addresses)
+    {
+        $this->all_addresses = $addresses;
+    }
+
+    public function set_all_indirect_addresses($addresses)
+    {
+        $this->all_indirect_addresses = $addresses;
+    }
+
+    public function get_all_indirect_addresses()
+    {
+        return $this->all_indirect_addresses;
     }
 }

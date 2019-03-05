@@ -47,6 +47,8 @@ If you like it a lot you may contribute by [financing](https://github.com/haijin
                 5. [write_with](#c-2-2-4-4-5)
                 6. [reference_to($persistent_collection)](#c-2-2-4-4-6)
                 7. [reference_from($persistent_collection, $id_field)](#c-2-2-4-4-7)
+                8. [reference_collection_from($persistent_collection, $id_field)](#c-2-2-4-4-8)
+                9. [reference_collection_through($middle_table, $left_id_field, $right_id_field, $other_collection)](#c-2-2-4-4-9)
         5. [Creating objects](#c-2-2-5)
             1. [create](#c-2-2-5-1)
             2. [create_from_attributes](#c-2-2-5-2)
@@ -1390,6 +1392,113 @@ public function definition($collection)
 Note that the `->field( "address" )` does not exist in the `users` table and does not have a `->read_with()` declaration. If the `->read_with()` would be present the library would try to read the field from the `$user` object and write it to the `users` table and an error will be raised.
 
 The declaration of the `$persistent_collection.id_field` is mandatory, the library does not assume any naming convention.
+
+<a name="c-2-2-4-4-8"></a>
+##### reference_collection_from($persistent_collection, $id_field)
+
+A `has_many` relationship.
+
+Declares that a virtual field is referenced by a collection of objects in another `$persistent_collection` from its `$persistent_collection.id_field`.
+
+Example:
+
+```php
+public function definition($collection)
+{
+    $collection->database = null;
+
+    $collection->collection_name = "users";
+
+    $collection->instantiate_objects_with = User::class;
+
+    $collection->field_mappings = function($mapping) {
+
+        $mapping->field( "id" ) ->is_primary_key()
+            ->read_with( "get_id()" )
+            ->write_with( "set_id()" );
+
+        $mapping->field( "name" )
+            ->read_with( "get_name()" )
+            ->write_with( "set_name()" );
+
+        $mapping->field( "last_name" )
+            ->read_with( "get_last_name()" )
+            ->write_with( "set_last_name()" );
+
+        $mapping->field( "addresses" )
+            ->reference_collection_from( 'Addresses_Collection', 'user_id' )
+            ->write_with( "set_addresses()" );
+    };
+
+}
+```
+
+Note that the `->field( "addresses" )` does not exist in the `users` table and does not have a `->read_with()` declaration. If the `->read_with()` would be present the library would try to read the field from the `$user` object and write it to the `users` table and an error will be raised.
+
+The declaration of the `$persistent_collection.id_field` is mandatory, the library does not assume any naming convention.
+
+<a name="c-2-2-4-4-9"></a>
+##### reference_collection_through($middle_table, $left_id_field, $right_id_field, $other_collection
+
+A `many_to_many` relationship.
+
+Declares that a virtual field is referenced by a collection of objects in `$other_collection` through a `$middle_table`.
+
+```
+main_collection_name.primary_key == middle_table_name.left_id_field
+
+&&
+
+middle_table_name.right_id_field == other_collection.primary_key
+```
+
+Example:
+
+```php
+public function definition($collection)
+{
+    $collection->database = null;
+
+    $collection->collection_name = "users";
+
+    $collection->instantiate_objects_with = User::class;
+
+    $collection->field_mappings = function($mapping) {
+
+        $mapping->field( "id" ) ->is_primary_key()
+            ->read_with( "get_id()" )
+            ->write_with( "set_id()" );
+
+        $mapping->field( "name" )
+            ->read_with( "get_name()" )
+            ->write_with( "set_name()" );
+
+        $mapping->field( "last_name" )
+            ->read_with( "get_last_name()" )
+            ->write_with( "set_last_name()" );
+
+        $mapping->field( "addresses" )
+            ->reference_collection_through(
+                'users_addresses', 'user_id', 'address_id', 'Addresses_Collection' )
+            ->write_with( "set_addresses()" );
+    };
+
+}
+```
+
+Note that the `->field( "addresses" )` does not exist in the `users` table and does not have a `->read_with()` declaration. If the `->read_with()` would be present the library would try to read the field from the `$user` object and write it to the `users` table and an error will be raised.
+
+Also note that the the first parameter of `->reference_collection_through` is the middle table name, not a `Persistent_Collection`. That is not to force the creation of a `Persistent_Collection` class for a middle table that implements a `many to many` relationship but does not persist an actual object.
+
+The declaration of all of  fields in `->reference_collection_through` is mandatory, the library does not assume any naming convention.
+
+##### About the declaration statements
+
+The reasons that declarations of relations use `reference_...` rather than `has_...` are two.
+
+The first one is because the declaration is stated on the field, not the entity. The entity `user` `has_many` something, but the field references other objects.
+
+The second one is because the `has_...` states a relation of ownership and this library does not handle the ownership between entities in any form, neither with implicit conventions nor with explicit declarations. It's a design decision that developers express the ownership of relations between entities with explicit code in the `Persistent_Collection`s.
 
 <a name="c-2-2-5"></a>
 #### Creating objects

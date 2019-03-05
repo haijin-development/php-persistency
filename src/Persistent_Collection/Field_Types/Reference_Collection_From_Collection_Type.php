@@ -2,9 +2,9 @@
 
 namespace Haijin\Persistency\Persistent_Collection\Field_Types;
 
-use Haijin\Persistency\Persistent_Collection\Reference_Proxies\Object_From_Collection_Proxy;
+use Haijin\Persistency\Persistent_Collection\Reference_Proxies\Array_From_Collection_Proxy;
 
-class Reference_From_Object_In_Collection_Type
+class Reference_Collection_From_Collection_Type
 {
     protected $persistent_collection;
     protected $id_field;
@@ -26,7 +26,7 @@ class Reference_From_Object_In_Collection_Type
             $raw_record, $owner_object, $owner_field, $owners_collection, $database
         )
     {
-        return new Object_From_Collection_Proxy(
+        return new Array_From_Collection_Proxy(
             $this->persistent_collection,
             $this->id_field,
             $owner_object,

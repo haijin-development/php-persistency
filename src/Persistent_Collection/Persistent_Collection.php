@@ -79,7 +79,12 @@ class Persistent_Collection
 
     public function add_field_mapping($field_mapping)
     {
-        $this->field_mappings[] = $field_mapping;
+        $this->field_mappings[ $field_mapping->get_field_name() ] = $field_mapping;
+    }
+
+    public function get_field_mapping_at($field_name)
+    {
+        return $this->field_mappings[ $field_name ];
     }
 
     public function get_id_field()
@@ -591,11 +596,10 @@ class Persistent_Collection
 
             $mapped_value = $field_mapping->convert_value_from_db(
                 $raw_record,
-                $field_name,
-                $this->database,
                 $object,
-                $object_id,
-                $field_mapping->get_value_writter() 
+                $field_name,
+                $this,
+                $this->database
             );
 
             $mapped_record[ $field_name ] = $mapped_value;

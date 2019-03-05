@@ -86,21 +86,20 @@ class Field_Mapping
     /// Field values
 
     public function convert_value_from_db(
-            $raw_record, $field_name, $database, $object, $object_id, $value_writter
+            $raw_record, $owner_object, $owner_field, $owners_collection, $database
         )
     {
         if( $this->type === null ) {
-            return isset( $raw_record[ $field_name ] ) ? 
-                $raw_record[ $field_name ] : null;
+            return isset( $raw_record[ $owner_field ] ) ? 
+                $raw_record[ $owner_field ] : null;
         }
 
         return $this->type->convert_from_database(
             $raw_record,
-            $field_name,
-            $database,
-            $object,
-            $object_id,
-            $value_writter
+            $owner_object,
+            $owner_field,
+            $owners_collection,
+            $database
         );
     }
 

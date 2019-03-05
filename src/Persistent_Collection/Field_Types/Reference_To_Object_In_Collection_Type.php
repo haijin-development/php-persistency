@@ -2,7 +2,7 @@
 
 namespace Haijin\Persistency\Persistent_Collection\Field_Types;
 
-use Haijin\Persistency\Reference_Proxies\Object_In_Collection_Proxy;
+use Haijin\Persistency\Persistent_Collection\Reference_Proxies\Object_In_Collection_Proxy;
 
 class Reference_To_Object_In_Collection_Type
 {
@@ -21,10 +21,10 @@ class Reference_To_Object_In_Collection_Type
     }
 
     public function convert_from_database(
-            $raw_record, $field_name, $database, $object, $object_id, $value_writter
+            $raw_record, $owner_object, $owner_field, $owners_collection, $database
         )
     {
-        $object_id = $raw_record[ $field_name ];
+        $object_id = $raw_record[ $owner_field ];
 
         if( $object_id === null ) {
             return null;
@@ -33,8 +33,9 @@ class Reference_To_Object_In_Collection_Type
         return new Object_In_Collection_Proxy(
             $this->persistent_collection,
             $object_id,
-            $object,
-            $value_writter
+            $owner_object,
+            $owner_field,
+            $owners_collection
         );
     }
 }
