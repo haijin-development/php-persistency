@@ -11,6 +11,8 @@ use \Haijin\Persistency\Persistent_Collection\Object_Accessors\Closure_Accessor;
 use \Haijin\Persistency\Persistent_Collection\Field_Types\Value_Type;
 use \Haijin\Persistency\Persistent_Collection\Field_Types\Reference_To_Object_In_Collection_Type;
 use \Haijin\Persistency\Persistent_Collection\Field_Types\Reference_From_Object_In_Collection_Type;
+use \Haijin\Persistency\Persistent_Collection\Field_Types\Reference_Collection_From_Collection_Type;
+use \Haijin\Persistency\Persistent_Collection\Field_Types\Reference_Collection_Through_Collection_Type;
 
 class Persistent_Collection_DSL
 {
@@ -121,6 +123,34 @@ class Persistent_Collection_DSL
             new Reference_From_Object_In_Collection_Type(
                 $other_persistent_collection,
                 $other_id_field
+            )
+        );
+
+        return $this;
+    }
+
+    public function reference_collection_from($other_persistent_collection, $other_id_field)
+    {
+        $this->current_field_mapping->set_type(
+            new Reference_Collection_From_Collection_Type(
+                $other_persistent_collection,
+                $other_id_field
+            )
+        );
+
+        return $this;
+    }
+
+    public function reference_collection_through(
+            $middle_table, $left_id_field, $right_id_field, $other_collection
+        )
+    {
+        $this->current_field_mapping->set_type(
+            new Reference_Collection_Through_Collection_Type(
+                $middle_table,
+                $left_id_field,
+                $right_id_field,
+                $other_collection
             )
         );
 

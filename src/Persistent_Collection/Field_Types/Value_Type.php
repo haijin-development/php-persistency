@@ -14,10 +14,10 @@ class Value_Type
     }
 
     public function convert_from_database(
-            $raw_record, $field_name, $database, $object, $object_id, $value_writter
+            $raw_record, $owner_object, $owner_field, $owners_collection, $database
         )
     {
-        $value = $raw_record[ $field_name ];
+        $value = $raw_record[ $owner_field ];
 
         if( $value === null ) {
             return null;

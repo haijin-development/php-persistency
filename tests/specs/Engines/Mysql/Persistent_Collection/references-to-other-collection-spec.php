@@ -65,7 +65,7 @@ $spec->describe( "When mapping fields to another collections in a MySql database
             $user = Users_Collection::get()->first();
 
             $this->expect( $user->get_address() ) ->to() ->be() ->a(
-                \Haijin\Persistency\Reference_Proxies\Object_In_Collection_Proxy::class
+                \Haijin\Persistency\Persistent_Collection\Reference_Proxies\Object_In_Collection_Proxy::class
             );
 
 
@@ -105,7 +105,7 @@ $spec->describe( "When mapping fields to another collections in a MySql database
             $user = Users_Collection::get()->first();
 
             $this->expect( $user->get_address() ) ->to() ->be() ->a(
-                \Haijin\Persistency\Reference_Proxies\Object_In_Collection_Proxy::class
+                \Haijin\Persistency\Persistent_Collection\Reference_Proxies\Object_In_Collection_Proxy::class
             );
 
             $user->get_address()->get_id();
@@ -193,13 +193,216 @@ $spec->describe( "When mapping fields to another collections in a MySql database
             $user = Users_Collection::get()->first();
 
             $this->expect( $user->get_address_2() ) ->to() ->be() ->a(
-                \Haijin\Persistency\Reference_Proxies\Object_From_Collection_Proxy::class
+                \Haijin\Persistency\Persistent_Collection\Reference_Proxies\Object_From_Collection_Proxy::class
             );
 
             $user->get_address_2()->get_id();
 
             $this->expect( $user->get_address_2() ) ->to() ->be() ->a(
                 \Address::class
+            );
+
+        });
+
+    });
+
+    $this->describe( "with a reference from an array in another collection", function() {
+
+        $this->it( "resolves the reference to []", function() {
+
+            Users_Collection::do()->create_from_attributes([
+                "name" => "Lisa",
+                "last_name" => "Simpson"
+            ]);
+
+            $user = Users_Collection::get()->first();
+
+            $address = $user->get_all_addresses()->resolve_reference();
+
+            $this->expect( $address->is_empty() ) ->to() ->be() ->true();
+
+            $this->expect( $user ) ->to() ->be() ->exactly_like([
+                "get_id()" => 1,
+                "get_name()" => "Lisa",
+                "get_last_name()" => "Simpson",
+                "get_all_addresses()" => function($ordered_colleciton) {
+                    $this->expect( $ordered_colleciton->to_array() )
+                        ->to() ->equal( [] );
+                },
+            ]);
+
+        });
+
+        $this->it( "resolves the reference to an array", function() {
+
+            $user = new User( 'Lisa', 'Simpson' );
+
+            Users_Collection::do()->create( $user );
+
+            $address = Addresses_Collection::do()->create_from_attributes([
+                "user_id" => $user->get_id(),
+                "street_1" => "Evergreen 742",
+            ]);
+
+            $user = Users_Collection::get()->first();
+
+            $addresses = $user->get_all_addresses()->resolve_reference();
+
+            $this->expect( $addresses->to_array() ) ->to() ->be() ->exactly_like([
+                [
+                    "get_id()" => 1,
+                    "get_street_1()" => 'Evergreen 742',
+                    "get_street_2()" => null,
+                    "get_city()" => null
+                ]
+            ]);
+
+            $this->expect( $user ) ->to() ->be() ->exactly_like([
+                "get_id()" => 1,
+                "get_name()" => "Lisa",
+                "get_last_name()" => "Simpson",
+                "get_all_addresses()" => function($ordered_colleciton) {
+                    $this->expect( $ordered_colleciton->to_array() )
+                        ->to() ->be() ->exactly_like([
+                            [
+                                "get_id()" => 1,
+                                "get_street_1()" => 'Evergreen 742',
+                                "get_street_2()" => null,
+                                "get_city()" => null
+                            ]
+                        ]);
+                }
+            ]);
+
+        });
+
+        $this->it( "resolves the reference on the first message received", function() {
+
+            $user = new User( 'Lisa', 'Simpson' );
+            Users_Collection::do()->create( $user );
+
+            $address = Addresses_Collection::do()->create_from_attributes([
+                "user_id" => $user->get_id(),
+                "street_1" => "Evergreen 742",
+            ]);
+
+            $user = Users_Collection::get()->first();
+
+            $this->expect( $user->get_all_addresses() ) ->to() ->be() ->a(
+                \Haijin\Persistency\Persistent_Collection\Reference_Proxies\Array_From_Collection_Proxy::class
+            );
+
+            $user->get_all_addresses()->to_array();
+
+            $this->expect( $user->get_all_addresses() ) ->to() ->be() ->a(
+                \Haijin\Ordered_Collection::class
+            );
+
+        });
+
+    });
+
+    $this->describe( "with a reference through a middle table to an array in another collection", function() {
+
+        $this->it( "resolves the reference to []", function() {
+
+            Users_Collection::do()->create_from_attributes([
+                "name" => "Lisa",
+                "last_name" => "Simpson"
+            ]);
+
+            $user = Users_Collection::get()->first();
+
+            $address = $user->get_all_indirect_addresses()->resolve_reference();
+
+            $this->expect( $address->is_empty() ) ->to() ->be() ->true();
+
+            $this->expect( $user ) ->to() ->be() ->exactly_like([
+                "get_id()" => 1,
+                "get_name()" => "Lisa",
+                "get_last_name()" => "Simpson",
+                "get_all_indirect_addresses()" => function($ordered_colleciton) {
+                    $this->expect( $ordered_colleciton->to_array() )
+                        ->to() ->equal( [] );
+                },
+            ]);
+
+        });
+
+        $this->it( "resolves the reference to an array", function() {
+
+            $user = Users_Collection::do()->create_from_attributes([
+                "name" => "Lisa",
+                "last_name" => "Simpson",
+            ]);
+
+            $address = Addresses_Collection::do()->create_from_attributes([
+                "street_1" => "Evergreen 742",
+            ]);
+
+            $this->database->create( function($query) use($user, $address){
+
+                $query->collection( "users_addresses" );
+
+                $query->record(
+                    $query->set( "user_id", $query->value( $user->get_id() ) ),
+                    $query->set( "address_id", $query->value( $address->get_id() ) )
+                );
+
+            });
+
+            $user = Users_Collection::get()->first();
+
+            $addresses = $user->get_all_indirect_addresses()->resolve_reference();
+
+            $this->expect( $addresses->to_array() ) ->to() ->be() ->exactly_like([
+                [
+                    "get_id()" => 1,
+                    "get_street_1()" => 'Evergreen 742',
+                    "get_street_2()" => null,
+                    "get_city()" => null
+                ]
+            ]);
+
+            $this->expect( $user ) ->to() ->be() ->exactly_like([
+                "get_id()" => 1,
+                "get_name()" => "Lisa",
+                "get_last_name()" => "Simpson",
+                "get_all_indirect_addresses()" => function($ordered_colleciton) {
+                    $this->expect( $ordered_colleciton->to_array() )
+                        ->to() ->be() ->exactly_like([
+                            [
+                                "get_id()" => 1,
+                                "get_street_1()" => 'Evergreen 742',
+                                "get_street_2()" => null,
+                                "get_city()" => null
+                            ]
+                        ]);
+                }
+            ]);
+
+        });
+
+        $this->it( "resolves the reference on the first message received", function() {
+
+            $user = new User( 'Lisa', 'Simpson' );
+            Users_Collection::do()->create( $user );
+
+            $address = Addresses_Collection::do()->create_from_attributes([
+                "user_id" => $user->get_id(),
+                "street_1" => "Evergreen 742",
+            ]);
+
+            $user = Users_Collection::get()->first();
+
+            $this->expect( $user->get_all_indirect_addresses() ) ->to() ->be() ->a(
+                \Haijin\Persistency\Persistent_Collection\Reference_Proxies\Array_Through_Collection_Proxy::class
+            );
+
+            $user->get_all_indirect_addresses()->to_array();
+
+            $this->expect( $user->get_all_indirect_addresses() ) ->to() ->be() ->a(
+                \Haijin\Ordered_Collection::class
             );
 
         });

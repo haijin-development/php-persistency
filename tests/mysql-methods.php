@@ -22,6 +22,8 @@ class Mysql_Methods
         $spec->def( "clear_mysql_tables", function() {
 
             $this->mysql->query( "TRUNCATE users;" );
+            $this->mysql->query( "TRUNCATE addresses;" );
+            $this->mysql->query( "TRUNCATE users_addresses;" );
             $this->mysql->query( "TRUNCATE types;" );
 
         });
@@ -42,6 +44,7 @@ class Mysql_Methods
 
             $this->mysql->query( "DROP TABLE IF EXISTS users;" );
             $this->mysql->query( "DROP TABLE IF EXISTS addresses;" );
+            $this->mysql->query( "DROP TABLE IF EXISTS users_addresses;" );
             $this->mysql->query( "DROP TABLE IF EXISTS types;" );
         });
 
@@ -100,6 +103,15 @@ class Mysql_Methods
                     `street_1` VARCHAR(45) NULL,
                     `street_2` VARCHAR(45) NULL,
                     `city` INT NULL,
+                    PRIMARY KEY (`id`)
+                );"
+            );
+
+            $this->mysql->query(
+                "CREATE TABLE `haijin-persistency`.`users_addresses` (
+                    `id` INT NOT NULL AUTO_INCREMENT,
+                    `user_id` INT NULL,
+                    `address_id` INT NULL,
                     PRIMARY KEY (`id`)
                 );"
             );
