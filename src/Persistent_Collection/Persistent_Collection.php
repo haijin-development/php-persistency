@@ -370,38 +370,19 @@ class Persistent_Collection
 
     public function create($object)
     {
-        $record_values = $this->get_record_values_from( $object );
+        $record_values = $this->insert_record(
 
-        $collection_name = $this->collection_name;
+            $this->get_record_values_from( $object )
 
-        $this->get_database()->create( function($query)
-                                    use($collection_name, $record_values) {
+        );
 
-            $query->collection( $collection_name );
+        if( $this->get_id_of( $object ) === null ) {
 
-            $expressions = [];
-            foreach( $record_values as $field => $value ) {
-                $expressions[] = $query->set( $field, $query->value( $value ) );
-            }
-
-            $query->record( ...$expressions );
-
-        });
-
-        $primary_key_mapping = $this->get_primary_key_field_mapping();
-
-        $id_field_name = $primary_key_mapping->get_field_name();
-
-        if( ! isset( $record_values[ $id_field_name ] )
-            ||
-            $record_values[ $id_field_name ] === null
-          ) {
-
-            $record_values[ $id_field_name ] = $this->get_database()->get_last_created_id();
+            $primary_key_mapping = $this->get_primary_key_field_mapping();
 
             $primary_key_mapping->write_value_to(
                 $object,
-                $record_values[ $id_field_name ],
+                $record_values[ $primary_key_mapping->get_field_name() ],
                 $record_values,
                 $record_values
             );
@@ -438,6 +419,44 @@ class Persistent_Collection
         }
 
         return $this->create( $object );
+    }
+
+    public function insert_record($record_values)
+    {
+        if( ! is_array( $record_values ) ) {
+            throw new \RuntimeException(
+                "create_from_attributes() expects an associative array."
+            );
+        }
+
+        $collection_name = $this->collection_name;
+
+        $this->get_database()->create( function($query)
+                                    use($collection_name, $record_values) {
+
+            $query->collection( $collection_name );
+
+            $expressions = [];
+            foreach( $record_values as $field => $value ) {
+                $expressions[] = $query->set( $field, $query->value( $value ) );
+            }
+
+            $query->record( ...$expressions );
+
+        });
+
+        $id_field_name = $this->get_id_field();
+
+        if( ! isset( $record_values[ $id_field_name ] )
+            ||
+            $record_values[ $id_field_name ] === null
+          ) {
+
+            $record_values[ $id_field_name ] =
+                $this->get_database()->get_last_created_id();
+        }
+
+        return $record_values;
     }
 
     /// Updating

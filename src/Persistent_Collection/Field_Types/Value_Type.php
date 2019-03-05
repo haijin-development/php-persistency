@@ -17,6 +17,10 @@ class Value_Type
             $raw_record, $owner_object, $owner_field, $owners_collection, $database
         )
     {
+        if( ! isset( $raw_record[ $owner_field ] ) ) {
+            return null;
+        }
+
         $value = $raw_record[ $owner_field ];
 
         if( $value === null ) {

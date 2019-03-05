@@ -24,6 +24,10 @@ class Reference_To_Object_In_Collection_Type
             $raw_record, $owner_object, $owner_field, $owners_collection, $database
         )
     {
+        if( ! isset( $raw_record[ $owner_field ] ) ) {
+            return null;
+        }
+
         $object_id = $raw_record[ $owner_field ];
 
         if( $object_id === null ) {

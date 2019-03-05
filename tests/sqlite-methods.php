@@ -28,6 +28,8 @@ class Sqlite_Methods
         $spec->def( "clear_sqlite_tables", function() {
 
             $this->sqlite->query( "delete from users;" );
+            $this->sqlite->query( "delete from addresses;" );
+            $this->sqlite->query( "delete from users_addresses;" );
             $this->sqlite->query( "delete from types;" );
 
         });
@@ -50,6 +52,8 @@ class Sqlite_Methods
             $this->sqlite->query( "DROP TABLE IF EXISTS address_2;" );
             $this->sqlite->query( "DROP TABLE IF EXISTS cities;" );
             $this->sqlite->query( "DROP TABLE IF EXISTS users;" );
+            $this->sqlite->query( "DROP TABLE IF EXISTS addresses;" );
+            $this->sqlite->query( "DROP TABLE IF EXISTS users_addresses;" );
             $this->sqlite->query( "DROP TABLE IF EXISTS types;" );
 
         });
@@ -94,6 +98,22 @@ class Sqlite_Methods
                     `name` VARCHAR(45) NULL,
                     `last_name` VARCHAR(45) NULL,
                     `address_id` INTEGER NULL
+                );"
+            );
+            $this->sqlite->query(
+                "CREATE TABLE `addresses` (
+                    `id` INTEGER PRIMARY KEY,
+                    `user_id` INT NULL,
+                    `street_1` VARCHAR(45) NULL,
+                    `street_2` VARCHAR(45) NULL,
+                    `city` VARCHAR(45) NULL
+                );"
+            );
+            $this->sqlite->query(
+                "CREATE TABLE `users_addresses` (
+                    `id` INTEGER PRIMARY KEY,
+                    `user_id` INT NOT NULL,
+                    `address_id` INT NOT NULL
                 );"
             );
             $this->sqlite->query(

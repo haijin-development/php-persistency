@@ -35,6 +35,8 @@ class Postgresql_Methods
             pg_query( $this->postgresql, "DROP TABLE IF EXISTS address_2;" );
             pg_query( $this->postgresql, "DROP TABLE IF EXISTS cities;" );
             pg_query( $this->postgresql, "DROP TABLE IF EXISTS users;" );
+            pg_query( $this->postgresql, "DROP TABLE IF EXISTS addresses;" );
+            pg_query( $this->postgresql, "DROP TABLE IF EXISTS users_addresses;" );
             pg_query( $this->postgresql, "DROP TABLE IF EXISTS types;" );
 
         });
@@ -42,6 +44,8 @@ class Postgresql_Methods
         $spec->def( "clear_postgresql_tables", function() {
 
             pg_query( $this->postgresql, "truncate users restart identity;" );
+            pg_query( $this->postgresql, "truncate addresses restart identity;" );
+            pg_query( $this->postgresql, "truncate users_addresses restart identity;" );
             pg_query( $this->postgresql, "truncate types restart identity;" );
 
         });
@@ -92,6 +96,26 @@ class Postgresql_Methods
                     name varchar(45) NULL,
                     last_name varchar(45) NULL,
                     address_id integer NULL
+                );"
+            );
+
+            pg_query(
+                $this->postgresql, 
+                "CREATE TABLE addresses (
+                    id SERIAL PRIMARY KEY,
+                    user_id integer NULL,
+                    street_1 varchar(45) NULL,
+                    street_2 varchar(45) NULL,
+                    city varchar(45) NULL
+                );"
+            );
+
+            pg_query(
+                $this->postgresql, 
+                "CREATE TABLE users_addresses (
+                    id SERIAL PRIMARY KEY,
+                    user_id integer NOT NULL,
+                    address_id integer NOT NULL
                 );"
             );
 
