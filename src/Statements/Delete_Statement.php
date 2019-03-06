@@ -35,6 +35,13 @@ class Delete_Statement extends Statement
 
     /// Asking
 
+    public function is_delete_statement()
+    {
+        return true;
+    }
+
+    /// Asking
+
     public function has_filter_expression()
     {
         return $this->filter_expression !== null;

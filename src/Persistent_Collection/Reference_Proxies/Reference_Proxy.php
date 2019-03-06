@@ -20,6 +20,43 @@ abstract class Reference_Proxy
         $this->config = $config;
     }
 
+    /// Acessing
+
+    public function get_owner_object()
+    {
+        return $this->owner_object;
+    }
+
+    public function get_owner_field()
+    {
+        return $this->owner_field;
+    }
+
+    public function get_owners_collection()
+    {
+        return $this->owners_collection;
+    }
+
+    public function get_owner_field_mapping()
+    {
+        return $this->owners_collection->get_field_mapping_at( $this->owner_field );
+    }
+
+    public function get_owner_object_id()
+    {
+        return $this->owners_collection->get_id_of( $this->owner_object );
+    }
+
+    public function get_owner_table_name()
+    {
+        return $this->owners_collection->get_collection_name();
+    }
+
+    public function get_owner_field_id()
+    {
+        return $this->owners_collection->get_id_field();
+    }
+
     /// Resolving reference
 
     abstract public function fetch_reference();
@@ -28,34 +65,21 @@ abstract class Reference_Proxy
     {
         $fetched_reference = $this->fetch_reference();
 
-        $this->get_owner_field_mapping()->write_value_to(
-            $this->owner_object,
-            $fetched_reference,
-            null,
-            null
-        );
+        $this->resolve_reference_to( $fetched_reference );
 
         return $fetched_reference;
     }
 
-    protected function get_owner_field_mapping()
+    public function resolve_reference_to($actual_object)
     {
-        return $this->owners_collection->get_field_mapping_at( $this->owner_field );
-    }
+        $this->get_owner_field_mapping()->write_value_to(
+            $this->owner_object,
+            $actual_object,
+            null,
+            null
+        );
 
-    protected function get_owner_object_id()
-    {
-        return $this->owners_collection->get_id_of( $this->owner_object );
-    }
-
-    protected function get_owner_table_name()
-    {
-        return $this->owners_collection->get_collection_name();
-    }
-
-    protected function get_owner_field_id()
-    {
-        return $this->owners_collection->get_id_field();
+        return $actual_object;
     }
 
     /// Proxy methods

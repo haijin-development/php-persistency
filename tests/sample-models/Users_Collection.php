@@ -28,23 +28,24 @@ class Users_Persistent_Collection extends Persistent_Collection
 
 
             $mapping->field( "address_id" )
-                ->reference_to( 'Addresses_Collection' )
+                ->reference_to( Addresses_Collection::get() )
                 ->read_with( "get_address()" )
                 ->write_with( "set_address()" );
 
             $mapping->field( "address_2" )
-                ->reference_from( 'Addresses_Collection', 'user_id')
+                ->reference_from( Addresses_Collection::get(), 'user_id')
                 ->read_with( "get_address_2()" )
                 ->write_with( "set_address_2()" );
 
-            $mapping->field( "all_address" )
-                ->reference_collection_from( 'Addresses_Collection', 'user_id' )
+            $mapping->field( "all_addresses" )
+                ->reference_collection_from( Addresses_Collection::get(), 'user_id' )
                 ->read_with( "get_all_addresses()" )
                 ->write_with( "set_all_addresses()" );
 
-            $mapping->field( "all_indirect_address" )
+            $mapping->field( "all_indirect_addresses" )
                 ->reference_collection_through(
-                    'users_addresses', 'user_id', 'address_id', 'Addresses_Collection' )
+                    'users_addresses', 'user_id', 'address_id', Addresses_Collection::get()
+                )
                 ->read_with( "get_all_indirect_addresses()" )
                 ->write_with( "set_all_indirect_addresses()" );
 

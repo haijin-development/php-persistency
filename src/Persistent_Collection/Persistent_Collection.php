@@ -141,6 +141,8 @@ class Persistent_Collection
 
     public function find_by_id($id, $named_parameters = [])
     {
+        $this->validate_named_parameters( $named_parameters );
+
         return $this->find_by([
             $this->get_id_field() => $id
         ]);
@@ -148,6 +150,8 @@ class Persistent_Collection
 
     public function find_all_by_ids($ids_collection, $named_parameters = [])
     {
+        $this->validate_named_parameters( $named_parameters );
+
         $id_field = $this->get_id_field();
 
         return $this->all( function($query) use($id_field, $ids_collection) {
@@ -156,14 +160,16 @@ class Persistent_Collection
                 $query->field( $id_field ) ->in( $ids_collection )
             );
 
-        });
+        }, $named_parameters );
     }
 
     public function find_by_id_if_absent(
             $id, $absent_closure, $named_parameters = [], $binding = null
         )
     {
-        $object = $this->find_by_id( $id );
+        $this->validate_named_parameters( $named_parameters );
+
+        $object = $this->find_by_id( $id, $named_parameters );
 
         if( $object !== null ) {
             return $object;
@@ -178,6 +184,8 @@ class Persistent_Collection
 
     public function find_by($field_values, $named_parameters = [])
     {
+        $this->validate_named_parameters( $named_parameters );
+
         $found_objects = $this->all( function($query) use($field_values) {
 
             $first_expression = true;
@@ -204,7 +212,7 @@ class Persistent_Collection
 
             $query->filter( $expression );
 
-        });
+        }, $named_parameters );
 
         $found_count = count( $found_objects );
 
@@ -223,7 +231,9 @@ class Persistent_Collection
             $field_values, $absent_closure, $named_parameters = [], $binding = null
         )
     {
-        $object = $this->find_by( $field_values );
+        $this->validate_named_parameters( $named_parameters );
+
+        $object = $this->find_by( $field_values, $named_parameters );
 
         if( $object !== null ) {
             return $object;
@@ -248,6 +258,8 @@ class Persistent_Collection
      */
     public function all($filter_closure = null, $named_parameters = [], $binding = null)
     {
+        $this->validate_named_parameters( $named_parameters );
+
         if( $binding === null ) {
             $binding = $this;
         }
@@ -286,6 +298,8 @@ class Persistent_Collection
      */
     public function first($filter_closure = null, $named_parameters = [], $binding = null)
     {
+        $this->validate_named_parameters( $named_parameters );
+
         if( $binding === null ) {
             $binding = $this;
         }
@@ -357,6 +371,8 @@ class Persistent_Collection
      */
     public function count($filter_closure = null, $named_parameters = [], $binding = null)
     {
+        $this->validate_named_parameters( $named_parameters );
+
         $collection_name = $this->collection_name;
 
         return $this->get_database()->count( function($query)
@@ -524,6 +540,8 @@ class Persistent_Collection
 
     public function update_all($filter_closure, $named_parameters = [], $binding = null)
     {
+        $this->validate_named_parameters( $named_parameters );
+
         $collection_name = $this->collection_name;
 
         $records = $this->get_database()->update( function($query)
@@ -569,6 +587,8 @@ class Persistent_Collection
 
     public function delete_all($filter_closure, $named_parameters = [], $binding = null)
     {
+        $this->validate_named_parameters( $named_parameters );
+
         $collection_name = $this->collection_name;
 
         $records = $this->get_database()->delete( function($query)
@@ -681,6 +701,17 @@ class Persistent_Collection
 
         return $objects;
     }
+
+    /// Validating
+
+    protected function validate_named_parameters($named_parameters) {
+        if( is_array( $named_parameters ) ) {
+            return;
+        }
+
+        throw new \RuntimeException( "Expected '\$named_parameters' to be an associative array." );
+    }
+
 
     /// Raising errors
 

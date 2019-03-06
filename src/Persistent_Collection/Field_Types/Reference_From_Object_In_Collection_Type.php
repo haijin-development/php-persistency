@@ -56,4 +56,32 @@ class Reference_From_Object_In_Collection_Type extends Abstract_Type
             $this->config
         );
     }
+
+    public function fetch_actual_refereces_from_all($proxies)
+    {
+        $ids = [];
+
+        foreach( $proxies as $proxy ) {
+
+            if( $proxy !== null ) {
+                $ids[] = $proxy->get_owner_object_id();
+            }
+        }
+
+        if( empty( $ids ) ) {
+            return [];
+        }
+
+        $references = $this->persistent_collection->all( function($query) use($ids) {
+
+            $query->filter(
+
+                $query->field( $this->id_field ) ->in( $ids )
+
+            );
+
+        }, [], $this );
+
+        return $references;
+    }
 }

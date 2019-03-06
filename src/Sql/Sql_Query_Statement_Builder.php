@@ -95,9 +95,11 @@ class Sql_Query_Statement_Builder extends Sql_Expression_Builder
             $proyected_fields[] =
                 $sql_builder->get_nested_proyections_sql_from( $join_expression );
 
-        }, $this);
+        }, $this );
 
-        return $proyected_fields->join_with( ", " );
+        $proyected_fields = array_filter( $proyected_fields->to_array() );
+
+        return join( ', ', $proyected_fields );
     }
 
     public function proyected_fields_from($expression)

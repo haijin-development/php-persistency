@@ -70,12 +70,14 @@ If you like it a lot you may contribute by [financing](https://github.com/haijin
             1. [all](#c-2-2-10-1)
             2. [first](#c-2-2-10-2)
             3. [last](#c-2-2-10-3)
-        11. [Persistent_Collection patterns](#c-2-2-11)
-            1. [Singleton collection](#c-2-2-11-1)
-            2. [Query methods](#c-2-2-11-2)
-            3. [Default optional values](#c-2-2-11-3)
-            4. [Cascade delete](#c-2-2-11-4)
-            5. [Syncronized index](#c-2-2-11-5)
+        11. [Eager fetching](#c-2-2-11)
+        12. [Persistent_Collection patterns](#c-2-2-12)
+            1. [Singleton collection](#c-2-2-12-1)
+            2. [Query methods](#c-2-2-12-2)
+            3. [Default optional values](#c-2-2-12-3)
+            4. [Cascade delete](#c-2-2-12-4)
+            5. [Syncronized index](#c-2-2-12-5)
+            6. [Default eager fetch](#c-2-2-12-6)
     3. [Migrations](#c-2-3)
 3. [Elasticsearch specifics](#c-3)
 4. [Running the tests](#c-4)
@@ -1353,7 +1355,7 @@ public function definition($collection)
 
 
         $mapping->field( "address_id" )
-            ->reference_to( Addresses_Collection::class )
+            ->reference_to( Addresses_Collection::get() )
             ->read_with( "get_address()" )
             ->write_with( "set_address()" );
     };
@@ -1394,7 +1396,7 @@ public function definition($collection)
             ->write_with( "set_last_name()" );
 
         $mapping->field( "address" )
-            ->reference_from( 'Addresses_Collection', 'user_id' )
+            ->reference_from( Addresses_Collection::get(), 'user_id' )
             ->write_with( "set_address()" );
     };
 
@@ -1436,7 +1438,7 @@ public function definition($collection)
             ->write_with( "set_last_name()" );
 
         $mapping->field( "addresses" )
-            ->reference_collection_from( 'Addresses_Collection', 'user_id' )
+            ->reference_collection_from( Addresses_Collection::get(), 'user_id' )
             ->write_with( "set_addresses()" );
     };
 
@@ -1487,7 +1489,8 @@ public function definition($collection)
 
         $mapping->field( "addresses" )
             ->reference_collection_through(
-                'users_addresses', 'user_id', 'address_id', 'Addresses_Collection' )
+                'users_addresses', 'user_id', 'address_id', Addresses_Collection::get()
+            )
             ->write_with( "set_addresses()" );
     };
 
@@ -1921,11 +1924,86 @@ $user = Users_Collection::get()->last();
 ```
 
 <a name="c-2-2-11"></a>
+#### Eager fetching
+
+When querying objects in a collection the references to objects in other collections are not resolved by default. Instead a proxy object is set until it receives the first message, when the actual object is fetched from the database and the reference is resolved.
+
+This lazy loading of objects requires a query for each object referenced in any other object, is very inneficient and is known as the `n+1 problem` because it performs one query to fetch the main objects and n more queries to fetch each referenced object.
+
+To avoid the `n+1 problem` the `Persistent_Collection` accepts an additional parameter on its queries specifying which references to other collections should be eagerly fetched and resolves those references in a more efficient manner.
+
+To detect when a reference is lazily resolved its possible to make it to raise an error or a warning with an additional parameter:
+
+```php
+class Users_Persistent_Collection extends Persistent_Collection
+{
+    public function definition($collection)
+    {
+        $collection->database = Sample_App::instance()->get_database( 'mysql' );
+
+        $collection->collection_name = "users";
+
+        $collection->instantiate_objects_with = User::class;
+
+        $collection->field_mappings = function($mapping) {
+
+            $mapping->field( "id" ) ->is_primary_key()
+                ->type( "integer" )
+                ->read_with( "get_id()" )
+                ->write_with( "set_id()" );
+
+            $mapping->field( "name" )
+                ->type( "string" )
+                ->read_with( "get_name()" )
+                ->write_with( "set_name()" );
+
+            $mapping->field( "books" )
+                ->reference_collection_from( Books_Collection::get(), 'id_user',
+                    'lazy_fetch_error' => true,
+                ])
+                ->read_with( "get_books()" )
+                ->write_with( "set_books()" );
+
+            $mapping->field( "address" )
+                ->reference_from( Addresses_Collection::get(), 'id_user', [
+                    'lazy_fetch_warning' => true
+                ])
+                ->read_with( "get_address()" )
+                ->write_with( "set_address()" );
+        };
+
+    }
+}
+```
+
+To eagerly fetch references give to any query a specification of which references to must be eagerly fetched:
+
+```php
+Users_Collection::get()->all( function($query) {
+
+    $query->order_by(
+        $query->field( 'name' )
+    );
+
+}, [
+    'eager_fetch' => [
+        'books' => [
+            'author' => true,
+            'publisher' => true
+        ],
+        'address' => true
+    ]
+]);
+```
+
+See also the [default eager fetch pattern](#c-2-2-12-6).
+
+<a name="c-2-2-12"></a>
 #### Persistent_Collection patterns
 
 The following conventions are not mandatory but they are recommended.
 
-<a name="c-2-2-11-1"></a>
+<a name="c-2-2-12-1"></a>
 ##### Singleton collection
 
 Declare a second class for each `Persisted_Collection` subclass and make it a `Persisted_Collection` getter.
@@ -1993,7 +2071,7 @@ Users_Collection::do()->update( $user );
 Users_Collection::do()->delete( $user );
 ```
 
-<a name="c-2-2-11-2"></a>
+<a name="c-2-2-12-2"></a>
 ##### Query methods
 
 Define each query on a `Persistent_Collection` subclass in its own method.
@@ -2103,7 +2181,7 @@ $users = Users_Collection::get()->all_sorted_by_name( 0, 30 );
 $users = Users_Collection::get()->all_matching_name( $search_term, 0, 30 );
 ```
 
-<a name="c-2-2-11-3"></a>
+<a name="c-2-2-12-3"></a>
 ##### Default optional values
 
 Override `create` and `update` to assign default values to the optional fields instead of, or besides of, relying in the database definition.
@@ -2172,7 +2250,7 @@ class Users_Collection
 }
 ```
 
-<a name="c-2-2-11-4"></a>
+<a name="c-2-2-12-4"></a>
 ##### Cascade delete
 
 Make cascade deletes explicit and procedural.
@@ -2215,11 +2293,11 @@ class Users_Persistent_Collection extends Persistent_Collection
                 ->write_with( "set_is_admin()" );
 
             $mapping->field( "address" )
-                ->reference_from( Address_Collection::class, "id_user" )
+                ->reference_from( Address_Collection::get(), "id_user" )
                 ->write_with( "set_address()" );
 
             $mapping->field( "books" )
-                ->many_reference_from( Books_Collection::class, "id_user" )
+                ->many_reference_from( Books_Collection::get(), "id_user" )
                 ->write_with( "set_books()" );
         };
     }
@@ -2251,7 +2329,7 @@ class Users_Collection
 }
 ```
 
-<a name="c-2-2-11-5"></a>
+<a name="c-2-2-12-5"></a>
 ##### Syncronized index
 
 Keep the index search engine in sync with the database overriding the write operations:
@@ -2290,11 +2368,11 @@ class Users_Persistent_Collection extends Persistent_Collection
                 ->write_with( "set_is_admin()" );
 
             $mapping->field( "address" )
-                ->reference_from( Address_Collection::class, "id_user" )
+                ->reference_from( Address_Collection::get(), "id_user" )
                 ->write_with( "set_address()" );
 
             $mapping->field( "books" )
-                ->many_reference_from( Books_Collection::class, "id_user" )
+                ->many_reference_from( Books_Collection::get(), "id_user" )
                 ->write_with( "set_books()" );
         };
     }
@@ -2337,7 +2415,72 @@ class Users_Collection
 }
 ```
 
+<a name="c-2-2-12-6"></a>
+##### Default eager fetch
 
+In each query in a `Persistent_Collection` accept an eager fetch specification and define a default one for the most common use cases if none is given:
+
+```php
+class Users_Persistent_Collection extends Persistent_Collection
+{
+    public function definition($collection)
+    {
+        $collection->database = Sample_App::instance()->get_database( 'mysql' );
+
+        $collection->collection_name = "users";
+
+        $collection->instantiate_objects_with = User::class;
+
+        $collection->field_mappings = function($mapping) {
+
+            $mapping->field( "id" ) ->is_primary_key()
+                ->type( "integer" )
+                ->read_with( "get_id()" )
+                ->write_with( "set_id()" );
+
+            $mapping->field( "name" )
+                ->type( "string" )
+                ->read_with( "get_name()" )
+                ->write_with( "set_name()" );
+
+            $mapping->field( "books" )
+                ->reference_collection_from( Books_Collection::get(), 'id_user',
+                    'lazy_fetch_error' => true,
+                ])
+                ->read_with( "get_books()" )
+                ->write_with( "set_books()" );
+
+            $mapping->field( "address" )
+                ->reference_from( Addresses_Collection::get(), 'id_user', [
+                    'lazy_fetch_warning' => true
+                ])
+                ->read_with( "get_address()" )
+                ->write_with( "set_address()" );
+        };
+
+    }
+
+    public function all_sorted_by_name($eager_fetch = null)
+    {
+        if( $eager_fetch === null ) {
+            $eager_fetch = [
+                'books' => [
+                    'author' => true,
+                    'publisher' => true
+                ]
+            ];
+        }
+
+        return $this->all( function($query) {
+
+            $query->order_by(
+                $query->field( 'name' )
+            );
+
+        }, [ 'eager_fetch' => $eager_fetch] );
+    }
+}
+```
 
 
 <a name="c-3"></a>

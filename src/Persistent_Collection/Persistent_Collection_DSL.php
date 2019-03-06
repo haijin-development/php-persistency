@@ -150,15 +150,18 @@ class Persistent_Collection_DSL
     }
 
     public function reference_collection_through(
-            $middle_table, $left_id_field, $right_id_field, $other_collection, $config = []
+            $middle_table, $left_id_field, $right_id_field,
+            $right_collection,
+            $config = []
         )
     {
         $this->current_field_mapping->set_type(
             new Reference_Collection_Through_Collection_Type(
+                $this->persistent_collection,
                 $middle_table,
                 $left_id_field,
                 $right_id_field,
-                $other_collection,
+                $right_collection,
                 $config
             )
         );

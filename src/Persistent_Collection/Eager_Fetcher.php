@@ -54,17 +54,12 @@ class Eager_Fetcher
             return;
         }
 
-        $next_level_objects = [];
-
         $proxies = $this->collect_proxies_from_all( $mapping, $objects );
 
         $all_references = $mapping->get_type()
                             ->fetch_actual_refereces_from_all( $proxies );
 
-
         $referenced_collection = $mapping->get_referenced_collection();
-        $referenced_collection = is_string( $referenced_collection ) ?
-            $referenced_collection::get() : $referenced_collection;
 
         $this->objects_space->add_all( $referenced_collection, $all_references );
 
@@ -76,12 +71,9 @@ class Eager_Fetcher
                 continue;
             }
 
-            $actual_reference = $this->objects_space->get_object_by_id(
-                $referenced_collection,
-                $proxy->get_object_id()
+            $proxy->resolve_eager_reference_from(
+                $this->objects_space
             );
-
-            $mapping->write_value_to( $object, $actual_reference, null, null );
 
         }
 
@@ -89,7 +81,7 @@ class Eager_Fetcher
 
         $this->resolve_references_in_collection(
             $referenced_collection,
-            $next_level_objects,
+            $all_references,
             $next_level_fetch_spec
         );
     }

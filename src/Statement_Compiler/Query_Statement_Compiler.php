@@ -170,6 +170,13 @@ class Query_Statement_Compiler extends Statement_Compiler
         return $this;
     }
 
+    /// Eager fetch
+
+    public function eager_fetch($eager_fetch_spec)
+    {
+        $this->statement_expression->set_eager_fetch_spec( $eager_fetch_spec );
+    }
+
     /// Macro expressions
 
     public function let($macro_name, $definition_closure, $binding = null)

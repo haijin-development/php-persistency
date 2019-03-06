@@ -33,7 +33,7 @@ class Reference_To_Object_In_Collection_Type extends Abstract_Type
 
     public function convert_to_database($object, $database)
     {
-        return $this->persistent_collection::get()->get_id_of( $object );
+        return $this->persistent_collection->get_id_of( $object );
     }
 
     public function convert_from_database(
@@ -64,7 +64,6 @@ class Reference_To_Object_In_Collection_Type extends Abstract_Type
     {
         $ids = [];
 
-
         foreach( $proxies as $proxy ) {
 
             if( $proxy !== null ) {
@@ -76,9 +75,9 @@ class Reference_To_Object_In_Collection_Type extends Abstract_Type
             return [];
         }
 
-        $collection_id = $this->persistent_collection::do()->get_id_field();
+        $collection_id = $this->persistent_collection->get_id_field();
 
-        $objects = $this->persistent_collection::get()->all(
+        $objects = $this->persistent_collection->all(
                                         function($query) use($collection_id, $ids) {
 
             $query->filter(

@@ -33,6 +33,13 @@ class Create_Statement extends Statement
         $this->records_values_expression = $records_values_expression;
     }
 
+    /// Asking
+
+    public function is_create_statement()
+    {
+        return true;
+    }
+
     /// Visiting
 
     public function accept_visitor($visitor)

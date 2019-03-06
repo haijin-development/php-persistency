@@ -12,6 +12,7 @@ class Query_Statement extends Statement
     protected $join_expressions;
     protected $order_by_expression;
     protected $pagination_expression;
+    protected $eager_fetch_spec;
 
     /// Initializing
 
@@ -27,6 +28,7 @@ class Query_Statement extends Statement
         $this->join_expressions = Create::an( Ordered_Collection::class )->with();
         $this->order_by_expression = null;
         $this->pagination_expression = null;
+        $this->eager_fetch_spec = null;
     }
 
     /// Accessing
@@ -107,7 +109,22 @@ class Query_Statement extends Statement
         $this->pagination_expression = $pagination_expression;
     }
 
+    public function get_eager_fetch_spec()
+    {
+        return $this->eager_fetch_spec;
+    }
+
+    public function set_eager_fetch_spec($eager_fetch_spec)
+    {
+        $this->eager_fetch_spec = $eager_fetch_spec;
+    }
+
     /// Asking
+
+    public function is_query_statement()
+    {
+        return true;
+    }
 
     public function has_collection_expression()
     {
@@ -137,6 +154,11 @@ class Query_Statement extends Statement
     public function has_pagination_expression()
     {
         return $this->pagination_expression !== null;
+    }
+
+    public function has_eager_fetch_spec()
+    {
+        return $this->eager_fetch_spec !== null;
     }
 
     /// Iterating

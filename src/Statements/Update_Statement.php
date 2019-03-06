@@ -47,6 +47,11 @@ class Update_Statement extends Statement
 
     /// Asking
 
+    public function is_update_statement()
+    {
+        return true;
+    }
+
     public function has_records_values_expression()
     {
         return $this->records_values_expression !== null;

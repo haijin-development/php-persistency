@@ -31,6 +31,9 @@ class Database_CLI
             $app_mode = $argv[ 2 ];
         }
 
+        // Haijin initialization
+        \App\Sample_App::initialize_on( 'production' );
+
         require "src/Config/{$app_mode}/databases.php";
 
         $migrations_builder = $this->new_migrations_builder()

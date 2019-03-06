@@ -32,7 +32,16 @@ class Object_In_Collection_Proxy extends Reference_Proxy
 
     public function fetch_reference()
     {
-        return $this->persistent_collection::do()
-                    ->find_by_id( $this->object_id );
+        return $this->persistent_collection->find_by_id( $this->object_id );
+    }
+
+    public function resolve_eager_reference_from($objects_space)
+    {
+        $actual_reference = $objects_space->get_object_by_id(
+            $this->persistent_collection,
+            $this->object_id
+        );
+
+        $this->resolve_reference_to( $actual_reference );
     }
 }

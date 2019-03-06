@@ -46,6 +46,26 @@ abstract class Expression
 
     /// Asking
 
+    public function is_query_statement()
+    {
+        return false;
+    }
+
+    public function is_create_statement()
+    {
+        return false;
+    }
+
+    public function is_update_statement()
+    {
+        return false;
+    }
+
+    public function is_delete_statement()
+    {
+        return false;
+    }
+
     public function is_field_expression()
     {
         return false;
