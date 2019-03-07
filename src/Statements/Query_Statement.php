@@ -10,6 +10,7 @@ class Query_Statement extends Statement
     protected $proyection_expression;
     protected $filter_expression;
     protected $join_expressions;
+    protected $group_by_expression;
     protected $order_by_expression;
     protected $pagination_expression;
     protected $eager_fetch_spec;
@@ -25,7 +26,8 @@ class Query_Statement extends Statement
 
         $this->proyection_expression = $this->new_proyection_expression();
         $this->filter_expression = null;
-        $this->join_expressions = Create::an( Ordered_Collection::class )->with();
+        $this->join_expressions = new Ordered_Collection();
+        $this->group_by_expression = null;
         $this->order_by_expression = null;
         $this->pagination_expression = null;
         $this->eager_fetch_spec = null;
@@ -94,6 +96,22 @@ class Query_Statement extends Statement
     }
 
     /**
+     * Gets the group_by_expression.
+     */
+    public function get_group_by_expression()
+    {
+        return $this->group_by_expression;
+    }
+
+    /**
+     * Sets the group_by_expression.
+     */
+    public function set_group_by_expression($group_by_expression)
+    {
+        $this->group_by_expression = $group_by_expression;
+    }
+
+    /**
      * Returns the pagination expression.
      */
     public function get_pagination_expression()
@@ -144,6 +162,11 @@ class Query_Statement extends Statement
     public function has_join_expressions()
     {
         return $this->join_expressions->not_empty();
+    }
+
+    public function has_group_by_expression()
+    {
+        return $this->group_by_expression !== null;
     }
 
     public function has_order_by_expression()

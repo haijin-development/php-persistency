@@ -45,7 +45,7 @@ abstract class Database
 
     public function default_types_converter()
     {
-        return Create::a( Types_Converter::class )->with();
+        return Create::object( Types_Converter::class);
     }
 
     public function get_types_converter()
@@ -317,7 +317,7 @@ abstract class Database
 
     protected function new_compiler()
     {
-        return Create::a( Compiler::class )->with();
+        return Create::object( Compiler::class);
     }
 
     /// Validating
@@ -356,7 +356,7 @@ abstract class Database
             $error_message = 'The connection to the database failed.';
         }
 
-        throw Create::a( Connection_Failure_Error::class )->with( $error_message, $this );
+        throw new Connection_Failure_Error( $error_message, $this );
     }
 
     /**
@@ -366,7 +366,7 @@ abstract class Database
      */
     protected function raise_database_query_error($error_message)
     {
-        throw Create::a( Database_Query_Error::class )->with( $error_message, $this );
+        throw new Database_Query_Error( $error_message, $this );
     }
 
     /**
@@ -378,12 +378,12 @@ abstract class Database
             $error_message = 'The connection handle has not being initialized. Initialize it with \'->connect($hostname, $user, $password, $database)\' first.';
         }
 
-        throw Create::a( Uninitialized_Connection_Error::class )->with( $error_message, $this );
+        throw new Uninitialized_Connection_Error( $error_message, $this );
     }
 
     protected function raise_named_parameter_not_found_error($parameter_name)
     {
-        throw Create::a( Named_Parameter_Not_Found_Error::class )->with(
+        throw new Named_Parameter_Not_Found_Error(
             "The query named parameter '{$parameter_name}' was not found.",
             $parameter_name
         );

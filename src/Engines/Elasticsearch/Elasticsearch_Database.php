@@ -452,6 +452,12 @@ class Elasticsearch_Database extends Database
     {
         $rows = [];
 
+        if( isset( $result[ "aggregations" ] ) ) {
+
+            return $result[ "aggregations" ];
+
+        }
+
         foreach( $result[ "hits" ][ "hits" ]  as $row ) {
 
             $rows[] = $this->process_result_row( $row );

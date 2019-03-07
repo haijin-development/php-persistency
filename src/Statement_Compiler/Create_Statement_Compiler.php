@@ -15,7 +15,7 @@ class Create_Statement_Compiler extends Statement_Compiler
      */
     protected function new_statement_expression()
     {
-        return Create::a( Create_Statement::class )->with(
+        return Create::object( Create_Statement::class, 
             $this->context
         );
     }

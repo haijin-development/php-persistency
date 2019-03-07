@@ -75,6 +75,14 @@ class Expression_Visitor extends Abstract_Expression_Visitor
     }
 
     /**
+     * Accepts a Group_By_Expression.
+     */
+    public function accept_group_by_expression($group_by_expression)
+    {
+        $this->raise_unexpected_expression_error( $group_by_expression );
+    }
+
+    /**
      * Accepts a Order_By_Expression.
      */
     public function accept_order_by_expression($order_by_expression)
@@ -176,7 +184,7 @@ class Expression_Visitor extends Abstract_Expression_Visitor
     {
         $expression_name = get_class( $expression );
 
-        throw Create::an( Unexpected_Expression_Error::class )->with(
+        throw new Unexpected_Expression_Error(
             "Unexpected {$expression_name}",
             $expression
         );

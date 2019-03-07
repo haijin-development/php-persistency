@@ -80,7 +80,7 @@ class Binary_Operator_Expression extends Expression
      */
     public function __call($function_name, $parameters)
     {
-        $expression_compiler = Create::a( Expression_Compiler::class )->with( $this->context );
+        $expression_compiler = Create::object( Expression_Compiler::class,  $this->context );
 
         $this->set_parameter_2(
             $expression_compiler->receive($function_name, $parameters)

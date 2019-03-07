@@ -115,21 +115,21 @@ class Compiler
 
     protected function new_query_statement_compiler()
     {
-        return Create::a( Query_Statement_Compiler::class )->with();
+        return Create::object( Query_Statement_Compiler::class);
     }
 
     protected function new_create_statement_compiler()
     {
-        return Create::a( Create_Statement_Compiler::class )->with();
+        return Create::object( Create_Statement_Compiler::class);
     }
 
     protected function new_update_statement_compiler()
     {
-        return Create::a( Update_Statement_Compiler::class )->with();
+        return Create::object( Update_Statement_Compiler::class);
     }
 
     protected function new_delete_statement_compiler()
     {
-        return Create::a( Delete_Statement_Compiler::class )->with();
+        return Create::object( Delete_Statement_Compiler::class);
     }
 }

@@ -26,7 +26,7 @@ class Join_Expression extends Expression
         $this->from_field = null;
         $this->to_field = null;
         $this->proyection_expression = $this->new_proyection_expression();
-        $this->join_expressions = Create::an( Ordered_Collection::class )->with();
+        $this->join_expressions = new Ordered_Collection();
     }
 
     /// Accessing
@@ -204,7 +204,7 @@ class Join_Expression extends Expression
 
     public function new_query_statement_compiler($expression_context = null)
     {
-        return Create::a( Query_Statement_Compiler::class )->with( $expression_context );
+        return Create::object( Query_Statement_Compiler::class,  $expression_context );
     }
 
     /// Visiting

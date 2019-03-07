@@ -26,8 +26,26 @@ class Elasticsearch_Methods
         $spec->def( "clear_elasticsearch_indices", function() {
 
             if( $this->elasticsearch->indices()->exists([ 'index' => 'users' ]) ) {
+
                 $this->elasticsearch->indices()->delete([ 'index' => 'users' ]);
+
+                $this->elasticsearch->indices()->create([
+                    'index' => 'users',
+                    'body' => [
+                        'mappings' => [
+                            'users' => [
+                                'properties' => [
+                                    'id' => [ 'type' => 'integer' ],
+                                    'name' => [ 'type' => 'text', 'fielddata' => true ],
+                                    'last_name' => [ 'type' => 'text', 'fielddata' => true ]
+                                ]
+                            ]
+                        ],
+                    ]
+                ]);
+
             }
+
             if( $this->elasticsearch->indices()->exists([ 'index' => 'types' ]) ) {
                 $this->elasticsearch->indices()->delete([ 'index' => 'types' ]);
             }
@@ -71,7 +89,18 @@ class Elasticsearch_Methods
         $spec->def( "create_elasticsearch_indices", function() {
 
             $this->elasticsearch->indices()->create([
-                'index' => 'users_read_only'
+                'index' => 'users_read_only',
+                'body' => [
+                    'mappings' => [
+                        'users_read_only' => [
+                            'properties' => [
+                                'id' => [ 'type' => 'integer' ],
+                                'name' => [ 'type' => 'text', 'fielddata' => true ],
+                                'last_name' => [ 'type' => 'text', 'fielddata' => true ]
+                            ]
+                        ]
+                    ]
+                ]
             ]);
 
             $this->elasticsearch->indices()->create([
@@ -87,7 +116,18 @@ class Elasticsearch_Methods
             ]);
 
             $this->elasticsearch->indices()->create([
-                'index' => 'users'
+                'index' => 'users',
+                'body' => [
+                    'mappings' => [
+                        'users' => [
+                            'properties' => [
+                                'id' => [ 'type' => 'integer' ],
+                                'name' => [ 'type' => 'text' ],
+                                'last_name' => [ 'type' => 'text' ]
+                            ]
+                        ]
+                    ],
+                ]
             ]);
 
             $this->elasticsearch->indices()->create([

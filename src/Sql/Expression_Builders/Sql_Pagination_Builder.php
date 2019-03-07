@@ -63,21 +63,21 @@ class Sql_Pagination_Builder extends Sql_Expression_Builder
 
     protected function raise_missing_limit_expression_error()
     {
-        throw Create::a( Missing_Limit_Expression_Error::class )->with(
+        throw new Missing_Limit_Expression_Error(
             "The 'offset' expression must have a 'limit' expression as well. Please define a '\$query->limit(\$n)' expression."
         );
     }
 
     protected function raise_missing_page_number_expression_error()
     {
-        throw Create::a( Missing_Page_Number_Expression_Error::class )->with(
+        throw new Missing_Page_Number_Expression_Error(
             "The 'page_size' expression must have a 'page' expression as well. Please define a '\$query->page(\$n)' expression."
         );
     }
 
     protected function raise_missing_page_size_expression_error()
     {
-        throw Create::a( Missing_Page_Size_Expression_Error::class )->with(
+        throw new Missing_Page_Size_Expression_Error(
             "The 'page' expression must have a 'page_size' expression as well. Please define a '\$query->page_size(\$n)' expression."
         );
     }

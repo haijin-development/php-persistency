@@ -62,6 +62,6 @@ class Mysql_Expression_In_Filter_Builder extends Sql_Expression_In_Filter_Builde
      */
     protected function new_named_parameter_placeholder($parameter_name)
     {
-        return Create::a( Named_Parameter_Placerholder::class )->with( $parameter_name );
+        return Create::object( Named_Parameter_Placerholder::class,  $parameter_name );
     }
 }

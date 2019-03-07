@@ -207,7 +207,7 @@ abstract class Statement_Compiler
 
     protected function _raise_macro_expression_evaluated_to_null_error($macro_name)
     {
-        throw Create::a( Macro_Expression_Evaluated_To_Null_Error::class )->with(
+        throw new Macro_Expression_Evaluated_To_Null_Error(
             "The macro expression '{$macro_name}' evaluated to null. Probably it is missing the return statement.",
             $macro_name
         );

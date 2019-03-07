@@ -11,6 +11,7 @@ use Haijin\Persistency\Sql\Expression_Builders\Sql_Collection_Builder;
 use Haijin\Persistency\Sql\Expression_Builders\Sql_Proyection_Builder;
 use Haijin\Persistency\Sql\Expression_Builders\Sql_Join_Builder;
 use Haijin\Persistency\Sql\Expression_Builders\Sql_Filter_Builder;
+use Haijin\Persistency\Sql\Expression_Builders\Sql_Group_By_Builder;
 use Haijin\Persistency\Sql\Expression_Builders\Sql_Order_By_Builder;
 use Haijin\Persistency\Sql\Expression_Builders\Sql_Pagination_Builder;
 
@@ -63,13 +64,15 @@ class Sql_Query_Statement_Builder extends Sql_Expression_Builder
             $sql .= $this->visit( $query_statement->get_filter_expression() );
         }
 
+        if( $query_statement->has_group_by_expression() ) {
+            $sql .= $this->visit( $query_statement->get_group_by_expression() );
+        }
+
         if( $query_statement->has_order_by_expression() ) {
-            $sql .= " order by ";
             $sql .= $this->visit( $query_statement->get_order_by_expression() );
         }
 
         if( $query_statement->has_pagination_expression() ) {
-            $sql .= " ";
             $sql .= $this->visit( $query_statement->get_pagination_expression() );
         }
 
@@ -85,7 +88,7 @@ class Sql_Query_Statement_Builder extends Sql_Expression_Builder
 
     public function get_nested_proyections_sql_from($expression)
     {
-        $proyected_fields = Create::an( Ordered_Collection::class )->with();
+        $proyected_fields = new Ordered_Collection();
 
         $proyected_fields[] = $this->proyected_fields_from( $expression );
 
@@ -135,7 +138,7 @@ class Sql_Query_Statement_Builder extends Sql_Expression_Builder
             return "";
         }
 
-        $joins = Create::an( Ordered_Collection::class )->with();
+        $joins = new Ordered_Collection();
 
         $query_statement->join_expressions_do( function($join_expression) use($joins) {
 
@@ -166,12 +169,21 @@ class Sql_Query_Statement_Builder extends Sql_Expression_Builder
     }
 
     /**
+     * Accepts a Group_By_Expression.
+     */
+    public function accept_group_by_expression($group_by_expression)
+    {
+        return " group by " . $this->new_sql_group_by_builder()
+                                ->build_sql_from( $group_by_expression );
+    }
+
+    /**
      * Accepts a Order_By_Expression.
      */
     public function accept_order_by_expression($order_by_expression)
     {
-        return $this->new_sql_order_by_builder()
-            ->build_sql_from( $order_by_expression );
+        return " order by " . $this->new_sql_order_by_builder()
+                                ->build_sql_from( $order_by_expression );
     }
 
     /**
@@ -179,8 +191,8 @@ class Sql_Query_Statement_Builder extends Sql_Expression_Builder
      */
     public function accept_pagination_expression($pagination_expression)
     {
-        return $this->new_sql_pagination_builder()
-            ->build_sql_from( $pagination_expression );
+        return " " . $this->new_sql_pagination_builder()
+                        ->build_sql_from( $pagination_expression );
     }
 
     /**
@@ -231,6 +243,14 @@ class Sql_Query_Statement_Builder extends Sql_Expression_Builder
     {
         return Create::object(
             Sql_Join_Builder::class,
+            $this->collected_parameters
+        );
+    }
+
+    protected function new_sql_group_by_builder()
+    {
+        return Create::object(
+            Sql_Group_By_Builder::class,
             $this->collected_parameters
         );
     }

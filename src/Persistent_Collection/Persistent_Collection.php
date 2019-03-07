@@ -41,7 +41,7 @@ class Persistent_Collection
             $binding = $this;
         }
 
-        $definition_dsl = Create::a( Persistent_Collection_DSL::class )->with( $this );
+        $definition_dsl = Create::object( Persistent_Collection_DSL::class,  $this );
 
         $closure->call($binding, $definition_dsl);
     }
@@ -670,7 +670,7 @@ class Persistent_Collection
     protected function instantiate_object($raw_record)
     {
         if( is_string( $this->objects_instantiator ) ) {
-            return Create::a( $this->objects_instantiator )->with();
+            return Create::object( $this->objects_instantiator);
         }
 
         if( is_a( $this->objects_instantiator, \Closure::class ) ) {

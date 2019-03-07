@@ -15,7 +15,7 @@ class Delete_Statement_Compiler extends Statement_Compiler
      */
     protected function new_statement_expression()
     {
-        return Create::a( Delete_Statement::class )->with(
+        return Create::object( Delete_Statement::class, 
             $this->context
         );
     }
