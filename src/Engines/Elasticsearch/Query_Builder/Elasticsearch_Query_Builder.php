@@ -24,6 +24,7 @@ class Elasticsearch_Query_Builder extends Expression_Visitor
         $this->collection_name = null;
         $this->proyected_fields = null;
         $this->body = null;
+        $this->group_by_fields = [];
         $this->order_by_fields = [];
         $this->record_values = [];
         $this->offset = null;
@@ -45,6 +46,11 @@ class Elasticsearch_Query_Builder extends Expression_Visitor
     public function get_body()
     {
         return $this->body;
+    }
+
+    public function get_group_by_fields()
+    {
+        return $this->group_by_fields;
     }
 
     public function get_order_by_fields()
@@ -96,6 +102,15 @@ class Elasticsearch_Query_Builder extends Expression_Visitor
             }
 
             $this->visit( $query_statement->get_filter_expression() );
+        }
+
+        if( $query_statement->has_group_by_expression() ) {
+
+            if( $this->body === null ) {
+                $this->body = new \stdclass();
+            }
+
+            $this->visit( $query_statement->get_group_by_expression() );
         }
 
         if( $query_statement->has_pagination_expression() ) {
@@ -205,7 +220,7 @@ class Elasticsearch_Query_Builder extends Expression_Visitor
      */
     public function accept_filter_expression($filter_expression)
     {
-        $query = Create::a( Elasticsearch_Filter_Builder::class )->with()
+        $query = Create::object( Elasticsearch_Filter_Builder::class)
             ->visit( $filter_expression );
 
         if( $query !== null ) {
@@ -219,6 +234,19 @@ class Elasticsearch_Query_Builder extends Expression_Visitor
     public function accept_script_expression($script_expression)
     {
         return $script_expression->get_inner_expression();
+    }
+
+    /**
+     * Accepts a Group_By_Expression.
+     */
+    public function accept_group_by_expression($group_by_expression)
+    {
+        $query = Create::object( Elasticsearch_Filter_Builder::class)
+            ->visit( $group_by_expression->get_groupping_expressions()->first() );
+
+        if( $query !== null ) {
+            $this->body->aggregations = $query;
+        }
     }
 
     /**
@@ -329,14 +357,14 @@ class Elasticsearch_Query_Builder extends Expression_Visitor
 
     protected function raise_missing_page_number_expression_error()
     {
-        throw Create::a( Missing_Page_Number_Expression_Error::class )->with(
+        throw new Missing_Page_Number_Expression_Error(
             "The 'page_size' expression must have a 'page' expression as well. Please define a '\$query->page(\$n)' expression."
         );
     }
 
     protected function raise_missing_page_size_expression_error()
     {
-        throw Create::a( Missing_Page_Size_Expression_Error::class )->with(
+        throw new Missing_Page_Size_Expression_Error(
             "The 'page' expression must have a 'page_size' expression as well. Please define a '\$query->page_size(\$n)' expression."
         );
     }

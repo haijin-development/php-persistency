@@ -15,7 +15,7 @@ class Order_By_Expression extends Expression
     {
         parent::__construct( $expression_context );
 
-        $this->order_by_expressions = Create::an( Ordered_Collection::class )->with();
+        $this->order_by_expressions = new Ordered_Collection();
     }
 
     /// Asking

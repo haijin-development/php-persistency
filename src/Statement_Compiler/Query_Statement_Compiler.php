@@ -18,7 +18,7 @@ class Query_Statement_Compiler extends Statement_Compiler
      */
     protected function new_statement_expression()
     {
-        return Create::a( Query_Statement::class )->with( $this->context );
+        return Create::object( Query_Statement::class,  $this->context );
     }
 
     public function get_query_statement()
@@ -55,6 +55,19 @@ class Query_Statement_Compiler extends Statement_Compiler
     {
         $this->statement_expression->set_proyection_expression(
             $this->new_proyection_expression_with_all( $proyected_expressions )
+        );
+    }
+
+    /**
+     * Creates a Group_By_Expression with the grouping fields expressions of the query.
+     *
+     * @param array $fields_expressions Each parameter is a Field_Expression defining
+     *      a query group by.
+     */
+    public function group_by(...$fields_expressions)
+    {
+        $this->statement_expression->set_group_by_expression(
+            $this->new_group_by_expression_with_all( $fields_expressions )
         );
     }
 
@@ -223,7 +236,7 @@ class Query_Statement_Compiler extends Statement_Compiler
 
     protected function _raise_macro_expression_evaluated_to_null_error($macro_name)
     {
-        throw Create::a( Macro_Expression_Evaluated_To_Null_Error::class )->with(
+        throw new Macro_Expression_Evaluated_To_Null_Error(
             "The macro expression '{$macro_name}' evaluated to null. Probably it is missing the return statement.",
             $macro_name
         );

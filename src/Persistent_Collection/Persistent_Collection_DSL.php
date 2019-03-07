@@ -183,20 +183,20 @@ class Persistent_Collection_DSL
         if( is_string( $value_reader) ) {
 
             if( $method_accessor = $this->is_method_accessor( $value_reader ) ) {
-                $value_accessor = Create::a( Method_Accessor::class )->with( $method_accessor );
+                $value_accessor = Create::object( Method_Accessor::class,  $method_accessor );
             }
 
             if( $property_accessor = $this->is_property_accessor( $value_reader ) ) {
-                $value_accessor = Create::a( Property_Accessor::class )->with( $property_accessor );
+                $value_accessor = Create::object( Property_Accessor::class,  $property_accessor );
             }
 
             if( $array_accessor = $this->is_array_accessor( $value_reader ) ) {
-                $value_accessor = Create::a( Array_Accessor::class )->with( $array_accessor );
+                $value_accessor = Create::object( Array_Accessor::class,  $array_accessor );
             }
         }
 
         if( is_a( $value_reader, \Closure::class ) ) {
-            $value_accessor = Create::a( Closure_Accessor::class )->with( $value_reader );
+            $value_accessor = Create::object( Closure_Accessor::class,  $value_reader );
         }
 
         if( $value_accessor === null ) {
@@ -215,20 +215,20 @@ class Persistent_Collection_DSL
         if( is_string( $value_writter) ) {
 
             if( $method_accessor = $this->is_method_accessor( $value_writter ) ) {
-                $value_accessor = Create::a( Method_Accessor::class )->with( $method_accessor );
+                $value_accessor = Create::object( Method_Accessor::class,  $method_accessor );
             }
 
             if( $property_accessor = $this->is_property_accessor( $value_writter ) ) {
-                $value_accessor = Create::a( Property_Accessor::class )->with( $property_accessor );
+                $value_accessor = Create::object( Property_Accessor::class,  $property_accessor );
             }
 
             if( $array_accessor = $this->is_array_accessor( $value_writter ) ) {
-                $value_accessor = Create::a( Array_Accessor::class )->with( $array_accessor );
+                $value_accessor = Create::object( Array_Accessor::class,  $array_accessor );
             }
         }
 
         if( is_a( $value_writter, \Closure::class ) ) {
-            $value_accessor = Create::a( Closure_Accessor::class )->with( $value_writter );
+            $value_accessor = Create::object( Closure_Accessor::class,  $value_writter );
         }
 
         if( $value_accessor === null ) {
@@ -277,25 +277,29 @@ class Persistent_Collection_DSL
 
     protected function raise_unexpected_definition_error($attribute_name)
     {
-        throw Create::a( \RuntimeException::class )
-                ->with( "Unexpected definition '{$attribute_name}'." );
+        throw new \RuntimeException(
+            "Unexpected definition '{$attribute_name}'."
+        );
     }
 
     protected function raise_unexpected_instantiator_error()
     {
-        throw Create::a( \RuntimeException::class )
-                ->with( "Unexpected instantiator." );
+        throw new \RuntimeException(
+            "Unexpected instantiator."
+        );
     }
 
     protected function raise_unexpected_read_with_value_error($value_reader)
     {
-        throw Create::a( \RuntimeException::class )
-                ->with( "The read_with value '$value_reader' is not defined. Should be one of '->value', '[value]' or 'value()'." );
+        throw new \RuntimeException(
+            "The read_with value '$value_reader' is not defined. Should be one of '->value', '[value]' or 'value()'."
+        );
     }
 
     protected function raise_unexpected_write_with_value_error($value_writter)
     {
-        throw Create::a( \RuntimeException::class )
-                ->with( "The write_with value '$value_writter' is not defined. Should be one of '->value', '[value]' or 'value()'." );
+        throw new \RuntimeException(
+            "The write_with value '$value_writter' is not defined. Should be one of '->value', '[value]' or 'value()'."
+        );
     }
 }

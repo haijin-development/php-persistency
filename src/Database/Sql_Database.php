@@ -204,22 +204,22 @@ abstract class Sql_Database extends Database
 
     protected function new_sql_query_statement_builder()
     {
-        return Create::a( Sql_Query_Statement_Builder::class )->with();
+        return Create::object( Sql_Query_Statement_Builder::class);
     }
 
     protected function new_sql_create_statement_builder()
     {
-        return Create::a( Sql_Create_Statement_Builder::class )->with();
+        return Create::object( Sql_Create_Statement_Builder::class);
     }
 
     protected function new_sql_update_statement_builder()
     {
-        return Create::a( Sql_Update_Statement_Builder::class )->with();
+        return Create::object( Sql_Update_Statement_Builder::class);
     }
 
     protected function new_sql_delete_statement_builder()
     {
-        return Create::a( Sql_Delete_Statement_Builder::class )->with();
+        return Create::object( Sql_Delete_Statement_Builder::class);
     }
 
     /// Debugging
@@ -230,7 +230,7 @@ abstract class Sql_Database extends Database
             $binding = $this;
         }
 
-        $query_parameters = Create::an( Ordered_Collection::class )->with();
+        $query_parameters = new Ordered_Collection();
 
         $sql = $this->query_statement_to_sql(
             $query_statement_compiler->get_query_statement(),

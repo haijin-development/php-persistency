@@ -108,7 +108,7 @@ abstract class Migrations_Evaluator
 
     protected function get_all_migrations_from_files()
     {
-        $folder = Create::a( File_Path::class )->with( $this->migrations_folder );
+        $folder = new File_Path( $this->migrations_folder );
 
         $all_migrations = [];
         $migration_ids = [];

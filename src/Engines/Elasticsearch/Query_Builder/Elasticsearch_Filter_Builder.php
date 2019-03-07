@@ -118,6 +118,6 @@ class Elasticsearch_Filter_Builder extends Expression_Visitor
 
     protected function new_named_parameter_placeholder($parameter_name)
     {
-        return Create::a( Named_Parameter_Placerholder::class )->with( $parameter_name );
+        return Create::object( Named_Parameter_Placerholder::class,  $parameter_name );
     }
 }
