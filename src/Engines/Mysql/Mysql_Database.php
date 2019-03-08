@@ -31,6 +31,8 @@ class Mysql_Database extends Sql_Database
 
             $this->raise_connection_failed_error( $error_message );
         }
+
+        return $this;
     }
 
     /// Transactions

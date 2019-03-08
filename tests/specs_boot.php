@@ -7,14 +7,14 @@ require_once __DIR__ . "/postgresql-methods.php";
 require_once __DIR__ . "/sqlite-methods.php";
 require_once __DIR__ . "/elasticsearch-methods.php";
 
-require_once __DIR__ . "/sample-models/User.php";
-require_once __DIR__ . "/sample-models/Address.php";
-require_once __DIR__ . "/sample-models/Record_With_Types.php";
-require_once __DIR__ . "/sample-models/Addresses_Collection.php";
-require_once __DIR__ . "/sample-models/Users_Collection.php";
-require_once __DIR__ . "/sample-models/Elasticsearch_Users_Collection.php";
-require_once __DIR__ . "/sample-models/Types_Collection.php";
-require_once __DIR__ . "/sample-models/Elasticsearch_Types_Collection.php";
+require_once __DIR__ . "/samples/models/User.php";
+require_once __DIR__ . "/samples/models/Address.php";
+require_once __DIR__ . "/samples/models/Record_With_Types.php";
+require_once __DIR__ . "/samples/models/Addresses_Collection.php";
+require_once __DIR__ . "/samples/models/Users_Collection.php";
+require_once __DIR__ . "/samples/models/Elasticsearch_Users_Collection.php";
+require_once __DIR__ . "/samples/models/Types_Collection.php";
+require_once __DIR__ . "/samples/models/Elasticsearch_Types_Collection.php";
 
 \Haijin\Specs\Specs_Runner::configure( function($specs) {
 

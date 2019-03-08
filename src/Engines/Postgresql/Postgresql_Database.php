@@ -29,6 +29,8 @@ class Postgresql_Database extends Sql_Database
             $this->raise_connection_failed_error( "Connection failed." );
 
         }
+
+        return $this;
     }
 
     /// Transactions

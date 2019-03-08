@@ -7,26 +7,46 @@ use Haijin\File_Path;
 
 abstract class Migrations_Evaluator
 {
-    protected $database;
+    protected $migration_database;
     protected $migrations_table_name;
     protected $migrations_folder;
+    protected $migrated_databases;
 
     /// Initializing
 
-    public function __construct($database, $migrations_table_name, $migrations_folder)
-    {
-        $this->database = $database;
+    public function __construct(
+        $migration_database,
+        $migrations_table_name,
+        $migrations_folder,
+        $migrated_databases
+    ) {
+        $this->migration_database = $migration_database;
         $this->migrations_table_name = $migrations_table_name;
         $this->migrations_folder = $migrations_folder;
+        $this->migrated_databases = $migrated_databases;
     }
 
     /// Asking
 
-    abstract public function exists_migrations_table();
+    abstract public function exists_table($table_name);
+
+    public function exists_migrations_table()
+    {
+        return $this->exists_table( $this->migrations_table_name );
+    }
 
     /// Dropping
 
-    abstract public function drop_migrations_table();
+    abstract public function drop_table($table_name);
+
+    public function drop_all_tables()
+    {
+        foreach( $this->get_all_tables_in_database() as $table ) {
+            $this->drop_table( $table );
+        }
+    }
+
+    abstract public function get_all_tables_in_database();
 
     /// Creating
 
@@ -50,7 +70,7 @@ abstract class Migrations_Evaluator
 
             try {
 
-                $script->get_closure()->call( $this );
+                $script->get_closure()( ...$this->migrated_databases );
 
                 echo " ok.\n";
 
@@ -130,6 +150,7 @@ abstract class Migrations_Evaluator
             }
 
             $all_migrations[] = $migration;
+            $migration_ids[] = $migration->get_id();
         }
 
         return $all_migrations;
@@ -147,21 +168,21 @@ abstract class Migrations_Evaluator
     protected function raise_duplicated_migration_id_error($migration)
     {
         throw new \RuntimeException(
-            "The migration in file '${$migration->get_source_file()}' has a repeated unique id: '{$migration->get_id()}'."
+            "The migration in file '{$migration->get_source_filename()}' has a repeated unique id: '{$migration->get_id()}'."
         );
     }
 
     protected function raise_missing_name_error($migration)
     {
         throw new \RuntimeException(
-            "The migration in file '${$migration->get_source_file()}' is missing its name."
+            "The migration in file '{$migration->get_source_filename()}' is missing its name."
         );
     }
 
     protected function raise_missing_scripts_error($migration)
     {
         throw new \RuntimeException(
-            "The migration in file '${$migration->get_source_file()}' has no scripts defined."
+            "The migration in file '{$migration->get_source_filename()}' has no scripts defined."
         );
     }
 }

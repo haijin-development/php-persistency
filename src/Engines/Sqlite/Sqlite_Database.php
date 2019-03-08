@@ -44,6 +44,7 @@ class Sqlite_Database extends Sql_Database
 
         }
 
+        return $this;
     }
 
     /// Transactions

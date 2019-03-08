@@ -1,10 +1,10 @@
 <?php
 
-namespace Haijin\Persistency\Engines\Mysql\Migrations;
+namespace Haijin\Persistency\Engines\Postgresql\Migrations;
 
 use Haijin\Persistency\Migrations\Migrations_Evaluator;
 
-class Mysql_Migrations_Evaluator extends Migrations_Evaluator
+class Posgresql_Migrations_Evaluator extends Migrations_Evaluator
 {
     /// Dropping
 
@@ -15,7 +15,7 @@ class Mysql_Migrations_Evaluator extends Migrations_Evaluator
 
     public function drop_table($table_name)
     {
-        echo "Dropping Mysql table $table_name ...";
+        echo "Dropping Postgresql table $table_name ...";
 
         $this->migration_database->evaluate_sql_string(
             "DROP TABLE IF EXISTS `{$table_name}`;"
@@ -27,14 +27,18 @@ class Mysql_Migrations_Evaluator extends Migrations_Evaluator
     public function get_all_tables_in_database()
     {
         $result = $this->migration_database->execute_sql_string(
-            "SHOW TABLES;"
+            "SELECT * FROM pg_catalog.pg_tables;"
         );
 
-        if( count( $result ) == 0 ) {
-            return [];
-        }
+        $result = array_filter( $result, function($table){
+            return $table[ 'tableowner' ] == 'public';
+        });
 
-        return array_map( function($row){ return array_values( $row )[ 0 ]; }, $result );
+        $tables = array_map( function($table){
+            return $table[ 'tablename' ];
+        }, $result );
+
+        return $tables;
     }
 
     /// Migrations

@@ -6,32 +6,41 @@ use Haijin\Persistency\Migrations\Migrations_Evaluator;
 
 class Elasticsearch_Migrations_Evaluator extends Migrations_Evaluator
 {
-    public function drop_all()
+    /// Dropping
+
+    public function exists_table($index_name)
     {
-        $this->database->with_handle_do( function($client) {
+        return in_array( $index_name, $this->get_all_tables_in_database() );
+    }
 
-            foreach( $client->cat()->indices() as $row) {
+    public function drop_table($index_name)
+    {
+        echo "Dropping Elasticsearch table $index_name ...";
 
-                $index_name = $row[ 'index' ];
+        $this->migration_database->with_handle_do( function($client) use($index_name) {
 
-                echo "Dropping index $index_name ...";
+            $client->indices()->delete( [ 'index' => $index_name ] );
 
-                $client->indices()->delete( [ 'index' => $index_name ] );
+        });
 
-                echo "ok\n";
-            }
+        echo "ok.\n";        
+    }
+
+    public function get_all_tables_in_database()
+    {
+        return $this->migration_database->with_handle_do( function($client) {
+
+            return array_map( function($row){
+
+                return $row[ 'index' ];
+
+            }, $client->cat()->indices() );
 
         });
 
     }
 
-    public function exists_migrations_table()
-    {
-    }
-
-    public function drop_migrations_table()
-    {
-    }
+    /// Migrations
 
     public function create_migrations_table()
     {

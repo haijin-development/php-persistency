@@ -1,10 +1,10 @@
 <?php
 
-namespace Haijin\Persistency\Engines\Mysql\Migrations;
+namespace Haijin\Persistency\Engines\Sqlite\Migrations;
 
 use Haijin\Persistency\Migrations\Migrations_Evaluator;
 
-class Mysql_Migrations_Evaluator extends Migrations_Evaluator
+class Sqlite_Migrations_Evaluator extends Migrations_Evaluator
 {
     /// Dropping
 
@@ -15,7 +15,7 @@ class Mysql_Migrations_Evaluator extends Migrations_Evaluator
 
     public function drop_table($table_name)
     {
-        echo "Dropping Mysql table $table_name ...";
+        echo "Dropping Sqlite table $table_name ...";
 
         $this->migration_database->evaluate_sql_string(
             "DROP TABLE IF EXISTS `{$table_name}`;"
@@ -27,14 +27,14 @@ class Mysql_Migrations_Evaluator extends Migrations_Evaluator
     public function get_all_tables_in_database()
     {
         $result = $this->migration_database->execute_sql_string(
-            "SHOW TABLES;"
+            "SELECT * FROM sqlite_master WHERE type = 'table';"
         );
 
-        if( count( $result ) == 0 ) {
-            return [];
-        }
+        return array_map( function($row){
 
-        return array_map( function($row){ return array_values( $row )[ 0 ]; }, $result );
+            return $row[ 'tbl_name' ];
+
+        }, $result );
     }
 
     /// Migrations

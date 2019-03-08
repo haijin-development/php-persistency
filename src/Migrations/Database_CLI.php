@@ -7,43 +7,35 @@ use Haijin\Instantiator\Create;
 class Database_CLI
 {
     protected $argv;
+    protected $migrations_builder;
     protected $mitrations_evaluator;
 
     /// Initializing
 
-    public function __construct()
+    public function __construct($argv)
     {
-        $this->argv = null;
+        $this->argv = $argv;
+        $this->migrations_builder = new Migrations_Builder();
+    }
+
+    /// Configuration
+
+    public function config_in_file($filename)
+    {
+        $this->migrations_builder->define_in_file( $filename );
     }
 
     /// Command line interface
 
-    public function evaluate($argv)
+    public function evaluate()
     {
-        $this->argv = $argv;
-
         if( count( $this->argv ) == 0 ) {
-            exit( 0 );
+            return;
         }
-
-        $app_mode = 'production';
-        if( isset( $argv[ 2 ] ) ) {
-            $app_mode = $argv[ 2 ];
-        }
-
-        // Haijin initialization
-        \App\Sample_App::initialize_on( 'production' );
-
-        require "src/Config/{$app_mode}/databases.php";
-
-        $migrations_builder = $this->new_migrations_builder()
-                        ->define_in_file( "src/Config/{$app_mode}/migrations.php" );
-
-        $this->migrations_evaluator = $migrations_builder->new_evaluator();
 
         switch( $this->argv[ 1 ] ) {
             case 'drop':
-                $this->drop_command( $migrations_builder );
+                $this->drop_command();
                 break;
 
             case 'migrate':
@@ -51,41 +43,38 @@ class Database_CLI
                 break;
 
             default:
-                echo "Uknown command '{$this->argv[1]}'.\n";
-                exit(1);
+                throw new \RuntimeException( "Uknown command '{$this->argv[1]}'.\n" );
                 break;
         }
-
-        exit( 0 );
     }
 
     /// Commands
 
-    public function drop_command($migrations_builder)
+    public function drop_command()
     {
-        foreach( $migrations_builder->databases_to_drop as $database ) {
-
-            $migrations_builder->new_evaluator_on( $database )->drop_all();
-
-        }
+        $this->migrations_builder->drop_all_databases();
 
         echo "Dropped ok.\n";
     }
 
-    public function init_command()
-    {
-        $this->migrations_evaluator->create_migrations_table();
-
-        echo "Migrations table initialized.\n";
-    }
-
     public function migrate_command()
     {
-        if( ! $this->migrations_evaluator->exists_migrations_table() ) {
-            $this->init_command();
+        $migrations_evaluator = $this->migrations_builder->new_evaluator();
+
+        if( ! $migrations_evaluator->exists_migrations_table() ) {
+
+            $this->initialize_migrations_tables( $migrations_evaluator );
+
         }
 
-        $this->migrations_evaluator->run_pending_migrations();
+        $migrations_evaluator->run_pending_migrations();
+    }
+
+    public function initialize_migrations_tables($migrations_evaluator)
+    {
+        $migrations_evaluator->create_migrations_table();
+
+        echo "Migrations table initialized.\n";
     }
 
     /// Instantiating
