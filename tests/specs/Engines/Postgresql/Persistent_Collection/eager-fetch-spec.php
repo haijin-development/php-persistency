@@ -89,10 +89,8 @@ $spec->describe( "When mapping fields to another collections in a Postgresql dat
                 "last_name" => "Simpson"
             ]);
 
-            $user = Users_Collection::get()->first( null, [
-                'eager_fetch' => [
-                    'address_id' => true
-                ]
+            $user = Users_Collection::get()->first( null, [], [
+                'address_id' => true
             ]);
 
             $this->expect( $user->get_address() ) ->to() ->be() ->null();
@@ -110,10 +108,8 @@ $spec->describe( "When mapping fields to another collections in a Postgresql dat
 
             $this->populate_users_and_addresses;
 
-            $users = Users_Collection::get()->all( function(){}, [
-                'eager_fetch' => [
-                    'address_id' => true
-                ]
+            $users = Users_Collection::get()->all( function(){}, [], [
+                'address_id' => true
             ]);
 
             $this->expect( $users[ 0 ]->get_address() ) ->to() ->be() ->a(
@@ -170,10 +166,8 @@ $spec->describe( "When mapping fields to another collections in a Postgresql dat
 
             });
 
-            $user = Users_Collection::get()->all( function(){}, [
-                'eager_fetch' => [
-                    'address_id' => true
-                ]
+            $user = Users_Collection::get()->all( function(){}, [], [
+                'address_id' => true
             ]);
 
             $this->expect( $this->queries ) ->to() ->equal([
@@ -235,10 +229,8 @@ $spec->describe( "When mapping fields to another collections in a Postgresql dat
                 "last_name" => "Simpson"
             ]);
 
-            $user = Users_Collection::get()->first( function(){}, [
-                'eager_fetch' => [
-                    'address_2' => true
-                ]
+            $user = Users_Collection::get()->first( function(){}, [], [
+                'address_2' => true
             ]);
 
             $this->expect( $user->get_address_2() ) ->to() ->be() ->null();
@@ -256,10 +248,8 @@ $spec->describe( "When mapping fields to another collections in a Postgresql dat
 
             $this->populate_users_and_addresses;
 
-            $users = Users_Collection::get()->all( function(){}, [
-                'eager_fetch' => [
-                    'address_2' => true
-                ]
+            $users = Users_Collection::get()->all( function(){}, [], [
+                'address_2' => true
             ]);
 
             $this->expect( $users[ 0 ]->get_address_2() ) ->to() ->be() ->a(
@@ -316,10 +306,8 @@ $spec->describe( "When mapping fields to another collections in a Postgresql dat
 
             });
 
-            $users = Users_Collection::get()->all( function(){}, [
-                'eager_fetch' => [
-                    'address_2' => true
-                ]
+            $users = Users_Collection::get()->all( function(){}, [], [
+                'address_2' => true
             ]);
 
             $this->expect( $this->queries ) ->to() ->equal([
@@ -381,10 +369,8 @@ $spec->describe( "When mapping fields to another collections in a Postgresql dat
                 "last_name" => "Simpson"
             ]);
 
-            $user = Users_Collection::get()->first( function(){}, [
-                'eager_fetch' => [
-                    'all_addresses' => true
-                ]
+            $user = Users_Collection::get()->first( function(){}, [], [
+                'all_addresses' => true
             ]);
 
             $this->expect( $user->get_all_addresses() ) ->to() ->be() ->a(
@@ -406,10 +392,8 @@ $spec->describe( "When mapping fields to another collections in a Postgresql dat
 
             $this->populate_users_and_addresses;
 
-            $users = Users_Collection::get()->all( function(){}, [
-                'eager_fetch' => [
-                    'all_addresses' => true
-                ]
+            $users = Users_Collection::get()->all( function(){}, [], [
+                'all_addresses' => true
             ]);
 
             $this->expect( $users[ 0 ]->get_all_addresses() ) ->to() ->be() ->a(
@@ -478,10 +462,8 @@ $spec->describe( "When mapping fields to another collections in a Postgresql dat
 
             });
 
-            $users = Users_Collection::get()->all( function(){}, [
-                'eager_fetch' => [
-                    'all_addresses' => true
-                ]
+            $users = Users_Collection::get()->all( function(){}, [], [
+                'all_addresses' => true
             ]);
 
             $this->expect( $this->queries ) ->to() ->equal([
@@ -571,10 +553,8 @@ $spec->describe( "When mapping fields to another collections in a Postgresql dat
                 "last_name" => "Simpson"
             ]);
 
-            $user = Users_Collection::get()->first( function(){}, [
-                'eager_fetch' => [
-                    'all_indirect_addresses' => true
-                ]
+            $user = Users_Collection::get()->first( function(){}, [], [
+                'all_indirect_addresses' => true
             ]);
 
             $this->expect( $user->get_all_indirect_addresses() ) ->to() ->be() ->a(
@@ -596,10 +576,8 @@ $spec->describe( "When mapping fields to another collections in a Postgresql dat
 
             $this->populate_users_and_addresses;
 
-            $users = Users_Collection::get()->all( function(){}, [
-                'eager_fetch' => [
-                    'all_indirect_addresses' => true
-                ]
+            $users = Users_Collection::get()->all( function(){}, [], [
+                'all_indirect_addresses' => true
             ]);
 
             $this->expect( $users[ 0 ]->get_all_indirect_addresses() ) ->to() ->be() ->a(
@@ -668,10 +646,8 @@ $spec->describe( "When mapping fields to another collections in a Postgresql dat
 
             });
 
-            $users = Users_Collection::get()->all( function(){}, [
-                'eager_fetch' => [
-                    'all_indirect_addresses' => true
-                ]
+            $users = Users_Collection::get()->all( function(){}, [], [
+                'all_indirect_addresses' => true
             ]);
 
             $this->expect( $this->queries ) ->to() ->equal([

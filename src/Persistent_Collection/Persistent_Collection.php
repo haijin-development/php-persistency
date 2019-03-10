@@ -135,16 +135,22 @@ class Persistent_Collection
 
     /// Searching
 
-    public function find_by_id($id, $named_parameters = [])
+    public function find_by_id($id, $named_parameters = [], $eager_fetch = [])
     {
         $this->validate_named_parameters( $named_parameters );
 
-        return $this->find_by([
-            $this->get_id_field() => $id
-        ]);
+        return $this->find_by(
+            [
+                $this->get_id_field() => $id
+            ],
+            $named_parameters,
+            $eager_fetch
+        );
     }
 
-    public function find_all_by_ids($ids_collection, $named_parameters = [])
+    public function find_all_by_ids(
+            $ids_collection, $named_parameters = [], $eager_fetch = []
+        )
     {
         $this->validate_named_parameters( $named_parameters );
 
@@ -156,14 +162,16 @@ class Persistent_Collection
                 $query->field( $id_field ) ->in( $ids_collection )
             );
 
-        }, $named_parameters );
+        }, $named_parameters, $eager_fetch );
     }
 
-    public function find_by_id_if_absent($id, $absent_callable, $named_parameters = [])
+    public function find_by_id_if_absent(
+            $id, $absent_callable, $named_parameters = [], $eager_fetch = []
+        )
     {
         $this->validate_named_parameters( $named_parameters );
 
-        $object = $this->find_by_id( $id, $named_parameters );
+        $object = $this->find_by_id( $id, $named_parameters, $eager_fetch );
 
         if( $object !== null ) {
             return $object;
@@ -172,7 +180,7 @@ class Persistent_Collection
         return $absent_callable( $id );
     }
 
-    public function find_by($field_values, $named_parameters = [])
+    public function find_by($field_values, $named_parameters = [], $eager_fetch = [])
     {
         $this->validate_named_parameters( $named_parameters );
 
@@ -202,7 +210,7 @@ class Persistent_Collection
 
             $query->filter( $expression );
 
-        }, $named_parameters );
+        }, $named_parameters, $eager_fetch );
 
         $found_count = count( $found_objects );
 
@@ -218,12 +226,12 @@ class Persistent_Collection
     }
 
     public function find_by_if_absent(
-            $field_values, $absent_callable, $named_parameters = []
+            $field_values, $absent_callable, $named_parameters = [], $eager_fetch = []
         )
     {
         $this->validate_named_parameters( $named_parameters );
 
-        $object = $this->find_by( $field_values, $named_parameters );
+        $object = $this->find_by( $field_values, $named_parameters, $eager_fetch );
 
         if( $object !== null ) {
             return $object;
@@ -242,7 +250,7 @@ class Persistent_Collection
      * The $filter_query is a Query_Statement callable with no collection expression, which
      * is suppllied by $this Persistent_Collection.
      */
-    public function all($filter_callable = null, $named_parameters = [])
+    public function all($filter_callable = null, $named_parameters = [], $eager_fetch = [])
     {
         $this->validate_named_parameters( $named_parameters );
 
@@ -272,13 +280,19 @@ class Persistent_Collection
 
         $objects = $this->records_to_objects( $records );
 
-        return $this->process_returned_objects( $objects, $named_parameters );
+        return $this->process_returned_objects(
+            $objects,
+            $named_parameters,
+            $eager_fetch
+        );
     }
 
     /**
      * Returns the first object in the collection or null if there is none.
      */
-    public function first($filter_callable = null, $named_parameters = [])
+    public function first(
+            $filter_callable = null, $named_parameters = [], $eager_fetch = []
+        )
     {
         $this->validate_named_parameters( $named_parameters );
 
@@ -308,7 +322,7 @@ class Persistent_Collection
                 $query->limit( 1 )
             );
 
-        }, $named_parameters);
+        }, $named_parameters, $eager_fetch );
 
         if( empty( $objects ) ) {
             return null;
@@ -320,7 +334,7 @@ class Persistent_Collection
     /**
      * Returns the last object in the collection or null if there is none.
      */
-    public function last()
+    public function last($eager_fetch = [])
     {
         $collection_name = $this->collection_name;
 
@@ -338,7 +352,7 @@ class Persistent_Collection
                 $query->limit( 1 )
             );
 
-        });
+        }, [], $eager_fetch );
     }
 
     /// Counting
@@ -662,13 +676,13 @@ class Persistent_Collection
         $this->raise_unkown_instantiator_error();
     }
 
-    protected function process_returned_objects($objects, $named_parameters)
+    protected function process_returned_objects($objects, $named_parameters, $eager_fetch)
     {
-        if( ! isset( $named_parameters[ 'eager_fetch'] ) ) {
+        if( empty( $eager_fetch ) ) {
             return $objects;
         }
 
-        return $this->eager_fetch( $objects, $named_parameters[ 'eager_fetch' ] );
+        return $this->eager_fetch( $objects, $eager_fetch );
     }
 
     protected function eager_fetch($objects, $fetch_spec)

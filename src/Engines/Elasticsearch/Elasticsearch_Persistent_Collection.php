@@ -8,14 +8,14 @@ class Elasticsearch_Persistent_Collection extends Persistent_Collection
 {
     /// Querying
 
-    public function find_by_id($id, $named_parameters = [])
+    public function find_by_id($id, $named_parameters = [], $eager_fetch = [])
     {
         return $this->record_to_object(
             $this->get_database()->find_by_id( $id, $this->collection_name )
         );
     }
 
-    public function find_by($field_values, $named_parameters = [])
+    public function find_by($field_values, $named_parameters = [], $eager_fetch = [])
     {
         $found_objects = $this->all( function($query) use($field_values) {
 
@@ -46,7 +46,9 @@ class Elasticsearch_Persistent_Collection extends Persistent_Collection
         $this->raise_more_than_one_record_found_error( $found_count );
     }
 
-    public function find_all_by_ids($ids_collection, $named_parameters = [])
+    public function find_all_by_ids(
+            $ids_collection, $named_parameters = [], $eager_fetch = []
+        )
     {
         return $this->all( function($query) use($ids_collection) {
 
@@ -60,7 +62,9 @@ class Elasticsearch_Persistent_Collection extends Persistent_Collection
     /**
      * Returns the first object in the collection or null if there is none.
      */
-    public function first($filter_callable = null, $named_parameters = [])
+    public function first(
+            $filter_callable = null, $named_parameters = [], $eager_fetch = []
+        )
     {
         if( $filter_callable === null ) {
 
@@ -74,13 +78,13 @@ class Elasticsearch_Persistent_Collection extends Persistent_Collection
 
         }
 
-        return parent::first( $filter_callable, $named_parameters );
+        return parent::first( $filter_callable, $named_parameters, $eager_fetch );
     }
 
     /**
      * Returns the first object in the collection or null if there is none.
      */
-    public function all($filter_callable = null, $named_parameters = [])
+    public function all($filter_callable = null, $named_parameters = [], $eager_fetch = [])
     {
         if( $filter_callable === null ) {
 
@@ -94,13 +98,13 @@ class Elasticsearch_Persistent_Collection extends Persistent_Collection
 
         }
 
-        return parent::all( $filter_callable, $named_parameters );
+        return parent::all( $filter_callable, $named_parameters, $eager_fetch );
     }
 
     /**
      * Returns the first object in the collection or null if there is none.
      */
-    public function last()
+    public function last($eager_fetch = [])
     {
         return parent::first( function($query) {
 
@@ -108,7 +112,7 @@ class Elasticsearch_Persistent_Collection extends Persistent_Collection
                 $query ->field( '_uid' ) ->desc()
             );
 
-        });
+        }, [], $eager_fetch );
     }
 
     /// Updating

@@ -1979,21 +1979,21 @@ class Users_Persistent_Collection extends Persistent_Collection
 To eagerly fetch references give to any query a specification of which references to must be eagerly fetched:
 
 ```php
+$eager_fetch = [
+    'books' => [
+        'author' => true,
+        'publisher' => true
+    ],
+    'address' => true
+];
+
 Users_Collection::get()->all( function($query) {
 
     $query->order_by(
         $query->field( 'name' )
     );
 
-}, [
-    'eager_fetch' => [
-        'books' => [
-            'author' => true,
-            'publisher' => true
-        ],
-        'address' => true
-    ]
-]);
+}, [], $eager_fetch );
 ```
 
 See also the [default eager fetch pattern](#c-2-2-12-6).
@@ -2477,7 +2477,7 @@ class Users_Persistent_Collection extends Persistent_Collection
                 $query->field( 'name' )
             );
 
-        }, [ 'eager_fetch' => $eager_fetch] );
+        }, [], $eager_fetch );
     }
 }
 ```
