@@ -206,7 +206,7 @@ $spec->describe( "When accessing object values", function() {
 
     });
 
-    $this->describe( "with closures", function() {
+    $this->describe( "with callables", function() {
 
         $this->it( "writes and reads the value from the object", function() {
 

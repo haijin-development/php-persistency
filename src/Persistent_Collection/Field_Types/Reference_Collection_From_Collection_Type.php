@@ -80,7 +80,7 @@ class Reference_Collection_From_Collection_Type extends Abstract_Type
 
             );
 
-        }, [], $this );
+        });
 
         return $references;
     }

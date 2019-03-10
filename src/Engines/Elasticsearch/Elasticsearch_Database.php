@@ -75,30 +75,20 @@ class Elasticsearch_Database extends Database
      */
     public function connect(...$params)
     {
-        $closure = $params[ 0 ];
-
-        if( isset( $params[ 1 ] ) ) {
-            $binding = $params[ 1 ];
-        } else {
-            $binding = null;
-        }
+        $callable = $params[ 0 ];
 
         $this->connection_handle = ClientBuilder::create();
 
-        $this->with_handle_do( $closure, $binding );
+        $this->with_handle_do( $callable );
 
         $this->connection_handle = $this->connection_handle->build();
 
         return $this;
     }
 
-    public function with_handle_do($closure, $binding = null)
+    public function with_handle_do($callable)
     {
-        if( $binding === null ) {
-            $binding = $this;
-        }
-
-        return $closure->call( $binding, $this->connection_handle );
+        return $callable( $this->connection_handle );
     }
 
     /// Transactions
@@ -153,21 +143,21 @@ class Elasticsearch_Database extends Database
     }
 
     /**
-     * Compiles the $query_closure and counts the number of matching records.
+     * Compiles the $query_callable and counts the number of matching records.
      * Returns the number of records.
      */
-    public function count($filter_closure = null, $named_parameters = [], $binding = null)
+    public function count($filter_callable = null, $named_parameters = [])
     {
         if( ! isset( $named_parameters[ 'parameters' ] ) ) {
             $named_parameters[ 'parameters' ] = [];
         }
 
         $query_statement = $this->compile(
-                                function($compiler) use($filter_closure, $binding) {
+                                        function($compiler) use($filter_callable) {
 
-            $compiler->query( function($query) use($filter_closure, $binding) {
+            $compiler->query( function($query) use($filter_callable) {
 
-                $query->eval( $filter_closure, $binding );
+                $query->eval( $filter_callable );
 
             });
 
@@ -195,8 +185,8 @@ class Elasticsearch_Database extends Database
                 );
         }
 
-        if( $this->query_inspector_closure != null ) {
-            ($this->query_inspector_closure)( $count_parameters );
+        if( $this->query_inspector_callable != null ) {
+            ($this->query_inspector_callable)( $count_parameters );
         }
 
         $result = $this->connection_handle->count( $count_parameters );
@@ -247,8 +237,8 @@ class Elasticsearch_Database extends Database
                 );
         }
 
-        if( $this->query_inspector_closure != null ) {
-            ($this->query_inspector_closure)( $search_parameters );
+        if( $this->query_inspector_callable != null ) {
+            ($this->query_inspector_callable)( $search_parameters );
         }
 
         $result = $this->connection_handle->search( $search_parameters );
@@ -268,8 +258,8 @@ class Elasticsearch_Database extends Database
                 'id' => $id
             ];
 
-        if( $this->query_inspector_closure != null ) {
-            ($this->query_inspector_closure)( $search_parameters );
+        if( $this->query_inspector_callable != null ) {
+            ($this->query_inspector_callable)( $search_parameters );
         }
 
         $exists = $this->connection_handle->exists( $search_parameters );
@@ -317,8 +307,8 @@ class Elasticsearch_Database extends Database
                 );
         }
 
-        if( $this->query_inspector_closure != null ) {
-            ($this->query_inspector_closure)( $create_parameters );
+        if( $this->query_inspector_callable != null ) {
+            ($this->query_inspector_callable)( $create_parameters );
         }
 
         $this->connection_handle->index( $create_parameters );
@@ -361,8 +351,8 @@ class Elasticsearch_Database extends Database
                 );
         }
 
-        if( $this->query_inspector_closure != null ) {
-            ($this->query_inspector_closure)( $update_parameters );
+        if( $this->query_inspector_callable != null ) {
+            ($this->query_inspector_callable)( $update_parameters );
         }
 
         $result = $this->connection_handle->updateByQuery( $update_parameters );
@@ -386,8 +376,8 @@ class Elasticsearch_Database extends Database
             'refresh' => true
         ];
 
-        if( $this->query_inspector_closure != null ) {
-            ($this->query_inspector_closure)( $update_parameters );
+        if( $this->query_inspector_callable != null ) {
+            ($this->query_inspector_callable)( $update_parameters );
         }
 
         $result = $this->connection_handle->update( $update_parameters );
@@ -421,8 +411,8 @@ class Elasticsearch_Database extends Database
                 );
         }
 
-        if( $this->query_inspector_closure != null ) {
-            ($this->query_inspector_closure)( $delete_parameters );
+        if( $this->query_inspector_callable != null ) {
+            ($this->query_inspector_callable)( $delete_parameters );
         }
 
         $result = $this->connection_handle->deleteByQuery( $delete_parameters );
@@ -441,8 +431,8 @@ class Elasticsearch_Database extends Database
             'refresh' => true
         ];
 
-        if( $this->query_inspector_closure != null ) {
-            ($this->query_inspector_closure)( $delete_parameters );
+        if( $this->query_inspector_callable != null ) {
+            ($this->query_inspector_callable)( $delete_parameters );
         }
 
         $this->connection_handle->delete( $delete_parameters );
@@ -544,15 +534,13 @@ class Elasticsearch_Database extends Database
     /// Debugging
 
     /**
-     * Evaluates the $closure with the debugging information about the built query.
-     * Each Database subclass defines the $closure parameters. For instance, for
+     * Evaluates the $callable with the debugging information about the built query.
+     * Each Database subclass defines the $callable parameters. For instance, for
      * sql database one parameter can be the built sql string.
      * This method is intenteded for debugging purposes, not to use in production.
      *
-     * @param $query Query_Statement_Compiler The parameter of the query_closure.
-     * @param closure $closure A closure with the debugging information as its parametets.
-     * @param object $binding Optional - An optional object to bind to the evaluation of
-     *      the $closure. If none is given the $closure is bound to $this object.
+     * @param $query Query_Statement_Compiler The parameter of the query_callable.
+     * @param callable $callable A callable with the debugging information as its parametets.
      *
      * Example of use:
      *
@@ -567,7 +555,7 @@ class Elasticsearch_Database extends Database
      *  });
      *
      */
-    public function inspect_query($query, $closure, $binding = null)
+    public function inspect_query($query, $callable)
     {
         throw new \Exception( "inspect_query" );
     }

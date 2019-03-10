@@ -111,13 +111,9 @@ class Join_Expression extends Expression
 
     /// Iterating
 
-    public function join_expressions_do($closure, $binding = null)
+    public function join_expressions_do($callable)
     {
-        if( $binding === null ) {
-            $binding = $this;
-        }
-
-        return $this->join_expressions->each_do( $closure, $binding );
+        return $this->join_expressions->each_do( $callable );
     }
 
     /// DSL
@@ -179,15 +175,11 @@ class Join_Expression extends Expression
         return $this;
     }
 
-    public function eval($build_closure, $binding = null)
+    public function eval($build_callable)
     {
-        if( $binding === null ) {
-            $binding = $this;
-        }
-
         $join_query_builder = $this->new_query_statement_compiler( $this->context );
 
-        $build_closure->call( $binding, $join_query_builder );
+        $build_callable( $join_query_builder );
 
         $this->proyection_expression =
             $join_query_builder->get_query_statement()->get_proyection_expression();

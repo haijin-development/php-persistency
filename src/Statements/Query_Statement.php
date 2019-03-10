@@ -186,13 +186,9 @@ class Query_Statement extends Statement
 
     /// Iterating
 
-    public function join_expressions_do($closure, $binding = null)
+    public function join_expressions_do($callable)
     {
-        if( $binding === null ) {
-            $binding = $this;
-        }
-
-        return $this->join_expressions->each_do( $closure, $binding );
+        return $this->join_expressions->each_do( $callable );
     }
 
     /// Visiting

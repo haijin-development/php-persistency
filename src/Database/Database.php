@@ -27,7 +27,7 @@ abstract class Database
 
     protected $types_converter;
 
-    protected $query_inspector_closure;
+    protected $query_inspector_callable;
 
     /// Initializing
 
@@ -38,7 +38,7 @@ abstract class Database
     {
         $this->connection_handle = null;
         $this->types_converter = $this->default_types_converter();
-        $this->query_inspector_closure = null;
+        $this->query_inspector_callable = null;
     }
 
     /// Type convertions
@@ -70,99 +70,99 @@ abstract class Database
     /// Querying
 
     /**
-     * Compiles the $query_closure and counts the number of matching records.
+     * Compiles the $query_callable and counts the number of matching records.
      * Returns the number of records.
      */
-    abstract public function count($query_closure, $named_parameters = [], $binding = null);
+    abstract public function count($query_callable, $named_parameters = []);
 
     /**
-     * Compiles the $query_closure and executes the compiled query in the server.
+     * Compiles the $query_callable and executes the compiled query in the server.
      * Returns the rows returned by the query execution.
      */
-    public function query($query_closure, $named_parameters = [], $binding = null)
+    public function query($query_callable, $named_parameters = [])
     {
         $compiled_statement =
-            $this->compile( function($compiler) use($query_closure) {
+            $this->compile( function($compiler) use($query_callable) {
 
-                $compiler->query( function($query) use($query_closure) {
+                $compiler->query( function($query) use($query_callable) {
 
-                    $query->eval( $query_closure, $this );
+                    $query->eval( $query_callable );
 
-                }, $this );
+                });
 
-            }, $binding );
+            });
 
         return $this->execute( $compiled_statement, $named_parameters );
     }
 
     /**
-     * Compiles the $create_closure and executes the create record query in the database server.
+     * Compiles the $create_callable and executes the create record query in the database server.
      * Returns the id of the created query.
      *
-     * @param closure $create_closure A closure to construct the record creation.
+     * @param callable $create_callable A callable to construct the record creation.
      * @param array $named_parameters An associative array of the named parameters values
-     *      referenced in the create_closure.
+     *      referenced in the create_callable.
      *
      * @return object The unique id of the created record in the database expression.
      */
-    public function create($create_closure, $named_parameters = [], $binding = null)
+    public function create($create_callable, $named_parameters = [])
     {
         $compiled_statement =
-            $this->compile( function($compiler) use($create_closure) {
+            $this->compile( function($compiler) use($create_callable) {
 
-                $compiler->create( function($query) use($create_closure) {
+                $compiler->create( function($query) use($create_callable) {
 
-                    $query->eval( $create_closure, $this );
+                    $query->eval( $create_callable );
 
-                }, $this );
+                });
 
-            }, $binding );
+            });
 
         return $this->execute( $compiled_statement, $named_parameters );
     }
 
     /**
-     * Compiles the $update_closure and executes the update record query in the database server.
+     * Compiles the $update_callable and executes the update record query in the database server.
      *
-     * @param closure $update_closure A closure to construct the record creation.
+     * @param callable $update_callable A callable to construct the record creation.
      * @param array $named_parameters An associative array of the named parameters values
-     *      referenced in the update_closure.
+     *      referenced in the update_callable.
      */
-    public function update($update_closure, $named_parameters = [], $binding = null)
+    public function update($update_callable, $named_parameters = [])
     {
         $compiled_statement =
-            $this->compile( function($compiler) use($update_closure) {
+            $this->compile( function($compiler) use($update_callable) {
 
-                $compiler->update( function($query) use($update_closure) {
+                $compiler->update( function($query) use($update_callable) {
 
-                    $query->eval( $update_closure, $this );
+                    $query->eval( $update_callable );
 
-                }, $this );
+                });
 
-            }, $binding );
+            });
 
         return $this->execute( $compiled_statement, $named_parameters );
     }
 
     /**
-     * Compiles the $delete_closure and executes the delete statement in the database server.
+     * Compiles the $delete_callable and executes the delete statement in the database server.
      *
-     * @param closure $delete_closure A closure to construct the record creation.
+     * @param callable $delete_callable A callable to construct the record creation.
      * @param array $named_parameters An associative array of the named parameters values
-     *      referenced in the delete_closure.
+     *      referenced in the delete_callable.
      */
-    public function delete($delete_closure, $named_parameters = [], $binding = null)
+    public function delete($delete_callable, $named_parameters = [])
     {
         $compiled_statement =
-            $this->compile( function($compiler) use($delete_closure) {
+            $this->compile( function($compiler) use($delete_callable) {
 
-                $compiler->delete( function($query) use($delete_closure ) {
+                $compiler->delete( function($query) use($delete_callable ) {
 
-                    $query->eval( $delete_closure, $this );
+                    $query->eval( $delete_callable );
 
-                }, $this );
+                });
 
-            }, $binding );
+            });
 
         return $this->execute( $compiled_statement, $named_parameters );
     }
@@ -173,16 +173,15 @@ abstract class Database
 
     /// Compiling statements
 
-    public function compile($closure, $binding = null)
+    public function compile($callable)
     {
-        return Global_Factory::with_factory_do( function($factory)
-                                        use($closure, $binding) {
+        return Global_Factory::with_factory_do( function($factory) use($callable) {
 
             $this->set_instantiators_during_compilation( $factory );
 
-            return $this->new_compiler()->compile( $closure, $binding );
+            return $this->new_compiler()->compile( $callable );
 
-        }, $this );
+        });
     }
 
     protected function set_instantiators_during_compilation($factory)
@@ -218,7 +217,7 @@ abstract class Database
 
             return $compiled_statement->execute_in( $this, $named_parameters );
 
-        }, $this );
+        });
 
     }
 
@@ -243,18 +242,14 @@ abstract class Database
      */
     abstract public function execute_delete_statement($delete_statement, $named_parameters);
 
-    public function during_transaction_do($closure, $binding = null)
+    public function during_transaction_do($callable)
     {
-        if( $binding === null ) {
-            $binding = $this;
-        }
-
         $commit = true;
         $this->begin_transaction();
 
         try {
 
-            $closure->call( $binding, $this );
+            $callable( $this );
 
         } catch( \Exception $e ) {
 
@@ -285,13 +280,13 @@ abstract class Database
     /// Debugging
 
     /**
-     * Evaluates the $inspector_closure with the debugging information about the
+     * Evaluates the $inspector_callable with the debugging information about the
      * built query.
-     * Each Database subclass defines the $inspector_closure parameters. For instance,
+     * Each Database subclass defines the $inspector_callable parameters. For instance,
      * for sql database one parameter can be the built sql string.
      * This method is intenteded for debugging purposes, not to use in production.
      *
-     * @param closure $closure A closure with the debugging information as its parametets.
+     * @param callable $callable A callable with the debugging information as its parametets.
      *
      * Example of use:
      *
@@ -308,9 +303,9 @@ abstract class Database
      *
      *      $database->inspect_query_with( null );
      */
-    public function inspect_query_with($closure)
+    public function inspect_query_with($callable)
     {
-        $this->query_inspector_closure = $closure;
+        $this->query_inspector_callable = $callable;
     }
 
     /// Creating instances

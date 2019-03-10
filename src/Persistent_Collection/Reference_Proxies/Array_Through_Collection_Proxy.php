@@ -57,17 +57,17 @@ class Array_Through_Collection_Proxy extends Reference_Proxy
                                 ->op( '=' )
                                 ->value( $this->get_owner_object_id() );
 
-                        }, $this );
+                        });
 
-                }, $this );
+                });
 
-            }, $this );
+            });
 
             $query->filter(
                 $query->matches_owner_object_id
             );
 
-        }, [], $this );
+        });
 
         return new Ordered_Collection( $objects );
     }

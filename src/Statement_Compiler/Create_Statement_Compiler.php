@@ -6,7 +6,7 @@ use Haijin\Instantiator\Create;
 use Haijin\Persistency\Statements\Create_Statement;
 
 /**
- * Object to build a Create_Statement from a create statement definition closure.
+ * Object to build a Create_Statement from a create statement definition callable.
  */
 class Create_Statement_Compiler extends Statement_Compiler
 {

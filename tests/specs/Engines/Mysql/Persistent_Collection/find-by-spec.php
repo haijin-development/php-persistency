@@ -104,7 +104,7 @@ $spec->describe( "When searching an object in a Persistent_Collection in a MySql
 
         });
 
-        $this->it( "evaluates a closure if it is absent", function() {
+        $this->it( "evaluates a callable if it is absent", function() {
 
             $user = Users_Collection::do()->find_by_if_absent([
                 "name" => "Marge",

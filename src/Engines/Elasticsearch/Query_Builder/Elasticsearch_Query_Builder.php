@@ -207,11 +207,10 @@ class Elasticsearch_Query_Builder extends Expression_Visitor
      */
     public function accept_proyection_expression($proyection_expression)
     {
-        return $proyection_expression->get_proyected_expressions()->collect( function($exp) {
-
-            return $this->visit( $exp );
-
-        }, $this );
+        return $proyection_expression->get_proyected_expressions()
+                    ->collect( function($exp) {
+                        return $this->visit( $exp );
+                    });
     }
 
 

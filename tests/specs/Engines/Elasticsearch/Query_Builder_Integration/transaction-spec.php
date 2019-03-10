@@ -112,8 +112,7 @@ $spec->describe( "When evaluating transactional statements in a Elasticsearch da
 
             });
 
-        }, $this );
-
+        });
 
         $rows = $this->database->query( function($query) {
 
@@ -151,7 +150,7 @@ $spec->describe( "When evaluating transactional statements in a Elasticsearch da
 
                 throw new \RuntimeException( "Error Processing Request" );
 
-            }, $this );
+            });
 
         } catch( \RuntimeException $e ) {
 
@@ -194,7 +193,7 @@ $spec->describe( "When evaluating transactional statements in a Elasticsearch da
 
                 throw new \RuntimeException( "Error Processing Request" );
 
-            }, $this );
+            });
 
         } catch( \RuntimeException $e ) {
             $re_raised_exception = true;

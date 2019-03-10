@@ -7,7 +7,7 @@ use Haijin\Persistency\Statements\Query_Statement;
 use Haijin\Persistency\Errors\Query_Expressions\Macro_Expression_Evaluated_To_Null_Error;
 
 /**
- * Object to build a Query_Statement from a query definition closure.
+ * Object to build a Query_Statement from a query definition callable.
  */
 class Query_Statement_Compiler extends Statement_Compiler
 {
@@ -192,13 +192,9 @@ class Query_Statement_Compiler extends Statement_Compiler
 
     /// Macro expressions
 
-    public function let($macro_name, $definition_closure, $binding = null)
+    public function let($macro_name, $definition_callable)
     {
-        if( $binding === null ) {
-            $binding = $this;
-        }
-
-        $macro_expression = $definition_closure->call( $binding, $this );
+        $macro_expression = $definition_callable( $this );
 
         if( $macro_expression === null ) {
             $this->_raise_macro_expression_evaluated_to_null_error( $macro_name );
@@ -219,14 +215,14 @@ class Query_Statement_Compiler extends Statement_Compiler
 
     /// Helper methods
 
-    protected function _with_expression_context_do($expression_context, $closure)
+    protected function _with_expression_context_do($expression_context, $callable)
     {
         $this->previous_expression_context = $this->context;
 
         $this->context = $expression_context;
 
         try {
-            return $closure->call( $this );
+            return $callable();
         } finally {
             $this->context = $this->previous_expression_context;
         }

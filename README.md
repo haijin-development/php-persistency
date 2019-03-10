@@ -37,7 +37,7 @@ If you like it a lot you may contribute by [financing](https://github.com/haijin
             2. [collection_name](#c-2-2-4-2)
             3. [objects_instantiator](#c-2-2-4-3)
                 1. [class instantiator](#c-2-2-4-3-1)
-                2. [closure instantiator](#c-2-2-4-3-2)
+                2. [callable instantiator](#c-2-2-4-3-2)
                 3. [null instantiator](#c-2-2-4-3-3)
             4. [field_mappings](#c-2-2-4-4)
                 1. [field](#c-2-2-4-4-1)
@@ -392,7 +392,7 @@ the `concat(...)` function was not declared anywhere in the DSL for Mysql nor fo
 <a name="c-2-1-5"></a>
 #### Debugging the query
 
-Each database accepts a closure to inspect a query and its parameters just before executing it.
+Each database accepts a callable to inspect a query and its parameters just before executing it.
 
 To inspect a SQL query do
 
@@ -598,7 +598,7 @@ $database->commit_transaction();
 $database->rollback_transaction();
 ```
 
-or with a closure that commits at the end of the evaluation or rolls it back if an `\Exception` is thrown:
+or with a callable that commits at the end of the evaluation or rolls it back if an `\Exception` is thrown:
 
 ```php
 $database->during_transaction_do( function($database) {
@@ -618,7 +618,7 @@ $database->during_transaction_do( function($database) {
 
     });
 
-}, $this );
+});
 ```
 
 <a name="c-2-1-10"></a>
@@ -701,7 +701,7 @@ $result = $elasticsearch_database->with_handle_do( function($client) use($params
 
     return $client->get($params);
 
-}, $this );
+});
 ```
 
 `Elasticsearch` mappings has some specifics that are documented in a separated section.
@@ -955,16 +955,16 @@ public function definition($collection)
 }
 ```
 <a name="c-2-2-4-3-2"></a>
-###### closure instantiator
+###### callable instantiator
 
 Some classes may take parameters in their constructor or may require additional initialization
 and configuration.
 
-In such cases use a `closure` to instantiate objects. The closure receives the `$mapped_record` as its first parameter to make its values avaialable for the initialization in case they are required.
+In such cases use a `callable` to instantiate objects. The callable receives the `$mapped_record` as its first parameter to make its values avaialable for the initialization in case they are required.
 
 The `$mapped_record` contains only the mapped fields values and it already applied the conversions defined for each field, if any.
 
-Optionaly the closure also receives the raw record as it was read from the database as a second parameter.
+Optionaly the callable also receives the raw record as it was read from the database as a second parameter.
 
 ```php
 public function definition($collection)
@@ -1015,7 +1015,7 @@ public function definition($collection)
 <a name="c-2-2-4-4"></a>
 #### field_mappings
 
-This closure defines each field mapped from and to the database engine.
+This callable defines each field mapped from and to the database engine.
 
 <a name="c-2-2-4-4-1"></a>
 ##### field
@@ -1163,7 +1163,7 @@ public function definition($collection)
 }
 ```
 
-###### a closure
+###### a callable
 
 ```php
 public function definition($collection)
@@ -1262,7 +1262,7 @@ public function definition($collection)
 }
 ```
 
-###### a closure
+###### a callable
 
 ```php
 public function definition($collection)
@@ -1287,12 +1287,12 @@ public function definition($collection)
 }
 ```
 
-The `write_with` closure receives 3 parameters: the object being mapped, the record with the values converted according to the mapping definitions and the raw record as it came from the database.
+The `write_with` callable receives 3 parameters: the object being mapped, the record with the values converted according to the mapping definitions and the raw record as it came from the database.
 
 `write_with` might be absent, in which case the field will not be read from database.
 
 
-Using closures it is possible to map multiple fields into a single object attribute or multiple object attributes into a single field:
+Using callables it is possible to map multiple fields into a single object attribute or multiple object attributes into a single field:
 
 ```php
 public function definition($collection)
@@ -1724,14 +1724,14 @@ Returns `null` if the id does not exist.
 <a name="c-2-2-8-2"></a>
 ##### find_by_id_if_absent
 
-Find an object by its primary key or evaluate a closure if it does no exist:
+Find an object by its primary key or evaluate a callable if it does no exist:
 
 ```php
 $user = Users_Collection::do()->find_by_id_if_absent( $user_id, function($id) {
 
     $this->raise_404_error( $id );
 
-}, $this );
+});
 ```
 
 <a name="c-2-2-8-3"></a>
@@ -1753,7 +1753,7 @@ Raises an error if more than one object is found.
 <a name="c-2-2-8-4"></a>
 ##### find_by_if_absent
 
-Find an object by matching some of its fields or evaluate a closure if absent:
+Find an object by matching some of its fields or evaluate a callable if absent:
 
 ```php
 $user = Users_Collection::do()->find_by_if_absent([
@@ -1765,7 +1765,7 @@ $user = Users_Collection::do()->find_by_if_absent([
 
     $this->raise_404_error( $fields );
 
-}, $this );
+});
 ```
 
 Raises an error if more than one object is found.

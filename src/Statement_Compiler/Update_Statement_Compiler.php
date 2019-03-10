@@ -6,7 +6,7 @@ use Haijin\Instantiator\Create;
 use Haijin\Persistency\Statements\Update_Statement;
 
 /**
- * Object to build an Update_Statement from an update statement definition closure.
+ * Object to build an Update_Statement from an update statement definition callable.
  */
 class Update_Statement_Compiler extends Statement_Compiler
 {

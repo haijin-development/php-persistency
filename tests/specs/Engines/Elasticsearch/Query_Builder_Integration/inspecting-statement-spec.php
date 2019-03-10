@@ -44,7 +44,7 @@ $spec->describe( "When inspecting a statement of a Elasticsearch expression", fu
                 "sort" => []
             ]);
 
-        }, $this );
+        });
 
         $rows = $this->database->query( function($query) {
 

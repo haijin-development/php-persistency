@@ -6,7 +6,7 @@ use Haijin\Instantiator\Create;
 use \Haijin\Persistency\Persistent_Collection\Object_Accessors\Method_Accessor;
 use \Haijin\Persistency\Persistent_Collection\Object_Accessors\Property_Accessor;
 use \Haijin\Persistency\Persistent_Collection\Object_Accessors\Array_Accessor;
-use \Haijin\Persistency\Persistent_Collection\Object_Accessors\Closure_Accessor;
+use \Haijin\Persistency\Persistent_Collection\Object_Accessors\Callable_Accessor;
 
 use \Haijin\Persistency\Persistent_Collection\Field_Types\Value_Type;
 use \Haijin\Persistency\Persistent_Collection\Field_Types\Reference_To_Object_In_Collection_Type;
@@ -39,23 +39,23 @@ class Persistent_Collection_DSL
         $this->persistent_collection->set_collection_name( $collection_name );
     }
 
-    public function instantiate_objects_with($class_name_or_closure)
+    public function instantiate_objects_with($class_name_or_callable)
     {
-        if( $class_name_or_closure !== null
+        if( $class_name_or_callable !== null
             &&
-            ! is_string( $class_name_or_closure )
+            ! is_string( $class_name_or_callable )
             &&
-            ! is_a( $class_name_or_closure, \Closure::class )
+            ! is_callable( $class_name_or_callable )
           ) {
             $this->raise_unexpected_instantiator_error();
         }
 
-        $this->persistent_collection->set_objects_instantiator( $class_name_or_closure );
+        $this->persistent_collection->set_objects_instantiator( $class_name_or_callable );
     }
 
-    public function field_mappings($closure)
+    public function field_mappings($callable)
     {
-        $closure->call( $this, $this );
+        $callable( $this );
     }
 
     public function __set($attribute_name, $value)
@@ -195,8 +195,8 @@ class Persistent_Collection_DSL
             }
         }
 
-        if( is_a( $value_reader, \Closure::class ) ) {
-            $value_accessor = Create::object( Closure_Accessor::class,  $value_reader );
+        if( is_callable( $value_reader ) ) {
+            $value_accessor = Create::object( Callable_Accessor::class,  $value_reader );
         }
 
         if( $value_accessor === null ) {
@@ -227,8 +227,8 @@ class Persistent_Collection_DSL
             }
         }
 
-        if( is_a( $value_writter, \Closure::class ) ) {
-            $value_accessor = Create::object( Closure_Accessor::class,  $value_writter );
+        if( is_callable( $value_writter ) ) {
+            $value_accessor = Create::object( Callable_Accessor::class,  $value_writter );
         }
 
         if( $value_accessor === null ) {

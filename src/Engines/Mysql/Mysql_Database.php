@@ -72,23 +72,23 @@ class Mysql_Database extends Sql_Database
     }
 
     /**
-     * Compiles the $query_closure and counts the number of matching records.
+     * Compiles the $query_callable and counts the number of matching records.
      * Returns the number of records.
      */
-    public function count($query_closure, $named_parameters = [], $binding = null)
+    public function count($query_callable, $named_parameters = [])
     {
         $compiler = $this->new_compiler();
 
         $compiled_statement = $compiler->compile(
-                                function($compiler) use($query_closure) {
+                                function($compiler) use($query_callable) {
 
-            $compiler->query( function($query) use($query_closure) {
+            $compiler->query( function($query) use($query_callable) {
 
-                $query->eval( $query_closure, $this );
+                $query->eval( $query_callable );
 
-            }, $this );
+            });
 
-        }, $binding );
+        });
 
         if( $compiled_statement->get_proyection_expression()->is_empty() ) {
 
@@ -132,8 +132,8 @@ class Mysql_Database extends Sql_Database
      */
     public function execute_sql_string($sql, $sql_parameters = [])
     {
-        if( $this->query_inspector_closure !== null ) {
-            ($this->query_inspector_closure)( $sql, $sql_parameters );
+        if( $this->query_inspector_callable !== null ) {
+            ($this->query_inspector_callable)( $sql, $sql_parameters );
         }
 
         $statement_handle = $this->connection_handle->prepare( $sql );

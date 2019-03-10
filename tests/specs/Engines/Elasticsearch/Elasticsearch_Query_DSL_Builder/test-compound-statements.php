@@ -24,7 +24,7 @@ $spec->describe( "When building the collection statement of a Elasticsearch expr
             $query->collection( "users_read_only" );
 
             $query->filter(
-                $query->term( $query->field( 'name' ), $this->value( 'Lisa' ) )
+                $query->term( $query->field( 'name' ), $query->value( 'Lisa' ) )
             );
 
         });

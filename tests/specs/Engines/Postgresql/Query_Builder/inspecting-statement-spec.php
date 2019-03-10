@@ -29,7 +29,7 @@ $spec->describe( "When inspecting a statement of a Postgresql expression", funct
 
             $this->expect( $params ) ->to() ->equal( ['Lisa', 'Simpson' ] );
 
-        }, $this );
+        });
 
         $rows = $this->database->query( function($query) {
 

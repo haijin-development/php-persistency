@@ -28,17 +28,15 @@ class Sql_Query_Statement_Builder extends Sql_Expression_Builder
     /**
      * Builds and returns a new SQL string.
      *
-     * @param closure $expression_closure The closure to build the Query_Statement
+     * @param callable $expression_callable The callable to build the Query_Statement
      *      using a DSL.
-     * @param object $binding Optional - An optional object to bind the evaluation of the
-     *      $expression_closure.
      *
      * @return Query_Statement The built Query_Statement.
      */
-    public function build( $expression_closure, $binding = null )
+    public function build($expression_callable)
     {
         $query_statement = $this->new_query_statement_compiler()
-            ->compile( $expression_closure, $binding );
+            ->compile( $expression_callable );
 
         return $this->build_sql_from( $query_statement );
     }
@@ -98,7 +96,7 @@ class Sql_Query_Statement_Builder extends Sql_Expression_Builder
             $proyected_fields[] =
                 $sql_builder->get_nested_proyections_sql_from( $join_expression );
 
-        }, $this );
+        });
 
         $proyected_fields = array_filter( $proyected_fields->to_array() );
 
@@ -146,9 +144,9 @@ class Sql_Query_Statement_Builder extends Sql_Expression_Builder
 
                 $joins[] = $this->visit( $join_expression );
 
-            }, $this );
+            });
 
-        }, $this );
+        });
 
         return " " . $joins->join_with( " " );
     }

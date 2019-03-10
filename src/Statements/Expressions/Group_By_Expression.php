@@ -74,9 +74,9 @@ class Group_By_Expression extends Expression
 
     /// Iterating
 
-    public function proyected_expressions_do($closure, $binding = null)
+    public function proyected_expressions_do($callable)
     {
-        return $this->proyected_expressions->each_do( $closure, $binding );
+        return $this->proyected_expressions->each_do( $callable );
     }
 
     /// Visiting

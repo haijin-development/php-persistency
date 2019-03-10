@@ -101,7 +101,7 @@ $spec->describe( "When evaluating transactional statements in a MySql database",
 
             });
 
-        }, $this );
+        });
 
 
         $rows = $this->database->query( function($query) {
@@ -139,7 +139,7 @@ $spec->describe( "When evaluating transactional statements in a MySql database",
 
                 throw new \RuntimeException( "Error Processing Request" );
 
-            }, $this );
+            });
 
         } catch( \RuntimeException $e ) {
 
@@ -175,7 +175,7 @@ $spec->describe( "When evaluating transactional statements in a MySql database",
 
                 throw new \RuntimeException( "Error Processing Request" );
 
-            }, $this );
+            });
 
         } catch( \RuntimeException $e ) {
             $re_raised_exception = true;

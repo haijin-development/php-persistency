@@ -111,17 +111,17 @@ class Reference_Collection_Through_Collection_Type extends Abstract_Type
                                 ->field( $this->left_collection->get_id_field() )
                                 ->in( $ids );
 
-                        }, $this );
+                        });
 
-                }, $this );
+                });
 
-            }, $this );
+            });
 
             $query->filter(
                 $query->matches_owner_object_id
             );
 
-        }, [], $this );
+        });
 
         return $objects;
     }

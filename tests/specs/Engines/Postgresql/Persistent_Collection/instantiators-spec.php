@@ -86,9 +86,9 @@ $spec->describe( "When instantiating objects from a Postgresql database", functi
     });
 
 
-    $this->describe( "with a closure", function() {
+    $this->describe( "with a callable", function() {
 
-        $this->it( "instantiates the objects evaluating the closure", function() {
+        $this->it( "instantiates the objects evaluating the callable", function() {
 
             $db = $this->database;
             $spec = $this;

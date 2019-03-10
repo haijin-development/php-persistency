@@ -86,13 +86,9 @@ class Migration
 
     /// Definition
 
-    public function definition($closure, $binding = null)
+    public function definition($callable)
     {
-        if( $binding === null ) {
-            $binding = $this;
-        }
-
-        $closure->call( $binding, $this );
+        $callable( $this );
     }
 
     public function define_in_file($filename)
@@ -104,10 +100,10 @@ class Migration
         $migration->set_source_filename( $filename->to_string() );
     }
 
-    public function describe( $description, $script_closure)
+    public function describe( $description, $script_callable)
     {
         $this->add_migration_script(
-            new Migration_Script( $description, $script_closure )
+            new Migration_Script( $description, $script_callable )
         );
     }
 }

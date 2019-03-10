@@ -27,7 +27,7 @@ $spec->describe( "When inspecting a statement of a MySql expression", function()
 
             $this->expect( $params ) ->to() ->equal( ['Lisa', 'Simpson' ] );
 
-        }, $this );
+        });
 
         $rows = $this->database->query( function($query) {
 

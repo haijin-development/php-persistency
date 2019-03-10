@@ -106,7 +106,7 @@ $spec->describe( "When finding an object by its matching fields in a Persistent_
 
         });
 
-        $this->it( "evaluates a closure if it is absent", function() {
+        $this->it( "evaluates a callable if it is absent", function() {
 
             $user = Elasticsearch_Users_Collection::do()->find_by_if_absent([
                 "name" => "Marge",

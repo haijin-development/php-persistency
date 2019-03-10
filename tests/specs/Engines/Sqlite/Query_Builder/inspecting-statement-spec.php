@@ -27,7 +27,7 @@ $spec->describe( "When inspecting a statement of a Sqlite expression", function(
 
             $this->expect( $params ) ->to() ->equal( ['Lisa', 'Simpson' ] );
 
-        }, $this );
+        });
 
         $rows = $this->database->query( function($query) {
 

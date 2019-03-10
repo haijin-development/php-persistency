@@ -50,23 +50,23 @@ abstract class Sql_Database extends Database
     }
 
     /**
-     * Compiles the $query_closure and counts the number of matching records.
+     * Compiles the $query_callable and counts the number of matching records.
      * Returns the number of records.
      */
-    public function count($query_closure, $named_parameters = [], $binding = null)
+    public function count($query_callable, $named_parameters = [])
     {
         $compiler = $this->new_compiler();
 
         $compiled_statement = $compiler->compile(
-                                function($compiler) use($query_closure) {
+                                function($compiler) use($query_callable) {
 
-            $compiler->query( function($query) use($query_closure) {
+            $compiler->query( function($query) use($query_callable) {
 
-                $query->eval( $query_closure, $this );
+                $query->eval( $query_callable );
 
-            }, $this );
+            });
 
-        }, $binding );
+        });
 
         if( $compiled_statement->get_proyection_expression()->is_empty() ) {
 
@@ -179,7 +179,7 @@ abstract class Sql_Database extends Database
                             $value->get_parameter_name()
                         );
 
-                }, $this );
+                });
 
             }
 
@@ -224,12 +224,8 @@ abstract class Sql_Database extends Database
 
     /// Debugging
 
-    public function inspect_query($query_statement_compiler, $closure, $binding = null)
+    public function inspect_query($query_statement_compiler, $callable)
     {
-        if( $binding === null ) {
-            $binding = $this;
-        }
-
         $query_parameters = new Ordered_Collection();
 
         $sql = $this->query_statement_to_sql(
@@ -237,6 +233,6 @@ abstract class Sql_Database extends Database
             $query_parameters
         );
 
-        return $closure->call( $binding, $sql, $query_parameters );
+        return $callable( $sql, $query_parameters );
     }
 }

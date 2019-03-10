@@ -70,7 +70,7 @@ abstract class Migrations_Evaluator
 
             try {
 
-                $script->get_closure()( ...$this->migrated_databases );
+                $script->get_callable()( ...$this->migrated_databases );
 
                 echo " ok.\n";
 

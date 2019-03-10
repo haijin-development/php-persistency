@@ -30,20 +30,16 @@ class Persistent_Collection
 
             $this->definition( $config );
 
-        }, $this );
+        });
     }
 
     /// Definition
 
-    public function define($closure, $binding = null)
+    public function define($callable)
     {
-        if( $binding === null ) {
-            $binding = $this;
-        }
+        $definition_dsl = Create::object( Persistent_Collection_DSL::class, $this );
 
-        $definition_dsl = Create::object( Persistent_Collection_DSL::class,  $this );
-
-        $closure->call($binding, $definition_dsl);
+        $callable( $definition_dsl );
     }
 
     public function definition($definition_dsl)
@@ -163,9 +159,7 @@ class Persistent_Collection
         }, $named_parameters );
     }
 
-    public function find_by_id_if_absent(
-            $id, $absent_closure, $named_parameters = [], $binding = null
-        )
+    public function find_by_id_if_absent($id, $absent_callable, $named_parameters = [])
     {
         $this->validate_named_parameters( $named_parameters );
 
@@ -175,11 +169,7 @@ class Persistent_Collection
             return $object;
         }
 
-        if( $binding === null ) {
-            $binding = $this;
-        }
-
-        return $absent_closure->call( $binding, $id );
+        return $absent_callable( $id );
     }
 
     public function find_by($field_values, $named_parameters = [])
@@ -228,7 +218,7 @@ class Persistent_Collection
     }
 
     public function find_by_if_absent(
-            $field_values, $absent_closure, $named_parameters = [], $binding = null
+            $field_values, $absent_callable, $named_parameters = []
         )
     {
         $this->validate_named_parameters( $named_parameters );
@@ -239,36 +229,28 @@ class Persistent_Collection
             return $object;
         }
 
-        if( $binding === null ) {
-            $binding = $this;
-        }
-
-        return $absent_closure->call( $binding, $field_values );
+        return $absent_callable( $field_values );
     }
 
     /// Querying
 
     /**
-     * Returns all the objects matching the optional $filter_closure.
-     * If not $filter_closure is given returns all the object in the collection, impractical
+     * Returns all the objects matching the optional $filter_callable.
+     * If not $filter_callable is given returns all the object in the collection, impractical
      * in a real application but valuable for testing and debugging applications.
      *
-     * The $filter_query is a Query_Statement closure with no collection expression, which
+     * The $filter_query is a Query_Statement callable with no collection expression, which
      * is suppllied by $this Persistent_Collection.
      */
-    public function all($filter_closure = null, $named_parameters = [], $binding = null)
+    public function all($filter_callable = null, $named_parameters = [])
     {
         $this->validate_named_parameters( $named_parameters );
 
-        if( $binding === null ) {
-            $binding = $this;
-        }
-
-        if( $filter_closure === null ) {
+        if( $filter_callable === null ) {
 
             $id_field = $this->get_id_field();
 
-            $filter_closure = function($query) use($id_field) {
+            $filter_callable = function($query) use($id_field) {
 
                 $query->order_by(
                     $query ->field( "id" )
@@ -281,12 +263,12 @@ class Persistent_Collection
         $collection_name = $this->collection_name;
 
         $records = $this->get_database()->query( function($query)
-                                            use($collection_name, $filter_closure) {
+                                            use($collection_name, $filter_callable) {
             $query->collection( $collection_name );
 
-            $filter_closure->call( $this, $query );
+            $filter_callable( $query );
 
-        }, $named_parameters, $binding );
+        }, $named_parameters);
 
         $objects = $this->records_to_objects( $records );
 
@@ -296,19 +278,15 @@ class Persistent_Collection
     /**
      * Returns the first object in the collection or null if there is none.
      */
-    public function first($filter_closure = null, $named_parameters = [], $binding = null)
+    public function first($filter_callable = null, $named_parameters = [])
     {
         $this->validate_named_parameters( $named_parameters );
 
-        if( $binding === null ) {
-            $binding = $this;
-        }
-
-        if( $filter_closure === null ) {
+        if( $filter_callable === null ) {
 
             $id_field = $this->get_id_field();
 
-            $filter_closure = function($query) use($id_field) {
+            $filter_callable = function($query) use($id_field) {
 
                 $query->order_by(
                     $query ->field( $id_field )
@@ -318,11 +296,11 @@ class Persistent_Collection
 
         }
 
-        $objects = $this->all( function($query) use($filter_closure) {
+        $objects = $this->all( function($query) use($filter_callable) {
 
-            if( $filter_closure !== null ) {
+            if( $filter_callable !== null ) {
 
-                $filter_closure->call( $this, $query );
+                $filter_callable( $query );
 
             }
 
@@ -330,7 +308,7 @@ class Persistent_Collection
                 $query->limit( 1 )
             );
 
-        }, $named_parameters, $binding );
+        }, $named_parameters);
 
         if( empty( $objects ) ) {
             return null;
@@ -366,25 +344,25 @@ class Persistent_Collection
     /// Counting
 
     /**
-     * Compiles the $query_closure and counts the number of matching records.
+     * Compiles the $query_callable and counts the number of matching records.
      * Returns the number of records.
      */
-    public function count($filter_closure = null, $named_parameters = [], $binding = null)
+    public function count($filter_callable = null, $named_parameters = [])
     {
         $this->validate_named_parameters( $named_parameters );
 
         $collection_name = $this->collection_name;
 
         return $this->get_database()->count( function($query)
-                                            use($collection_name, $filter_closure) {
+                                            use($collection_name, $filter_callable) {
 
             $query->collection( $collection_name );
 
-            if( $filter_closure !== null ) {
-                $filter_closure->call( $this, $query );
+            if( $filter_callable !== null ) {
+                $filter_callable( $query );
             }
 
-        }, $named_parameters, $binding );
+        }, $named_parameters);
     }
 
     /// Creating
@@ -538,20 +516,20 @@ class Persistent_Collection
         return $object;
     }
 
-    public function update_all($filter_closure, $named_parameters = [], $binding = null)
+    public function update_all($filter_callable, $named_parameters = [])
     {
         $this->validate_named_parameters( $named_parameters );
 
         $collection_name = $this->collection_name;
 
         $records = $this->get_database()->update( function($query)
-                                            use($collection_name, $filter_closure) {
+                                            use($collection_name, $filter_callable) {
 
             $query->collection( $collection_name );
 
-            $filter_closure->call( $this, $query );
+            $filter_callable( $query );
 
-        }, $named_parameters, $binding );
+        }, $named_parameters);
 
         return $this;
     }
@@ -585,20 +563,20 @@ class Persistent_Collection
         return $object;
     }
 
-    public function delete_all($filter_closure, $named_parameters = [], $binding = null)
+    public function delete_all($filter_callable, $named_parameters = [])
     {
         $this->validate_named_parameters( $named_parameters );
 
         $collection_name = $this->collection_name;
 
         $records = $this->get_database()->delete( function($query)
-                                            use($collection_name, $filter_closure) {
+                                            use($collection_name, $filter_callable) {
 
             $query->collection( $collection_name );
 
-            $filter_closure->call( $this, $query );
+            $filter_callable( $query );
 
-        }, $named_parameters, $binding );
+        }, $named_parameters);
 
         return $this;
     }
@@ -673,8 +651,8 @@ class Persistent_Collection
             return Create::object( $this->objects_instantiator);
         }
 
-        if( is_a( $this->objects_instantiator, \Closure::class ) ) {
-            return $this->objects_instantiator->call( $this, $raw_record );
+        if( is_callable( $this->objects_instantiator ) ) {
+            return ( $this->objects_instantiator )( $raw_record );
         }
 
         if( $this->objects_instantiator === null ) {

@@ -6,7 +6,7 @@ use Haijin\Instantiator\Create;
 use Haijin\Persistency\Statements\Delete_Statement;
 
 /**
- * Object to build a Delete_Statement from an update statement definition closure.
+ * Object to build a Delete_Statement from an update statement definition callable.
  */
 class Delete_Statement_Compiler extends Statement_Compiler
 {

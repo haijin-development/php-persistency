@@ -4,13 +4,13 @@ namespace Haijin\Persistency\Persistent_Collection\Object_Accessors;
 
 use Haijin\Instantiator\Create;
 
-class Closure_Accessor
+class Callable_Accessor
 {
-    protected $closure;
+    protected $callable;
 
-    public function __construct($closure)
+    public function __construct($callable)
     {
-        $this->closure = $closure;
+        $this->callable = $callable;
     }
 
     /**
@@ -18,7 +18,7 @@ class Closure_Accessor
      */
     public function read_value_from($object)
     {
-        return $this->closure->call( $this, $object );
+        return ( $this->callable )( $object );
     }
 
     /**
@@ -26,6 +26,6 @@ class Closure_Accessor
      */
     public function write_value_to($object, $value, $mapped_record, $raw_record)
     {
-        $this->closure->call($this, $object, $mapped_record, $raw_record );
+        ( $this->callable )( $object, $mapped_record, $raw_record );
     }
 }

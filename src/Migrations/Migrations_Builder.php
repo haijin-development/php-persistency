@@ -52,11 +52,11 @@ class Migrations_Builder
 
     /// Configuring
 
-    public function configure($configuration_closure)
+    public function configure($configuration_callable)
     {
         $dsl = new Migrations_Configuration_DSL( $this );
 
-        $configuration_closure( $dsl );
+        $configuration_callable( $dsl );
 
         return $this;
     } 

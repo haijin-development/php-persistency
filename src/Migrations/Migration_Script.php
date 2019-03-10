@@ -5,14 +5,14 @@ namespace Haijin\Persistency\Migrations;
 class Migration_Script
 {
     protected $description;
-    protected $closure;
+    protected $callable;
 
     /// Initializing
 
-    public function __construct($description, $closure)
+    public function __construct($description, $callable)
     {
         $this->description = $description;
-        $this->closure = $closure;
+        $this->callable = $callable;
     }
 
     public function get_description()
@@ -20,8 +20,8 @@ class Migration_Script
         return $this->description;
     }
 
-    public function get_closure()
+    public function get_callable()
     {
-        return $this->closure;
+        return $this->callable;
     }
 }

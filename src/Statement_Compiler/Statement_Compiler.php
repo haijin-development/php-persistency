@@ -8,7 +8,7 @@ use Haijin\Persistency\Statements\Expressions\Expressions_Factory_Trait;
 use Haijin\Persistency\Statements\Expressions\Expressions_DSL_Trait;
 
 /**
- * Object to build a Create_Statement from a create statment definition closure.
+ * Object to build a Create_Statement from a create statment definition callable.
  */
 abstract class Statement_Compiler
 {
@@ -81,41 +81,33 @@ abstract class Statement_Compiler
     /**
      * Compiles and returns a new Statement_Expression.
      *
-     * @param closure $expression_closure The closure to build the Statement_Expression
+     * @param callable $expression_callable The callable to build the Statement_Expression
      *      using a DSL.
-     * @param object $binding Optional - An optional object to bind the evaluation of the
-     *      $expression_closure.
      *
      * @return Statement_Expression The built Statement_Expression.
      */
-    public function compile($expression_closure, $binding = null)
+    public function compile($expression_callable)
     {
         $this->statement_expression = $this->new_statement_expression();
 
-        $this->eval( $expression_closure, $binding );
+        $this->eval( $expression_callable );
 
         return $this->statement_expression;
     }
 
     /**
-     * Evaluates the given $expression_closure with the current $this->statement_expression.
+     * Evaluates the given $expression_callable with the current $this->statement_expression.
      * This method allows to build the Statement_Expression in different times instead of all
      * at once.
      *
-     * @param closure $expression_closure The closure to build the Statement_Expression
+     * @param callable $expression_callable The callable to build the Statement_Expression
      *      using a DSL.
-     * @param object $binding Optional - An optional object to bind the evaluation of the
-     *      $expression_closure.
      *
      * @return Statement_Expression The current $this->statement_expression.
      */
-    public function eval($expression_closure, $binding = null)
+    public function eval($expression_callable)
     {
-        if( $binding === null ) {
-            $binding = $this;
-        }
-
-        $expression_closure->call( $binding, $this );
+        $expression_callable( $this );
 
         return $this->statement_expression;
     }
@@ -163,13 +155,9 @@ abstract class Statement_Compiler
 
     /// Macro expressions
 
-    public function let($macro_name, $definition_closure, $binding = null)
+    public function let($macro_name, $definition_callable)
     {
-        if( $binding === null ) {
-            $binding = $this;
-        }
-
-        $macro_expression = $definition_closure->call( $binding, $this );
+        $macro_expression = $definition_callable( $this );
 
         if( $macro_expression === null ) {
             $this->_raise_macro_expression_evaluated_to_null_error( $macro_name );
@@ -190,14 +178,14 @@ abstract class Statement_Compiler
 
     /// Helper methods
 
-    protected function _with_expression_context_do($expression_context, $closure)
+    protected function _with_expression_context_do($expression_context, $callable)
     {
         $this->previous_expression_context = $this->context;
 
         $this->context = $expression_context;
 
         try {
-            return $closure->call( $this );
+            return $callable();
         } finally {
             $this->context = $this->previous_expression_context;
         }

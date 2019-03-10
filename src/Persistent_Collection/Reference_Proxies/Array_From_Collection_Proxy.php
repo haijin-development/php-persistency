@@ -33,7 +33,7 @@ class Array_From_Collection_Proxy extends Reference_Proxy
                     ->value( $this->get_owner_object_id() )
             );
 
-        }, [], $this );
+        });
 
         return new Ordered_Collection( $objects );
     }

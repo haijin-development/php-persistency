@@ -72,9 +72,9 @@ class Order_By_Expression extends Expression
 
     /// Iterating
 
-    public function order_by_expressions_do($closure, $binding = null)
+    public function order_by_expressions_do($callable)
     {
-        return $this->order_by_expressions->each_do( $closure, $binding );
+        return $this->order_by_expressions->each_do( $callable );
     }
 
     /// Visiting

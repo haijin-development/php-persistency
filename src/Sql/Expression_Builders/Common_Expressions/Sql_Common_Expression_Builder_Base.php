@@ -165,12 +165,12 @@ class Sql_Common_Expression_Builder_Base extends Sql_Expression_Builder
 
             $handler = $this->function_handlers[ $function_name ];
 
-            return $handler->call( $this, $function_call_expression );
+            return $handler( $function_call_expression );
         }
 
         $handler = $this->function_handlers[ '_default' ];
 
-        return $handler->call( $this, $function_call_expression );
+        return $handler( $function_call_expression );
     }
 
     /**

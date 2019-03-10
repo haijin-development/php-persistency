@@ -19,17 +19,15 @@ class Sql_Create_Statement_Builder extends Sql_Expression_Builder
     /**
      * Builds and returns a new SQL string.
      *
-     * @param closure $expression_closure The closure to build the Query_Statement
+     * @param callable $expression_callable The callable to build the Query_Statement
      *      using a DSL.
-     * @param object $binding Optional - An optional object to bind the evaluation of the
-     *      $expression_closure.
      *
      * @return Query_Statement The built Query_Statement.
      */
-    public function build( $expression_closure, $binding = null )
+    public function build($expression_callable)
     {
         $create_statement = $this->new_create_statement_compiler()
-            ->compile( $expression_closure, $binding );
+            ->compile( $expression_callable );
 
         return $this->build_sql_from( $create_statement );
     }

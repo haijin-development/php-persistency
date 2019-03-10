@@ -168,7 +168,7 @@ $spec->describe( "When mapping fields to another collections in a Postgresql dat
 
                 $this->queries[] = $sql;
 
-            }, $this );
+            });
 
             $user = Users_Collection::get()->all( function(){}, [
                 'eager_fetch' => [
@@ -314,7 +314,7 @@ $spec->describe( "When mapping fields to another collections in a Postgresql dat
 
                 $this->queries[] = $sql;
 
-            }, $this );
+            });
 
             $users = Users_Collection::get()->all( function(){}, [
                 'eager_fetch' => [
@@ -476,7 +476,7 @@ $spec->describe( "When mapping fields to another collections in a Postgresql dat
 
                 $this->queries[] = $sql;
 
-            }, $this );
+            });
 
             $users = Users_Collection::get()->all( function(){}, [
                 'eager_fetch' => [
@@ -666,7 +666,7 @@ $spec->describe( "When mapping fields to another collections in a Postgresql dat
 
                 $this->queries[] = $sql;
 
-            }, $this );
+            });
 
             $users = Users_Collection::get()->all( function(){}, [
                 'eager_fetch' => [

@@ -60,11 +60,11 @@ class Elasticsearch_Persistent_Collection extends Persistent_Collection
     /**
      * Returns the first object in the collection or null if there is none.
      */
-    public function first($filter_closure = null, $named_parameters = [], $binding = null)
+    public function first($filter_callable = null, $named_parameters = [])
     {
-        if( $filter_closure === null ) {
+        if( $filter_callable === null ) {
 
-            $filter_closure = function($query) {
+            $filter_callable = function($query) {
 
                 $query->order_by(
                     $query ->field( '_uid' )
@@ -74,17 +74,17 @@ class Elasticsearch_Persistent_Collection extends Persistent_Collection
 
         }
 
-        return parent::first( $filter_closure, $named_parameters, $binding );
+        return parent::first( $filter_callable, $named_parameters );
     }
 
     /**
      * Returns the first object in the collection or null if there is none.
      */
-    public function all($filter_closure = null, $named_parameters = [], $binding = null)
+    public function all($filter_callable = null, $named_parameters = [])
     {
-        if( $filter_closure === null ) {
+        if( $filter_callable === null ) {
 
-            $filter_closure = function($query) {
+            $filter_callable = function($query) {
 
                 $query->order_by(
                     $query ->field( '_uid' )
@@ -94,7 +94,7 @@ class Elasticsearch_Persistent_Collection extends Persistent_Collection
 
         }
 
-        return parent::all( $filter_closure, $named_parameters, $binding );
+        return parent::all( $filter_callable, $named_parameters );
     }
 
     /**

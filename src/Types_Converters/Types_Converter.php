@@ -17,13 +17,9 @@ class Types_Converter
 
     /// Definition
 
-    public function define($closure, $binding = null)
+    public function define($callable)
     {
-        if( $binding === null ) {
-            $binding = $this;
-        }
-
-        $closure->call( $binding, $this );
+        $callable( $this );
 
         return $this;
     }
