@@ -164,7 +164,7 @@ abstract class Sql_Database extends Database
 
     protected function collect_parameters_from($named_parameters, $query_parameters)
     {
-        $named_parameters = Dictionary::with_all( $named_parameters[ 'parameters' ] );
+        $named_parameters = Dictionary::with_all( $named_parameters );
 
         $sql_parameters = [];
 

@@ -1,6 +1,6 @@
 # Haijin Persistency
 
-A simple, complete, adaptable and independent query builder and ORM for PHP.
+A simple, complete, adaptable and independent query builder and ORM for PHP, loosely inspired by Ruby's [Hanami](https://guides.hanamirb.org/) [model](https://github.com/hanami/model).
 
 [![Latest Stable Version](https://poser.pugx.org/haijin/persistency/version)](https://packagist.org/packages/haijin/persistency)
 [![Latest Unstable Version](https://poser.pugx.org/haijin/persistency/v/unstable)](https://packagist.org/packages/haijin/persistency)
@@ -12,6 +12,606 @@ A simple, complete, adaptable and independent query builder and ORM for PHP.
 This library is under active development and no stable version was released yet.
 
 If you like it a lot you may contribute by [financing](https://github.com/haijin-development/support-haijin-development) its development.
+
+### Highlights
+
+#### Uses simple PHP methods to persist and query objects:
+
+```php
+Users_Collection::do()->create( $user );
+Users_Collection::do()->update( $user );
+Users_Collection::do()->delete( $user );
+
+Users_Collection::get()->all_sorted_by_name();
+```
+
+#### Does not require persisted models to extend from any class, implement any protocol nor follow any convention.
+
+Usually model classes must extend from a super `class`, use a `trait`, implement an `interface` of comply with some conventions (like the name of its getters and setters) to be persisted.
+
+In `haijin/persistency` almost any object can be persisted without requiring any modification on it:
+
+```php
+/**
+ * A Persistent_Collection to persist User objects.
+ */
+class Users_Persistent_Collection extends Persistent_Collection
+{
+    public function definition($collection)
+    {
+        $collection->collection_name = "users";
+
+        $collection->instantiate_objects_with = User::class;
+
+        $collection->field_mappings = function($mapping) {
+
+            $mapping->field( "id" ) ->is_primary_key()
+                ->read_with( "get_id()" )
+                ->write_with( "set_id()" );
+
+            // or
+
+            $mapping->field( "id" ) ->is_primary_key()
+                ->read_with( "->id" )
+                ->write_with( "->id" );
+
+            // or even
+
+            $mapping->field( "id" ) ->is_primary_key()
+                ->read_with( "[id]" )
+                ->write_with( "[id]" );
+
+        };
+    }
+}
+```
+
+#### Shares a common query language between sql and no sql databases to persist and query objects.
+
+Sql databases, like Mysql or Postgres, and no sql databases, like Elasticsearch and MongoDb, have very different APIs.
+
+However most of the databases share a common query structure.
+
+'haijin/persistency' shares the basic query structure among sql and no sql databases.
+
+The following query works in both all supported sql databases and in Elasticsearch:
+
+```php
+$database->create( function($query) {
+
+    $query->collection( 'users' );
+
+    $query->record(
+        $query->set( 'id', 1 ),
+        $query->set( 'name', 'Lisa' ),
+        $query->set( 'last_name', 'Simpson' )
+    );
+
+});
+```
+
+The following query works in both sql databases and Elasticsearch, and the only difference among them would be the `filter` expression:
+
+```php
+$records = $database->query( function($query) {
+
+    $query->collection( 'users' );
+
+    $query->proyect(
+        $query->field( 'id' ),
+        $query->field( 'name' )
+    );
+
+    $query->filter( ... );
+
+    $query->order_by(
+        $query->field( 'name' ) ->desc(),
+        $query->field( 'id' ) ->desc(),
+    );
+
+});
+```
+
+#### Uses a highly expressive and adaptable query language that mimics the sql and Elasticsearch query structure.
+
+Most query builders usually compare a table field against a value. More complex filters are achieved by executing raw sql strings.
+
+Query filters usually look like this:
+
+```php
+$users = table( 'users' )
+    ->whereIn( 'name', ['Lisa', 'Bart', 'Maggie'] )
+    ->orWhere( 'last_name', '=', 'Simpson' );
+```
+
+`hajin/persistency` expresses the same query like this:
+
+```php
+$users = Users_Collection::get()->all( function($query) {
+
+    $query->filter(
+        $query
+            ->field( 'name' ) ->in( ['Lisa', 'Bart', 'Maggie'] )
+            ->or()
+            ->field( 'last_name' ) ->op( '=' ) ->value( 'Simpson' )
+    );
+
+});
+``` 
+
+but also allows to easily express arbitrarily complex queries involving any field, value and built-in function in `where`, `select`, `order by` or `group by` clauses.
+
+For instance the following sql expression:
+
+```sql
+SELECT *
+FROM users
+WHERE lower( concat( users.name, ' ', users.last_name ) ) = lower( 'Lisa Simpson' ) AND users.address LIKE '%Evergreen%'
+```
+
+can be expressed almost without modifications like this:
+
+```php
+$users = Users_Collection::get()->all( function($query) {
+
+    $query->filter(
+        $query
+            ->lower(
+                ->concat(
+                    $query->field( 'name' ), ' ', $query->field( 'last_name' )
+                )
+            )
+            ->op( '=' )
+            ->lower( 'Lisa Simpson' )
+
+            ->and()
+
+            ->field( 'address' ) ->op( 'like' ) ->value( '%Evergreen' )
+    );
+
+});
+```
+
+Elasticsearch filters are very different from sql ones. Instead of building an abstraction layer for both sql and no sql databases `haijin/persistency` uses a dynamic mechanism to allow to express any built-in function of each database.
+
+An Elasticsearch filter might look like this:
+
+```php
+$users = Users_Collection::get()->all( function($query) {
+
+    $query->filter(
+        $query->bool(
+            $query->should(
+                $query->match( $query->field( 'name' ), 'Lisa' ),
+                $query->match( $query->field( 'last_name' ), 'Simpson' )
+            )
+        )
+    );
+
+});
+```
+
+#### Adds a bit of sintactic sugar to improve expressiveness.
+
+These are valid expressions:
+
+```php
+$query->field( 'name' ) ->upper()
+$query->field( 'name' ) ->not_null()
+$query->field( 'name' ) ->match( 'Lisa' )
+```
+
+equivalent to
+
+```php
+$query->upper( $query->field( 'name' ) )
+$query->not_null( $query->field( 'name' ) )
+$query->match( $query->field( 'name' ), 'Lisa' )
+```
+
+#### Allows to define expression macros with significant semantic names to simplify complex queries and improve expressiveness
+
+Complex SQL queries tend not to be easily read and understood.
+
+Using `let` macros it is possible to divide complex queries into more simple and meaningful named expressions and later combine them with logical operands:
+
+```php
+$users = Users_Collection::get()->all( function($query) {
+
+    $query->let( 'equals_name_and_last_name', function() {
+        return $query
+                ->concat(
+                    $query->field( 'name' ), ' ', $query->field( 'last_name' )
+                ) ->lower()
+
+                ->op( '=' )
+
+                ->lower( 'Lisa Simpson' )
+    });
+
+    $query->let( 'matches_address', function() {
+        return $query
+                ->field( 'address' ) ->op( 'like' ) ->value( '%Evergreen' )
+    });
+
+    $query->filter(
+        $query
+            ->equals_name_and_last_name ->and() ->matches_address
+    );
+
+});
+```
+
+#### Allows to inline query parameters as if they were constant values or to provide them as named paramaters.
+
+Although it might seem from the previous examples that the query values are appended as constant strings to the query, internally they are stored as query parameters that are bound to the query as any other parameters.
+
+So the previous example is equivalent to:
+
+```php
+$full_name = 'Lisa Simpson';
+$address = '%Evergreen';
+
+$users = Users_Collection::get()->all( function($query) use($full_name, $address) {
+
+    $query->let( 'equals_name_and_last_name', function() {
+        return $query
+                ->concat(
+                    $query->field( 'name' ), ' ', $query->field( 'last_name' )
+                ) ->lower()
+
+                ->op( '=' )
+
+                ->lower( $full_name )
+    });
+
+    $query->let( 'matches_address', function() {
+        return $query
+                ->field( 'address' ) ->op( 'like' ) ->value( $address )
+    });
+
+    $query->filter(
+        $query
+            ->equals_name_and_last_name ->and() ->matches_address
+    );
+
+});
+```
+
+Instead of inlining the values in the query it is possible to explicitly parametrize them:
+
+
+```php
+$full_name = 'Lisa Simpson';
+$address = '%Evergreen';
+
+$users = Users_Collection::get()->all( function($query) use($full_name, $address) {
+
+    $query->let( 'equals_name_and_last_name', function() {
+        return $query
+                ->concat(
+                    $query->field( 'name' ), ' ', $query->field( 'last_name' )
+                ) ->lower()
+
+                ->op( '=' )
+
+                ->lower( $query->param( 'full_name' ) )
+    });
+
+    $query->let( 'matches_address', function() {
+        return $query
+                ->field( 'address' ) ->op( 'like' ) ->param( 'address' )
+    });
+
+    $query->filter(
+        $query
+            ->equals_name_and_last_name ->and() ->matches_address
+    );
+
+}, [ 'full_name' => $full_name, 'address' => $address ] );
+```
+
+#### Allows to ignore null parameters.
+
+Usually some query parameters are optional and should be ignored if absent.
+
+For instance when querying for a `full_name` and `address` if both are provided both should match, but if one or both of them are absent they should not be queried for:
+
+```php
+$users = Users_Collection::get()->all( function($query) use($full_name, $address) {
+
+    if( $full_name !== null || $address !== null ) {
+        if( $full_name === null ) {
+            $query->filter(
+                $query ->matches_address
+            );
+        } elseif( $address === null ) {
+            $query->filter(
+                $query ->equals_name_and_last_name
+            );
+        } else {
+            $query->filter(
+                $query
+                    ->equals_name_and_last_name ->and() ->matches_address
+            );
+        }
+    }
+
+});
+```
+
+This approach has an exponential growth in the number of optional parameters and is not elegant.
+
+Other approaches like using `if`s to conditionaly concatenante strings or expressions if a parameter is present or not are better but are still not elegant.
+
+In `haijin/persistency` is possible to tell the query to ignore a term in boolean conditions and function calls, greatly improving the expresiveness of the query and making its logic a lot more simple:
+
+```php
+$users = Users_Collection::get()->all( function($query) use($full_name, $address) {
+
+    $query->let( 'equals_name_and_last_name', function() {
+
+        if( $full_name === null ) {
+            return $this->ignore();
+        }
+
+        return $query
+                ->concat(
+                    $query->field( 'name' ), ' ', $query->field( 'last_name' )
+                ) ->lower()
+
+                ->op( '=' )
+
+                ->lower( $full_name )
+
+    });
+
+    $query->let( 'matches_address', function() {
+
+        if( $address === null ) {
+            return $this->ignore();
+        }
+
+        return $query
+                ->field( 'address' ) ->op( 'like' ) ->value( $address )
+
+    });
+
+    $query->filter(
+        $query
+            ->equals_name_and_last_name ->and() ->matches_address
+    );
+
+});
+```
+
+#### Allows any nested amount of joins.
+
+When joining with another tables it is possible to define within the join which fields of the joined table to proyect in the select clause and macro expressions.
+
+This way the proyected fields and filter expressions are defined in the scope of the proper table and the query builder can correctly resolve the field namespace, improving the expresiveness.
+
+
+```php
+$users = Users_Collection::get()->all( function($query) use($full_name, $address) {
+
+    $query->proyect(
+        $query->field( 'id' ),
+        $query->field( 'name' )
+    );
+
+    $query->join( "address" ) ->from( "id" ) ->to( "user_id" )
+                                        ->eval( function($query) use($address) {
+
+        $query->proyect(
+            $query->ignore()
+        );
+
+        $query->let( 'matches_address', function() {
+
+            if( $address === null ) {
+                return $this->ignore();
+            }
+
+            return $query
+                    ->field( 'street_name' ) ->op( 'like' ) ->value( $address )
+
+        });
+
+    });
+
+    $query->let( 'equals_name_and_last_name', function() {
+
+        if( $full_name === null ) {
+            return $this->ignore();
+        }
+
+        return $query
+                ->concat(
+                    $query->field( 'name' ), ' ', $query->field( 'last_name' )
+                ) ->lower()
+
+                ->op( '=' )
+
+                ->lower( $full_name )
+
+    });
+
+    $query->filter(
+        $query
+            ->equals_name_and_last_name ->and() ->matches_address
+    );
+
+});
+```
+
+#### Allows to define all queries related to a model in its `Persistent_Collection` improving expressiveness and ease of use.
+
+All the queries on a model can be a `Persistent_Collection` method greatly improving ease of use:
+
+```php
+$users = Users_Collection::get()->all_matching_full_name_and_address(
+        'Lisa Simpson',
+        '%Evergreen%'
+    );
+```
+
+```php
+/**
+ * A Persistent_Collection to persist User objects.
+ */
+class Users_Persistent_Collection extends Persistent_Collection
+{
+    public function definition($collection)
+    {
+        $collection->collection_name = "users";
+
+        $collection->instantiate_objects_with = User::class;
+
+        $collection->field_mappings = function($mapping) {
+
+            $mapping->field( "id" ) ->is_primary_key()
+                ->read_with( "get_id()" )
+                ->write_with( "set_id()" );
+
+            /// ...
+        };
+    }
+
+    public function all_matching_full_name_and_address($full_name, $address)
+    {
+        return $this->all( function($query) use($full_name, $address) {
+
+            $query->proyect(
+                $query->field( 'id' ),
+                $query->field( 'name' )
+            );
+
+            $query->join( "address" ) ->from( "id" ) ->to( "user_id" )
+                                        ->eval( function($query) use($address) {
+
+                $query->proyect(
+                    $query->ignore()
+                );
+
+                $query->let( 'matches_address', function() {
+
+                    if( $address === null ) {
+                        return $this->ignore();
+                    }
+
+                    return $query
+                            ->field( 'street_name' ) ->op( 'like' ) ->value( $address )
+
+                });
+
+            });
+
+            $query->let( 'equals_name_and_last_name', function() {
+
+                if( $full_name === null ) {
+                    return $this->ignore();
+                }
+
+                return $query
+                        ->concat(
+                            $query->field( 'name' ), ' ', $query->field( 'last_name' )
+                        ) ->lower()
+
+                        ->op( '=' )
+
+                        ->lower( $full_name )
+
+            });
+
+            $query->filter(
+                $query
+                    ->equals_name_and_last_name ->and() ->matches_address
+            );
+
+        });
+    }
+}
+```
+
+#### Allows to specify an arbitrary depth of nested eager fetches on each query call.
+
+Usually the specification of which related entities to fetch eagerly is done on the query definition side.
+
+`haijin/persistency` allows the caller of a query, instead of the query definition, to easily specify which entities to fetch eagerly, since the same query can be used in different contexts requiring differnte entities to be eagerly fetched:
+
+```php
+$users = Users_Collection::get()->all_users_sorted_by_name([
+    'address' => true,
+    'books' => [
+        'author' => true
+    ]
+]);
+```
+
+#### Allows complex testing without mocking the database.
+
+Usually the setup of the database for testing is complicated and unclear.
+
+Fixtures are defined in a different file than the test, making it unclear for the developer what does the database contains.
+
+Mocking the database does not execirse the application as it is.
+
+`haijin/persistency` allows to easily and clearly populate in each test, in the same test file, the database:
+
+```php
+$spec->describe( "When calling the delete user endpoint", function() {
+
+    $this->before_each( function() {
+
+        Users_Collection::do()->clear_all();
+
+        Users_Collection::do()->create_from_attributes([
+            'id' => 1,
+            'name' => 'Lisa',
+            'last_name' => 'Simpson'
+        ]);
+
+        Users_Collection::do()->create_from_attributes([
+            'id' => 2,
+            'name' => 'Bart',
+            'last_name' => 'Simpson'
+        ]);
+
+        Users_Collection::do()->create_from_attributes([
+            'id' => 3,
+            'name' => 'Maggie',
+            'last_name' => 'Simpson'
+        ]);
+
+    });
+
+    $this->after_all( function() {
+        Users_Collection::do()->clear_all();
+    });
+
+    $this->it( "deletes the user", function() {
+
+        $this->make_request( 'DELETE', '/users/2' );
+
+        $users = Users_Collection::get()->all();
+
+        $this->expect( $users ) ->to() ->be() ->like([
+            [
+                'get_id()' => 1,
+                'name' => 'Lisa',
+                'last_name' => 'Simpson'
+            ],
+            [
+                'get_id()' => 3,
+                'name' => 'Maggie',
+                'last_name' => 'Simpson'
+            ]
+        ])
+    });
+
+});
+```
 
 ## Table of contents
 
@@ -258,8 +858,8 @@ function find_by_name_and_last_name($searched_name, $searched_last_name)
 
             if( $searched_name != null ) {
 
-                return $this->brackets(
-                    $this
+                return $query->brackets(
+                    $query
                         ->field( "name" )
                         ->op( "=" )
                         ->value( $searched_name )
@@ -267,7 +867,7 @@ function find_by_name_and_last_name($searched_name, $searched_last_name)
 
             } else {
 
-                return $this->ignore();
+                return $query->ignore();
 
             }
 
@@ -277,8 +877,8 @@ function find_by_name_and_last_name($searched_name, $searched_last_name)
 
             if( $searched_last_name != null ) {
 
-                return $this->brackets(
-                    $this 
+                return $query->brackets(
+                    $query 
                         ->field( "last_name" )
                         ->op( "=" ) 
                         ->value( $searched_last_name )
@@ -286,7 +886,7 @@ function find_by_name_and_last_name($searched_name, $searched_last_name)
 
             } else {
 
-                return $this->ignore();
+                return $query->ignore();
 
             }
 
@@ -328,11 +928,7 @@ $database->query( function($query) {
         $query ->field( "name" ) ->op( "=" ) ->param( "q" )
     );
 
-}, [ 
-    "parameters" => [
-        "q" => "Lisa"
-    ]
-]);
+}, [  "q" => "Lisa" ] );
 ```
 
 Or compile the query once and execute many times with different values:
@@ -357,16 +953,12 @@ $compiled_statement = $database->compile( function($compiler) {
 
 
 $rows = $database->execute( $compiled_statement, [ 
-    "parameters" => [
         "q" => "Lisa"
-    ]
-]);
+    ]);
 
 $rows = $database->execute( $compiled_statement, [ 
-    "parameters" => [
         "q" => "Bart"
-    ]
-]);
+    ]);
 ```
 
 
@@ -1604,10 +2196,8 @@ Users_Collection::do()->update_all( function($query) {
     );
 
 }, [
-    "parameters" => [
-        "last_name" => "simpson",
-        "id" => 2
-    ]
+    "last_name" => "simpson",
+    "id" => 2
 ]);
 ```
 
@@ -1654,9 +2244,7 @@ Users_Collection::do()->delete_all( function($query) {
     );
 
 }, [
-    "parameters" => [
-        "id" => 2
-    ]
+    "id" => 2
 ]);
 ```
 
@@ -1805,9 +2393,7 @@ $count = Users_Collection::get()->count( function($query) {
     );
 
 }, [
-    "parameters" => [
-        "ln" => "Simpson"
-    ]
+    "ln" => "Simpson"
 ]);
 ```
 
@@ -1845,9 +2431,7 @@ $users = Users_Collection::get()->all( function($query) {
     );
 
 }, [
-    "parameters" => [
-        "ln" => "Simpson"
-    ]
+    "ln" => "Simpson"
 ]);
 ```
 
@@ -1899,9 +2483,7 @@ $user = Users_Collection::get()->first( function($query) {
     );
 
 }, [
-    "parameters" => [
-        "ln" => "Simpson"
-    ]
+    "ln" => "Simpson"
 ]);
 ```
 

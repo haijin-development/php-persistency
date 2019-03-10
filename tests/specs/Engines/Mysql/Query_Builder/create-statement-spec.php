@@ -292,10 +292,8 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
             );
 
         }, [
-            'parameters' => [
-                "name" => "Homer",
-                "last_name" => "Simpson"
-            ]
+            "name" => "Homer",
+            "last_name" => "Simpson"
         ]);
 
         $rows = $this->database->query( function($query) {
@@ -336,17 +334,13 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
         });
 
         $this->database->execute( $compiled_statement, [
-            'parameters' => [
-                "name" => "Homer",
-                "last_name" => "Simpson"
-            ]
+            "name" => "Homer",
+            "last_name" => "Simpson"
         ]);
 
         $this->database->execute( $compiled_statement, [
-            'parameters' => [
-                "name" => "Marge",
-                "last_name" => "Simpson"
-            ]
+            "name" => "Marge",
+            "last_name" => "Simpson"
         ]);
 
         $rows = $this->database->query( function($query) {

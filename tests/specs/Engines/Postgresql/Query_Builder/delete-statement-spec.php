@@ -121,9 +121,7 @@ $spec->describe( "When evaluating a delete statement in a MySql database", funct
             );
 
         }, [
-            'parameters' => [
-                "name" => "Maggie"
-            ]
+            "name" => "Maggie"
         ]);
 
         $rows = $this->database->query( function($query) {
@@ -168,9 +166,7 @@ $spec->describe( "When evaluating a delete statement in a MySql database", funct
         });
 
         $this->database->execute( $compiled_query, [
-            'parameters' => [
-                "name" => "Maggie"
-            ]
+            "name" => "Maggie"
         ]);
 
         $rows = $this->database->query( function($query) {
@@ -198,9 +194,7 @@ $spec->describe( "When evaluating a delete statement in a MySql database", funct
 
 
         $this->database->execute( $compiled_query, [
-            'parameters' => [
-                "name" => "Bart"
-            ]
+            "name" => "Bart"
         ]);
 
         $rows = $this->database->query( function($query) {

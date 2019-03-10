@@ -82,9 +82,7 @@ $spec->describe( "When counting objects in a Persistent_Collection stored in a M
                 $query->field( "id" ) ->op( "=" ) ->param( "id" )
             );
 
-        }, [
-            'parameters' => [ "id" => 1 ]
-        ]);
+        }, [ "id" => 1 ] );
 
         $this->expect( $count ) ->to() ->equal( 1 );
 

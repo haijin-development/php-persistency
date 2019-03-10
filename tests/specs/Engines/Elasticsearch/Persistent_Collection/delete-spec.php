@@ -104,11 +104,7 @@ $spec->describe( "When deleting an object from a Persistent_Collection in a Elas
                 )
             );
 
-        }, [
-            'parameters' => [
-                "id" => 2
-            ]
-        ]);
+        }, [ "id" => 2 ] );
 
         $users = Elasticsearch_Users_Collection::get()->all();
 

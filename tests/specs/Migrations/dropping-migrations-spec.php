@@ -4,6 +4,14 @@ use Haijin\Persistency\Migrations\Database_CLI;
 
 $spec->describe( "When dropping migrations", function() {
 
+    $this->before_all( function() {
+        ob_start();
+    });
+
+    $this->after_all( function() {
+        ob_get_clean();
+    });
+
     $this->it( "drops the migrations with no tables", function() {
 
         $this->drop_mysql_tables();

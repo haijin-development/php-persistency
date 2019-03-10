@@ -4,6 +4,10 @@ use Haijin\Persistency\Migrations\Database_CLI;
 
 $spec->describe( "When running migrations in mysql", function() {
 
+    $this->before_all( function() {
+        ob_start();
+    });
+
     $this->before_each( function() {
 
         $this->drop_mysql_tables();
@@ -11,6 +15,10 @@ $spec->describe( "When running migrations in mysql", function() {
         $this->drop_sqlite_tables();
         $this->drop_elasticsearch_indices();
 
+    });
+
+    $this->after_all( function() {
+        ob_get_clean();
     });
 
     $this->it( "runs the migrations the first time", function() {

@@ -316,9 +316,7 @@ $spec->describe( "When building the filter statement of a MySql expression", fun
             );
         },
         [
-            'parameters' => [
-                "name" => "Maggie"
-            ]
+            "name" => "Maggie"
         ]);
 
         $this->expect( $rows ) ->to() ->be() ->exactly_like([
@@ -386,9 +384,7 @@ $spec->describe( "When building the filter statement of a MySql expression", fun
             });
 
             $rows = $this->database->execute( $compiled_statement, [
-                'parameters' => [
-                    'name' => 'Lisa'
-                ]
+                'name' => 'Lisa'
             ]);
 
             $this->expect( $rows ) ->to() ->be() ->exactly_like([
@@ -400,9 +396,7 @@ $spec->describe( "When building the filter statement of a MySql expression", fun
             ]);
 
             $rows = $this->database->execute( $compiled_statement, [
-                'parameters' => [
-                    'name' => 'Maggie'
-                ]
+                'name' => 'Maggie'
             ]);
 
             $this->expect( $rows ) ->to() ->be() ->exactly_like([

@@ -437,10 +437,8 @@ $spec->describe( "When evaluating an update statement in a Postgresql database",
             );
 
         }, [
-            'parameters' => [
-                "name" => "Margaret",
-                "last_name" => "simpson"
-            ]
+            "name" => "Margaret",
+            "last_name" => "simpson"
         ]);
 
         $rows = $this->database->query( function($query) {
@@ -495,10 +493,8 @@ $spec->describe( "When evaluating an update statement in a Postgresql database",
         });
 
         $this->database->execute( $compiled_statement, [
-            'parameters' => [
-                "name" => "Margaret",
-                "last_name" => "simpson"
-            ]
+            "name" => "Margaret",
+            "last_name" => "simpson"
         ]);
 
         $rows = $this->database->query( function($query) {
@@ -532,10 +528,8 @@ $spec->describe( "When evaluating an update statement in a Postgresql database",
 
 
         $this->database->execute( $compiled_statement, [
-            'parameters' => [
-                "name" => "margaret",
-                "last_name" => "simpson"
-            ]
+            "name" => "margaret",
+            "last_name" => "simpson"
         ]);
 
         $rows = $this->database->query( function($query) {

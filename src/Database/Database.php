@@ -204,10 +204,6 @@ abstract class Database
     {
         $this->validate_named_parameters( $named_parameters );
 
-        if( ! isset( $named_parameters[ 'parameters' ] ) ) {
-            $named_parameters[ 'parameters' ] = [];
-        }
-
         $this->validate_connection_handle();
 
         return Global_Factory::with_factory_do( function($factory)

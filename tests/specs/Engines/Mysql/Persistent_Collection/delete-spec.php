@@ -98,9 +98,7 @@ $spec->describe( "When deleting an object from a Persistent_Collection in a MySq
                 $query->field( "id" ) ->op( "<=" ) ->param( "id" )
             );
 
-        }, [
-            'parameters' => [ "id" => 2 ]
-        ]);
+        }, [ "id" => 2 ] );
 
         $users = Users_Collection::get()->all();
 

@@ -123,9 +123,7 @@ $spec->describe( "When querying a Persistent_Collection stored in a MySql databa
                     $query->field( "id" ) ->desc()
                 );
 
-            }, [
-                'parameters' => [ "id" => 1 ]
-            ]);
+            }, [ "id" => 1 ] );
 
             $this->expect( $users ) ->to() ->be() ->exactly_like([
                 [
@@ -192,9 +190,7 @@ $spec->describe( "When querying a Persistent_Collection stored in a MySql databa
                     $query->field( "id" )
                 );
 
-            }, [ 
-                'parameters' => [ "id" => 1 ]
-            ]);
+            }, [ "id" => 1 ] );
 
             $this->expect( $user ) ->to() ->be() ->exactly_like([
                 "get_id()" => 2,

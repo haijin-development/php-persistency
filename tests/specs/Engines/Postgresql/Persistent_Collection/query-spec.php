@@ -126,9 +126,7 @@ $spec->describe( "When querying a Persistent_Collection stored in a Postgresql d
                 );
 
             }, [
-                'parameters' => [
-                    "id" => 1
-                ]
+                "id" => 1
             ]);
 
             $this->expect( $users ) ->to() ->be() ->exactly_like([
@@ -197,9 +195,7 @@ $spec->describe( "When querying a Persistent_Collection stored in a Postgresql d
                 );
 
             }, [
-                'parameters' => [
-                    "id" => 1
-                ]
+                "id" => 1
             ]);
 
             $this->expect( $user ) ->to() ->be() ->exactly_like([

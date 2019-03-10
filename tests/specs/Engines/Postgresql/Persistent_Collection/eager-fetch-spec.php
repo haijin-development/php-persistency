@@ -527,20 +527,17 @@ $spec->describe( "When mapping fields to another collections in a Postgresql dat
 
             });
 
-            $this->database->execute( $compiled_query, [ 'parameters' => [
-                    'user_id' => 1,
-                    'address_id' => 1
-                ]
+            $this->database->execute( $compiled_query, [
+                'user_id' => 1,
+                'address_id' => 1
             ]);
-            $this->database->execute( $compiled_query, [ 'parameters' => [
-                    'user_id' => 2,
-                    'address_id' => 2
-                ]
+            $this->database->execute( $compiled_query, [
+                'user_id' => 2,
+                'address_id' => 2
             ]);
-            $this->database->execute( $compiled_query, [ 'parameters' => [
-                    'user_id' => 3,
-                    'address_id' => 3
-                ]
+            $this->database->execute( $compiled_query, [
+                'user_id' => 3,
+                'address_id' => 3
             ]);
 
         });

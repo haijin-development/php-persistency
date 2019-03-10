@@ -39,9 +39,7 @@ $spec->describe( "When inspecting a statement of a Sqlite expression", function(
                 ->field( 'last_name' ) ->op( '=' ) ->param( 'ln' )
             );
         }, [
-            'parameters' => [
-                'ln' => 'Simpson'
-            ]
+            'ln' => 'Simpson'
         ]);
 
         $this->expect( $this->inspected_was_called ) ->to() ->be() ->true();
