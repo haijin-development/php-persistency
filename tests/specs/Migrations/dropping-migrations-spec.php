@@ -15,9 +15,9 @@ $spec->describe( "When dropping migrations", function() {
 
         $cli = new Database_CLI( $argv );
 
-        $cli->config_in_file(
-            __DIR__ . "/../../samples/migrations/no-migrations-config.php"
-        );
+        $migrations = $cli->get_migrations_builder();
+
+        require  __DIR__ . "/../../samples/migrations/no-migrations-config.php";
 
         $cli->evaluate();
 
@@ -39,9 +39,9 @@ $spec->describe( "When dropping migrations", function() {
 
         $cli = new Database_CLI( $argv );
 
-        $cli->config_in_file(
-            __DIR__ . "/../../samples/migrations/no-migrations-config.php"
-        );
+        $migrations = $cli->get_migrations_builder();
+
+        require  __DIR__ . "/../../samples/migrations/no-migrations-config.php";
 
         $cli->evaluate();
 

@@ -18,11 +18,11 @@ class Database_CLI
         $this->migrations_builder = new Migrations_Builder();
     }
 
-    /// Configuration
+    /// Accessing
 
-    public function config_in_file($filename)
+    public function get_migrations_builder()
     {
-        $this->migrations_builder->define_in_file( $filename );
+        return $this->migrations_builder;
     }
 
     /// Command line interface
@@ -81,6 +81,6 @@ class Database_CLI
 
     protected function new_migrations_builder()
     {
-        return Create::object( Migrations_Builder::class );
+        return new Migrations_Builder();
     }
 }

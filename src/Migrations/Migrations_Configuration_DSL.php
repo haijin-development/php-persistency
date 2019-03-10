@@ -15,7 +15,7 @@ class Migrations_Configuration_DSL
 
     /// DSL
 
-    public function set_migration_database($database)
+    public function set_database($database)
     {
         $this->migrations_builder->set_migration_database( $database );
     }

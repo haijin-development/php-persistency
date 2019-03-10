@@ -24,25 +24,13 @@ class Migrations_Builder
         $this->migrations_folder = null;
     }
 
-    /// Definition
-
-    public function define_in_file($filename)
-    {
-        $migrations = $this;
-
-        require( $filename );
-
-        Migrations_Collection::do()->set_database( $this->migration_database );
-        Migrations_Collection::do()->set_collection_name( $this->table_name );
-
-        return $this;
-    }
-
     /// Accessing
 
     public function set_migration_database($migration_database)
     {
         $this->migration_database = $migration_database;
+
+        Migrations_Collection::do()->set_database( $this->migration_database );
     }
 
     public function set_migrated_databases($migrated_databases)
@@ -53,6 +41,8 @@ class Migrations_Builder
     public function set_table_name($table_name)
     {
         $this->table_name = $table_name;
+
+        Migrations_Collection::do()->set_collection_name( $this->table_name );
     }
 
     public function set_migrations_folder($migrations_folder)

@@ -107,7 +107,7 @@ class Migration
     public function describe( $description, $script_closure)
     {
         $this->add_migration_script(
-            Create::object( Migration_Script::class, $description, $script_closure )
+            new Migration_Script( $description, $script_closure )
         );
     }
 }

@@ -24,7 +24,7 @@ $migrations->configure( function($migrations) {
         ->connect( 'test.db' );
 
 
-    $migrations->migration_database = $mysql_database;
+    $migrations->database = $mysql_database;
 
     $migrations->table_name = 'app_migrations';
 

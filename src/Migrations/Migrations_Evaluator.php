@@ -158,7 +158,7 @@ abstract class Migrations_Evaluator
 
     protected function get_migration_from_file($filename)
     {
-        $migration = Create::object( Migration::class );
+        $migration = new Migration();
 
         $migration->define_in_file( $filename );
 

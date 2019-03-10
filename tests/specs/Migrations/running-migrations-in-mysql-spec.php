@@ -19,9 +19,9 @@ $spec->describe( "When running migrations in mysql", function() {
 
         $cli = new Database_CLI( $argv );
 
-        $cli->config_in_file(
-            __DIR__ . "/../../samples/migrations/one-mysql-migration-config.php"
-        );
+        $migrations = $cli->get_migrations_builder();
+
+        require  __DIR__ . "/../../samples/migrations/one-mysql-migration-config.php";
 
         $cli->evaluate();
 
@@ -33,9 +33,9 @@ $spec->describe( "When running migrations in mysql", function() {
 
         $cli = new Database_CLI( $argv );
 
-        $cli->config_in_file(
-            __DIR__ . "/../../samples/migrations/one-mysql-migration-config.php"
-        );
+        $migrations = $cli->get_migrations_builder();
+
+        require  __DIR__ . "/../../samples/migrations/one-mysql-migration-config.php";
 
         $cli->evaluate();
 
@@ -44,9 +44,9 @@ $spec->describe( "When running migrations in mysql", function() {
 
         $cli = new Database_CLI( $argv );
 
-        $cli->config_in_file(
-            __DIR__ . "/../../samples/migrations/many-mysql-migrations-config.php"
-        );
+        $migrations = $cli->get_migrations_builder();
+
+        require  __DIR__ . "/../../samples/migrations/many-mysql-migrations-config.php";
 
         $cli->evaluate();
     });
@@ -57,9 +57,9 @@ $spec->describe( "When running migrations in mysql", function() {
 
         $cli = new Database_CLI( $argv );
 
-        $cli->config_in_file(
-            __DIR__ . "/../../samples/migrations/repeated-migration-ids-config.php"
-        );
+        $migrations = $cli->get_migrations_builder();
+
+        require  __DIR__ . "/../../samples/migrations/repeated-migration-ids-config.php";
 
         $this->expect( function() use($cli) {
 
