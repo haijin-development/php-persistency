@@ -2,6 +2,7 @@
 
 use Haijin\Persistency\Engines\Elasticsearch\Elasticsearch_Database;
 use Haijin\Persistency\Persistent_Collection\Persistent_Collection;
+use Haijin\Errors\Haijin_Error;
 
 $spec->describe( "When creating an object in a Persistent_Collection in a Elasticsearch database", function() {
 
@@ -106,7 +107,7 @@ $spec->describe( "When creating an object in a Persistent_Collection in a Elasti
                 Elasticsearch_Users_Collection::do()->create( $user );
 
             }) ->to() ->raise(
-                \RuntimeException::class,
+                Haijin_Error::class,
                 function($error) {
                     $this->expect( $error->getMessage() ) ->to() ->equal( "Must assign an _id." );
             });
@@ -187,7 +188,7 @@ $spec->describe( "When creating an object in a Persistent_Collection in a Elasti
                 ]);
 
             }) ->to() ->raise(
-                \RuntimeException::class,
+                Haijin_Error::class,
                 function($error) {
                     $this->expect( $error->getMessage() ) ->to() ->equal( "Must assign an _id." );
             });

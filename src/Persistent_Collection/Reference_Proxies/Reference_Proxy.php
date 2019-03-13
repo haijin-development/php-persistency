@@ -118,7 +118,7 @@ abstract class Reference_Proxy
 
             $collection_name = get_class( $this->owners_collection );
 
-            throw new \RuntimeException(
+            throw new Haijin_Error(
                 "The mapping '{$collection_name}.{$this->owner_field}' was lazyly resolved."
             );
         }

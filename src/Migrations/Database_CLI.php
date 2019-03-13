@@ -43,7 +43,7 @@ class Database_CLI
                 break;
 
             default:
-                throw new \RuntimeException( "Uknown command '{$this->argv[1]}'.\n" );
+                throw new Haijin_Error( "Uknown command '{$this->argv[1]}'.\n" );
                 break;
         }
     }

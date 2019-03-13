@@ -2,8 +2,8 @@
 
 namespace Haijin\Persistency\Migrations;
 
-use Haijin\Instantiator\Create;
 use Haijin\File_Path;
+use Haijin\Errors\Haijin_Error;
 
 abstract class Migrations_Evaluator
 {
@@ -167,21 +167,21 @@ abstract class Migrations_Evaluator
 
     protected function raise_duplicated_migration_id_error($migration)
     {
-        throw new \RuntimeException(
+        throw new Haijin_Error(
             "The migration in file '{$migration->get_source_filename()}' has a repeated unique id: '{$migration->get_id()}'."
         );
     }
 
     protected function raise_missing_name_error($migration)
     {
-        throw new \RuntimeException(
+        throw new Haijin_Error(
             "The migration in file '{$migration->get_source_filename()}' is missing its name."
         );
     }
 
     protected function raise_missing_scripts_error($migration)
     {
-        throw new \RuntimeException(
+        throw new Haijin_Error(
             "The migration in file '{$migration->get_source_filename()}' has no scripts defined."
         );
     }

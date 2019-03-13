@@ -44,7 +44,7 @@ class Objects_Space
         $collection_name = get_class( $collection );
 
         if( ! isset( $this->objects_by_classes[ $collection_name ][ $object_id ] ) ) {
-            throw new \RuntimeException( "Object with id {$object_id} from collection {$collection_name} not found in objects space." );
+            throw new Haijin_Error( "Object with id {$object_id} from collection {$collection_name} not found in objects space." );
         }
 
         return $this->objects_by_classes[ $collection_name ][ $object_id ];

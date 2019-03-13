@@ -49,7 +49,7 @@ class Types_Converter
     public function convert_from_database($type, $value)
     {
         if( ! isset( $this->converters[ $type ] ) ) {
-            throw new \RuntimeException( "Unkown type converter: '$type'" );
+            throw new Haijin_Error( "Unkown type converter: '$type'" );
         }
 
         return $this->converters[ $type ]->from_database( $value );
@@ -79,7 +79,7 @@ class Types_Converter
         }
 
         if( ! isset( $this->converters[ $type ] ) ) {
-            throw new \RuntimeException( "Unkown type converter: '$type'" );
+            throw new Haijin_Error( "Unkown type converter: '$type'" );
         }
 
         return $this->converters[ $type ]->to_database( $value );

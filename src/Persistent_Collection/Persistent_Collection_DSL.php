@@ -277,28 +277,28 @@ class Persistent_Collection_DSL
 
     protected function raise_unexpected_definition_error($attribute_name)
     {
-        throw new \RuntimeException(
+        throw new Haijin_Error(
             "Unexpected definition '{$attribute_name}'."
         );
     }
 
     protected function raise_unexpected_instantiator_error()
     {
-        throw new \RuntimeException(
+        throw new Haijin_Error(
             "Unexpected instantiator."
         );
     }
 
     protected function raise_unexpected_read_with_value_error($value_reader)
     {
-        throw new \RuntimeException(
+        throw new Haijin_Error(
             "The read_with value '$value_reader' is not defined. Should be one of '->value', '[value]' or 'value()'."
         );
     }
 
     protected function raise_unexpected_write_with_value_error($value_writter)
     {
-        throw new \RuntimeException(
+        throw new Haijin_Error(
             "The write_with value '$value_writter' is not defined. Should be one of '->value', '[value]' or 'value()'."
         );
     }

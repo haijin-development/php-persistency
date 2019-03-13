@@ -382,7 +382,7 @@ abstract class Database
 
     protected function raise_invalid_named_parameter_error()
     {
-        throw new \RuntimeException(
+        throw new Haijin_Error(
             "Expected parameter to be an associative array"
         );
     }

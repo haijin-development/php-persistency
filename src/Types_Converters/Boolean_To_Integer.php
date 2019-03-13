@@ -14,7 +14,7 @@ class Boolean_To_Integer
             return 0;
         }
 
-        throw new \RuntimeException( "Invalid boolean value" );
+        throw new Haijin_Error( "Invalid boolean value" );
     }
 
     public function from_database($integer)
@@ -27,6 +27,6 @@ class Boolean_To_Integer
             return false;
         }
 
-        throw new \RuntimeException( "Invalid string value" );
+        throw new Haijin_Error( "Invalid string value" );
     }
 }

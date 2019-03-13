@@ -1,6 +1,7 @@
 <?php
 
 use Haijin\Persistency\Engines\Postgresql\Postgresql_Database;
+use Haijin\Errors\Haijin_Error;
 
 $spec->describe( "When evaluating transactional statements in a Postgresql database", function() {
 
@@ -138,7 +139,7 @@ $spec->describe( "When evaluating transactional statements in a Postgresql datab
 
                 });
 
-                throw new \RuntimeException( "Error Processing Request" );
+                throw new Haijin_Error( "Error Processing Request" );
 
             });
 
@@ -174,7 +175,7 @@ $spec->describe( "When evaluating transactional statements in a Postgresql datab
 
                 });
 
-                throw new \RuntimeException( "Error Processing Request" );
+                throw new Haijin_Error( "Error Processing Request" );
 
             });
 

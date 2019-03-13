@@ -143,7 +143,7 @@ class Field_Mapping
     public function read_value_from($object)
     {
         if( $this->value_reader === null ) {
-            throw new \RuntimeException( "Field mapping '{$this->field_name}' is missing the object value reader in its definition." );
+            throw new Haijin_Error( "Field mapping '{$this->field_name}' is missing the object value reader in its definition." );
         }
 
         return $this->value_reader->read_value_from( $object );

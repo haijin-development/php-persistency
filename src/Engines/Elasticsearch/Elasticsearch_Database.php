@@ -4,6 +4,7 @@ namespace Haijin\Persistency\Engines\Elasticsearch;
 
 use Haijin\Instantiator\Global_Factory;
 use Haijin\Instantiator\Create;
+use Haijin\Errors\Haijin_Error;
 use Haijin\Persistency\Database\Database;
 use Elasticsearch\ClientBuilder;
 use Haijin\Persistency\Types_Converters\Null_Converter;
@@ -281,7 +282,7 @@ class Elasticsearch_Database extends Database
         $values = $elastic_query->get_record_values();
 
         if( ! isset( $values[ "_id" ] ) || $values[ "_id" ] === null ) {
-            throw new \RuntimeException( "Must assign an _id." );
+            throw new Haijin_Error( "Must assign an _id." );
         }
 
         $this->last_created_id = $values[ "_id" ];
@@ -553,7 +554,7 @@ class Elasticsearch_Database extends Database
      */
     public function inspect_query($query, $callable)
     {
-        throw new \Exception( "inspect_query" );
+        throw new Haijin_Error( "inspect_query" );
     }
 
     /// Double disptach

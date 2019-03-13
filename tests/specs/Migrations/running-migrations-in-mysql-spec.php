@@ -1,6 +1,7 @@
 <?php
 
 use Haijin\Persistency\Migrations\Database_CLI;
+use Haijin\Errors\Haijin_Error;
 
 $spec->describe( "When running migrations in mysql", function() {
 
@@ -74,7 +75,7 @@ $spec->describe( "When running migrations in mysql", function() {
             $cli->evaluate();
 
         }) ->to() ->raise(
-            \RuntimeException::class,
+            Haijin_Error::class,
             function($error) {
                 $this->expect( $error->getMessage() ) ->to() ->match(
                     "/^The migration in file ['].+[\/]migrations[\/]repeated[-]migration[-]ids[-]config[\/]02[-]create[-]products[.]php['] has a repeated unique id[:] [']1['][.]$/"

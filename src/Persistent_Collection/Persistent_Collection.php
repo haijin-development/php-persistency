@@ -408,7 +408,7 @@ class Persistent_Collection
     public function create_from_attributes($attributes)
     {
         if( ! is_array( $attributes ) ) {
-            throw new \RuntimeException(
+            throw new Haijin_Error(
                 "create_from_attributes() expects an associative array."
             );
         }
@@ -437,7 +437,7 @@ class Persistent_Collection
     public function insert_record($record_values)
     {
         if( ! is_array( $record_values ) ) {
-            throw new \RuntimeException(
+            throw new Haijin_Error(
                 "insert_record() expects an associative array."
             );
         }
@@ -477,7 +477,7 @@ class Persistent_Collection
     public function update_from_attributes($object, $attributes)
     {
         if( ! is_array( $attributes ) ) {
-            throw new \RuntimeException(
+            throw new Haijin_Error(
                 "create_from_attributes() expects an associative array."
             );
         }
@@ -701,7 +701,7 @@ class Persistent_Collection
             return;
         }
 
-        throw new \RuntimeException( "Expected '\$named_parameters' to be an associative array." );
+        throw new Haijin_Error( "Expected '\$named_parameters' to be an associative array." );
     }
 
 
@@ -709,12 +709,12 @@ class Persistent_Collection
 
     protected function raise_missing_primary_key_error()
     {
-        throw new \RuntimeException( "Missing a primary key field in the definition." );
+        throw new Haijin_Error( "Missing a primary key field in the definition." );
     }
 
     protected function raise_unkown_instantiator_error()
     {
-        throw new \RuntimeException( "Unkown instantiator." );
+        throw new Haijin_Error( "Unkown instantiator." );
     }
 
     protected function raise_more_than_one_record_found_error($found_count)
@@ -726,7 +726,7 @@ class Persistent_Collection
     {
         $class_name = get_class( $this );
 
-        throw new \RuntimeException(
+        throw new Haijin_Error(
             "Field mapping at field '{$field_name}' in class {$class_name} not found."
         );        
     }

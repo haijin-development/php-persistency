@@ -1,6 +1,7 @@
 <?php
 
 use Haijin\Persistency\Engines\Sqlite\Sqlite_Database;
+use Haijin\Errors\Haijin_Error;
 
 $spec->describe( "When evaluating transactional statements in a Sqlite database", function() {
 
@@ -140,7 +141,7 @@ $spec->describe( "When evaluating transactional statements in a Sqlite database"
 
                 });
 
-                throw new \RuntimeException( "Error Processing Request" );
+                throw new Haijin_Error( "Error Processing Request" );
 
             });
 
@@ -176,7 +177,7 @@ $spec->describe( "When evaluating transactional statements in a Sqlite database"
 
                 });
 
-                throw new \RuntimeException( "Error Processing Request" );
+                throw new Haijin_Error( "Error Processing Request" );
 
             });
 

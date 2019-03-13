@@ -40,7 +40,7 @@ class Reference_Collection_From_Collection_Type extends Abstract_Type
 
     public function convert_to_database($object, $database)
     {
-        throw new \RuntimeException( "This type is not written into the database." );
+        throw new Haijin_Error( "This type is not written into the database." );
     }
 
     public function convert_from_database(
