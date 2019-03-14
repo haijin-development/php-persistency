@@ -92,8 +92,5 @@ Vagrant.configure("2") do |config|
     # Elasticsearch
     bash src/php-persistency/provision-scritps/elastich-search.sh
 
-    # Node with css and js pre-processors
-    bash src/php-persistency/provision-scritps/nodejs.sh
-
   SHELL
 end
