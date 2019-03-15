@@ -245,7 +245,7 @@ class Elasticsearch_Database extends Database
 
     public function find_by_id($id, $collection_name, $type = null)
     {
-        if( $type == null ) {
+        if( $type === null ) {
             $type = $collection_name;
         }
 
@@ -357,7 +357,7 @@ class Elasticsearch_Database extends Database
 
     public function update_by_id($id, $values, $collection_name, $type = null)
     {
-        if( $type == null ) {
+        if( $type === null ) {
             $type = $collection_name;
         }
 
@@ -417,7 +417,7 @@ class Elasticsearch_Database extends Database
 
     public function delete_by_id($id, $collection_name, $type = null)
     {
-        if( $type == null ) {
+        if( $type === null ) {
             $type = $collection_name;
         }
 

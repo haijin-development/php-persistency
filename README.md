@@ -68,13 +68,13 @@ class Users_Persistent_Collection extends Persistent_Collection
 
 #### Shares a common query language between sql and no sql databases to persist and query objects.
 
-Sql databases, like Mysql or Postgres, and no sql databases, like Elasticsearch and MongoDb, have very different APIs.
+Sql databases, like `Mysql`, `Postgres` and `Sqlite`, and no sql databases, like `Elasticsearch` and `MongoDb`, have very different APIs.
 
-However most of the databases share a common query structure.
+However most of the existing databases share a common query structure.
 
 'haijin/persistency' shares the basic query structure among sql and no sql databases.
 
-The following query works in both all supported sql databases and in Elasticsearch:
+The following query works as it is in `Mysql`, `Postgres`, `Sqlite` and `Elasticsearch`:
 
 ```php
 $database->create( function($query) {
@@ -90,7 +90,7 @@ $database->create( function($query) {
 });
 ```
 
-The following query works in both sql databases and Elasticsearch, and the only difference among them would be the `filter` expression:
+The following query works in both sql databases and `Elasticsearch` and the only difference among them would be the `filter` expression:
 
 ```php
 $records = $database->query( function($query) {
@@ -112,7 +112,7 @@ $records = $database->query( function($query) {
 });
 ```
 
-#### Uses a highly expressive and adaptable query language that mimics the sql and Elasticsearch query structure.
+#### Uses a highly expressive and adaptable query language that mimics each database engine, sql and no sql, query structure.
 
 Most query builders usually compare a table field against a value. More complex filters are achieved by executing raw sql strings.
 
@@ -139,7 +139,9 @@ $users = Users_Collection::get()->all( function($query) {
 });
 ``` 
 
-but also allows to easily express arbitrarily complex queries involving any field, value and built-in function in `where`, `select`, `order by` or `group by` clauses.
+At first glance the query structure may seem too verbose and explicit compared to other query languages, but with this explicitness comes a subtle but important advantage: it reduces the gap between the query the developer wants to write and the expression that implements it. The effort that the developer does to translate the query she wants to express in the database language to the query expression in the application language is minimum to all databases, sql and no sql.
+
+It also has an additional and equally important feature: it allows to easily express arbitrarily complex queries involving any field, value and built-in function in `where`, `select`, `order by` or `group by` clauses without concatenanting strings.
 
 For instance the following sql expression:
 
@@ -201,7 +203,7 @@ $query->field( 'name' ) ->not_null()
 $query->field( 'name' ) ->match( 'Lisa' )
 ```
 
-equivalent to
+equivalent to:
 
 ```php
 $query->upper( $query->field( 'name' ) )
@@ -218,7 +220,7 @@ Using `let` macros it is possible to divide complex queries into more simple and
 ```php
 $users = Users_Collection::get()->all( function($query) {
 
-    $query->let( 'equals_name_and_last_name', function() {
+    $query->let( 'equals_name_and_last_name', function($query) {
         return $query
                 ->concat(
                     $query->field( 'name' ), ' ', $query->field( 'last_name' )
@@ -229,7 +231,7 @@ $users = Users_Collection::get()->all( function($query) {
                 ->lower( 'Lisa Simpson' )
     });
 
-    $query->let( 'matches_address', function() {
+    $query->let( 'matches_address', function($query) {
         return $query
                 ->field( 'address' ) ->op( 'like' ) ->value( '%Evergreen' )
     });
@@ -254,7 +256,7 @@ $address = '%Evergreen';
 
 $users = Users_Collection::get()->all( function($query) use($full_name, $address) {
 
-    $query->let( 'equals_name_and_last_name', function() {
+    $query->let( 'equals_name_and_last_name', function($query) {
         return $query
                 ->concat(
                     $query->field( 'name' ), ' ', $query->field( 'last_name' )
@@ -265,7 +267,7 @@ $users = Users_Collection::get()->all( function($query) use($full_name, $address
                 ->lower( $full_name )
     });
 
-    $query->let( 'matches_address', function() {
+    $query->let( 'matches_address', function($query) {
         return $query
                 ->field( 'address' ) ->op( 'like' ) ->value( $address )
     });
@@ -287,7 +289,7 @@ $address = '%Evergreen';
 
 $users = Users_Collection::get()->all( function($query) use($full_name, $address) {
 
-    $query->let( 'equals_name_and_last_name', function() {
+    $query->let( 'equals_name_and_last_name', function($query) {
         return $query
                 ->concat(
                     $query->field( 'name' ), ' ', $query->field( 'last_name' )
@@ -298,7 +300,7 @@ $users = Users_Collection::get()->all( function($query) use($full_name, $address
                 ->lower( $query->param( 'full_name' ) )
     });
 
-    $query->let( 'matches_address', function() {
+    $query->let( 'matches_address', function($query) {
         return $query
                 ->field( 'address' ) ->op( 'like' ) ->param( 'address' )
     });
@@ -342,14 +344,14 @@ $users = Users_Collection::get()->all( function($query) use($full_name, $address
 
 This approach has an exponential growth in the number of optional parameters and is not elegant.
 
-Other approaches like using `if`s to conditionaly concatenante strings or expressions if a parameter is present or not are better but are still not elegant.
+Other approaches like using `ifs` to conditionaly concatenante strings or expressions if a parameter is present or not are better but are still not elegant.
 
 In `haijin/persistency` is possible to tell the query to ignore a term in boolean conditions and function calls, greatly improving the expresiveness of the query and making its logic a lot more simple:
 
 ```php
 $users = Users_Collection::get()->all( function($query) use($full_name, $address) {
 
-    $query->let( 'equals_name_and_last_name', function() {
+    $query->let( 'equals_name_and_last_name', function($query) {
 
         if( $full_name === null ) {
             return $this->ignore();
@@ -366,7 +368,7 @@ $users = Users_Collection::get()->all( function($query) use($full_name, $address
 
     });
 
-    $query->let( 'matches_address', function() {
+    $query->let( 'matches_address', function($query) {
 
         if( $address === null ) {
             return $this->ignore();
@@ -387,9 +389,11 @@ $users = Users_Collection::get()->all( function($query) use($full_name, $address
 
 #### Allows any nested amount of joins.
 
-When joining with another tables it is possible to define within the join which fields of the joined table to proyect in the select clause and macro expressions.
+When joining with another tables it is possible to define, within the joined table, which fields of the joined table to proyect in the select clause and macro expressions.
 
 This way the proyected fields and filter expressions are defined in the scope of the proper table and the query builder can correctly resolve the field namespace, improving the expresiveness.
+
+Nesting joins like this also gives the developer reading the query a much more clear and simple view of which tables are being joined to which tables than if they were expressed in a flattened, one level expression.
 
 
 ```php
@@ -407,7 +411,7 @@ $users = Users_Collection::get()->all( function($query) use($full_name, $address
             $query->ignore()
         );
 
-        $query->let( 'matches_address', function() {
+        $query->let( 'matches_address', function($query) {
 
             if( $address === null ) {
                 return $this->ignore();
@@ -420,7 +424,7 @@ $users = Users_Collection::get()->all( function($query) use($full_name, $address
 
     });
 
-    $query->let( 'equals_name_and_last_name', function() {
+    $query->let( 'equals_name_and_last_name', function($query) {
 
         if( $full_name === null ) {
             return $this->ignore();
@@ -447,7 +451,10 @@ $users = Users_Collection::get()->all( function($query) use($full_name, $address
 
 #### Allows to define all queries related to a model in its `Persistent_Collection` improving expressiveness and ease of use.
 
-All the queries on a model can be a `Persistent_Collection` method greatly improving ease of use:
+Usually query builders allow to reuse and share commonly used queries by defining partial or full queries in the model class. This has the drawback of coupling a query to a model. Every time a context requires the model not to use a query defined in the model some [additional statement](https://guides.rubyonrails.org/active_record_querying.html#unscope) must be included in the query making it less expressive and harder to read and to understand for developers. This statement is merely an implementation need, not actually related to the semantics of the model.
+
+In `haijin/persistency` each query on a model can be a method of some particular `Persistent_Collection`, greatly improving ease of use and cleary expressing the semantics of the query:
+
 
 ```php
 $users = Users_Collection::get()->all_matching_full_name_and_address(
@@ -455,6 +462,8 @@ $users = Users_Collection::get()->all_matching_full_name_and_address(
         '%Evergreen%'
     );
 ```
+
+where `all_matching_full_name_and_address` is defined in the `Users_Persistent_Collection`, not in the `User` class:
 
 ```php
 /**
@@ -534,11 +543,79 @@ class Users_Persistent_Collection extends Persistent_Collection
 }
 ```
 
+Another drawback of defining the query scopes in the model class is that it couples the model to a particular database. With that approach it is not possible to persist the same model in two or more different databases even if they are all sql databases.
+
+Here's an example from Ruby's [ActiveRecord scopes](https://guides.rubyonrails.org/active_record_querying.html#passing-in-arguments).
+
+The functions `lowercase` and `concat` are defined in `Mysql` and `Postgres` so the following scope would work on them:
+
+```ruby
+class User < ApplicationRecord
+    scope :matches_full_name, ->(full_name) {
+        where( "lowercase( concat( name, ' ', last_name )  ) = ?", full_name )
+    }
+end
+```
+
+But `Sqlite` does not implement `concat` and the `lowercase` function is called `lower`, so another scope implementation should be used instead:
+
+```ruby
+class User < ApplicationRecord
+    scope :matches_full_name, ->(full_name) {
+        where( "lower( printf( '%s %s', name, last_name ) ) = ?", full_name )
+    }
+end
+```
+
+The problem is that both implementations can not coexist in the same application.
+
+In `haijin/persistency` each query is defined in a particular `Persistent_Collection` in the context of a model *and* a database, allowing to persist the same model in more than one database.
+
+Here's an intereseting real scenario of such a feature:
+
+```php
+/**
+ * Persists the user in the database and index it in Elasticsearch.
+ */
+function create_user($user)
+{
+    Users_Collection::do()->create( $user );
+    Elasticsearch_Users_Collection::do()->create( $user );
+}
+```
+
+Another use case might be the use of a database for regular persitency and a redundant database to perform heavy queries without relying on the database configuration:
+
+```php
+/**
+ * Persists the user in the main database and in a redundant, read only database for
+ * slow, heavy queries.
+ */
+function create_user($user)
+{
+    Users_Collection::do()->create( $user );
+    Read_Only_Users_Collection::do()->create( $user );
+}
+
+
+// In a context the application performs a heavy query on the users table so it uses
+// the read only redundant database instead of the regular one.
+$users = Read_Only_Users_Collection::do()->find_users_with_some_heavy_query();
+
+
+// In a different context performs a regular query on the users table.
+$users = Read_Only_Users_Collection::do()->find_users_with_a_regular_query();
+```
+
+
+The model is the same all over the application and it is the context using the model the one that defines which queries and scopes to use by choosing one `Persistent_Collection` or another one.
+
+
 #### Allows to specify an arbitrary depth of nested eager fetches on each query call.
 
 Usually the specification of which related entities to fetch eagerly is done on the query definition side.
 
-`haijin/persistency` allows the caller of a query, instead of the query definition, to easily specify which entities to fetch eagerly, since the same query can be used in different contexts requiring differnte entities to be eagerly fetched:
+`haijin/persistency` allows the caller of a query, instead of the query definition, to easily specify which entities to fetch eagerly, since the same query can be used in different contexts requiring different entities to be eagerly fetched:
 
 ```php
 $users = Users_Collection::get()->all_users_sorted_by_name([
@@ -553,9 +630,9 @@ $users = Users_Collection::get()->all_users_sorted_by_name([
 
 Usually the setup of the database for testing is complicated and unclear.
 
-Fixtures are defined in a different file than the test, making it unclear for the developer what does the database contains.
+Fixtures are defined in a different file than the test, making it unclear for the developer what does the database contain.
 
-Mocking the database does not execirse the application as it is.
+Mocking the database, or any other object, does not execirse the real application so we discourage to do it.
 
 `haijin/persistency` allows to easily and clearly populate in each test, in the same test file, the database:
 
