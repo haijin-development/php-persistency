@@ -136,10 +136,6 @@ class Postgresql_Database extends Sql_Database
      */
     public function execute_sql_string($sql, $sql_parameters = [])
     {
-        if( $this->query_inspector_callable !== null ) {
-            ($this->query_inspector_callable)( $sql, $sql_parameters );
-        }
-
         $result_handle = $this->evaluate_sql_string( $sql, $sql_parameters );
 
         $rows = pg_fetch_all( $result_handle );

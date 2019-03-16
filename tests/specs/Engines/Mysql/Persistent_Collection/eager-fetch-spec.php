@@ -2,6 +2,7 @@
 
 use Haijin\Persistency\Engines\Mysql\Mysql_Database;
 use Haijin\Persistency\Persistent_Collection\Persistent_Collection;
+use Haijin\Persistency\Announcements\About_To_Execute_Sql_Statement;
 
 $spec->describe( "When mapping fields to another collections in a MySql database", function() {
 
@@ -25,9 +26,7 @@ $spec->describe( "When mapping fields to another collections in a MySql database
     });
 
     $this->after_each( function() {
-
-        $this->database->inspect_query_with( null );
-
+        $this->database->drop_all_announcements_to( $this );
     });
 
     $this->after_all( function() {
@@ -158,10 +157,11 @@ $spec->describe( "When mapping fields to another collections in a MySql database
 
             $this->queries = [];
 
-            $this->database->inspect_query_with( function($sql, $params) {
-
-                $this->queries[] = $sql;
-
+            $this->database->when(
+                About_To_Execute_Sql_Statement::class,
+                $this,
+                function($announcement) {
+                    $this->queries[] = $announcement->get_sql();
             });
 
             $user = Users_Collection::get()->all( function(){}, [], [
@@ -298,10 +298,11 @@ $spec->describe( "When mapping fields to another collections in a MySql database
 
             $this->queries = [];
 
-            $this->database->inspect_query_with( function($sql, $params) {
-
-                $this->queries[] = $sql;
-
+            $this->database->when(
+                About_To_Execute_Sql_Statement::class,
+                $this,
+                function($announcement) {
+                    $this->queries[] = $announcement->get_sql();
             });
 
             $users = Users_Collection::get()->all( function(){}, [], [
@@ -454,10 +455,11 @@ $spec->describe( "When mapping fields to another collections in a MySql database
 
             $this->queries = [];
 
-            $this->database->inspect_query_with( function($sql, $params) {
-
-                $this->queries[] = $sql;
-
+            $this->database->when(
+                About_To_Execute_Sql_Statement::class,
+                $this,
+                function($announcement) {
+                    $this->queries[] = $announcement->get_sql();
             });
 
             $users = Users_Collection::get()->all( function(){}, [], [
@@ -635,10 +637,11 @@ $spec->describe( "When mapping fields to another collections in a MySql database
 
             $this->queries = [];
 
-            $this->database->inspect_query_with( function($sql, $params) {
-
-                $this->queries[] = $sql;
-
+            $this->database->when(
+                About_To_Execute_Sql_Statement::class,
+                $this,
+                function($announcement) {
+                    $this->queries[] = $announcement->get_sql();
             });
 
             $users = Users_Collection::get()->all( function(){}, [], [

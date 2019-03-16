@@ -40,11 +40,19 @@
             "options": {
             "symlink": true
             }
+        },
+        "haijin/announcements": {
+            "type": "path",
+            "url": "../php-announcements",
+            "options": {
+            "symlink": true
+            }
         }
     },
     "require": {
         "haijin/tools": "dev-development",
-        "haijin/instantiator": "dev-development"
+        "haijin/instantiator": "dev-development",
+        "haijin/announcements": "dev-development"
     },
     "require-dev": {
         "haijin/specs": "dev-development",

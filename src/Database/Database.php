@@ -4,6 +4,7 @@ namespace Haijin\Persistency\Database;
 
 use Haijin\Instantiator\Global_Factory;
 use Haijin\Instantiator\Create;
+use Haijin\Announcements\Announcer_Trait;
 use Haijin\Persistency\Types_Converters\Types_Converter;
 use Haijin\Persistency\Statement_Compiler\Compiler;
 use Haijin\Persistency\Errors\Connections\Database_Query_Error;
@@ -20,14 +21,14 @@ use Haijin\Persistency\Errors\Connections\Named_Parameter_Not_Found_Error;
  */
 abstract class Database
 {
+    use Announcer_Trait;
+
     /**
      * The handle to an open connection to a Postgresql server.
      */
     protected $connection_handle;
 
     protected $types_converter;
-
-    protected $query_inspector_callable;
 
     /// Initializing
 
@@ -38,7 +39,6 @@ abstract class Database
     {
         $this->connection_handle = null;
         $this->types_converter = $this->default_types_converter();
-        $this->query_inspector_callable = null;
     }
 
     /// Type convertions
@@ -271,37 +271,6 @@ abstract class Database
     protected function set_instantiators_during_execution($factory)
     {
 
-    }
-
-    /// Debugging
-
-    /**
-     * Evaluates the $inspector_callable with the debugging information about the
-     * built query.
-     * Each Database subclass defines the $inspector_callable parameters. For instance,
-     * for sql database one parameter can be the built sql string.
-     * This method is intenteded for debugging purposes, not to use in production.
-     *
-     * @param callable $callable A callable with the debugging information as its parametets.
-     *
-     * Example of use:
-     *
-     *      $database->inspect_query_with( function($sql, $query_parameters) {
-     *          var_dump( $sql );
-     *          var_dump( $query_parameters );
-     *      });
-     *
-     *      $database->query( function($query) use($database) {
-     *
-     *          $query->collection( "users" );
-     *
-     *      });
-     *
-     *      $database->inspect_query_with( null );
-     */
-    public function inspect_query_with($callable)
-    {
-        $this->query_inspector_callable = $callable;
     }
 
     /// Creating instances

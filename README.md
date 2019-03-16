@@ -1059,93 +1059,59 @@ $query->proyect(
 the `concat(...)` function was not declared anywhere in the DSL for Mysql nor for any other engine.
 
 <a name="c-2-1-5"></a>
-#### Debugging the query
+#### Debugging and logging queries
 
-Each database accepts a callable to inspect a query and its parameters just before executing it.
+Each database makes announcements on the queries it executes.
 
-To inspect a SQL query do
+To inspect a SQL query for debugging or logging do
 
 ```php
+use Haijin\Persistency\Announcements\About_To_Execute_Statement;
+
 $database = new Mysql_Database();
 
 $database->connect( "127.0.0.1", "haijin", "123456", "haijin-persistency" );
 
-$database->inspect_query_with( function($sql, $query_parameters) {
-    var_dump( $sql );
-    var_dump( $query_parameters );
-});
+$this->database->when(
+    About_To_Execute_Statement::class,
+    $this,
+    function($announcement) {
+        var_dump( $announcement->__to_string() );
 
-$database->query( function($query) use($database) {
-
-    $query->collection( "users" );
-
-    $query->proyect(
-        $query->field( "name" ),
-        $query->field( "last_name" )
-    );
-
-    $query->let( "matches_name", function($query) {
-        return $query->brackets(
-            $query ->field( "name" ) ->op( "=" ) ->value( "Lisa" )
-        );
-    });
-
-    $query->let( "matches_last_name", function($query) {
-        return $query->brackets(
-            $query ->field( "last_name" ) ->op( "=" ) ->value( "Simpson" )
-        );
-    });
-
-    $query->filter(
-        $query
-            ->matches_name ->and() ->matches_last_name
-    );
-
-    $query->order_by(
-        $query->field( "users.last_name" ) ->desc(),
-        $query->field( "users.name" ) ->desc(),
-        $query->field( "address" ) ->desc()
-    );
-
-    $query->pagination(
-        $query
-            ->offset( 0 )
-            ->limit( 10 )
-    );
-
+        var_dump( $announcement->get_database_name() );
+        var_dump( $announcement->get_sql() );
+        var_dump( $announcement->get_parameters() );
 });
 ```
 
 To inspect a `Elasticsearch` query do:
 
 ```php
+use Haijin\Persistency\Announcements\About_To_Execute_Statement;
+
 $database = new Elasticsearch_Database();
 
 $database->connect( function($handle) {
     $handle->setHosts([ '127.0.0.1:9200' ]);
 });
 
-$database->inspect_query_with( function($json_parameters) {
-    var_dump( $json_parameters );
+$this->database->when(
+    About_To_Execute_Statement::class,
+    $this,
+    function($announcement) {
+        var_dump( $announcement->__to_string() );
+
+        var_dump( $announcement->get_database_name() );
+        var_dump( $announcement->get_parameters() );
 });
 
-$count = $database->count( function($query) {
-
-    $query->collection( "users_read_only" );
-
-    $query->filter(
-        $query->range(
-            $query->id( 'gt', 1 )
-        )
-    );
-
-});
+$this->database->drop_all_announcements_to( $this );
 ```
 
-To stop inspecting the queries do:
+To stop listening to the database announcements do:
 
 ```php
-$database->inspect_query_with( null );
+$this->database->drop_all_announcements_to( $this );
 ```
 
 <a name="c-2-1-6"></a>

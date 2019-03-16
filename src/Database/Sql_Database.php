@@ -10,6 +10,7 @@ use Haijin\Persistency\Sql\Sql_Query_Statement_Builder;
 use Haijin\Persistency\Sql\Sql_Create_Statement_Builder;
 use Haijin\Persistency\Sql\Sql_Update_Statement_Builder;
 use Haijin\Persistency\Sql\Sql_Delete_Statement_Builder;
+use Haijin\Persistency\Announcements\About_To_Execute_Sql_Statement;
 
 abstract class Sql_Database extends Database
 {
@@ -107,6 +108,13 @@ abstract class Sql_Database extends Database
                 $named_parameters,
                 $query_parameters
             );
+
+        $this->announce(
+            new About_To_Execute_Sql_Statement(
+                $sql,
+                $sql_parameters
+            )
+        );
 
         return $this->execute_sql_string( $sql, $sql_parameters );
     }
@@ -220,19 +228,5 @@ abstract class Sql_Database extends Database
     protected function new_sql_delete_statement_builder()
     {
         return Create::object( Sql_Delete_Statement_Builder::class);
-    }
-
-    /// Debugging
-
-    public function inspect_query($query_statement_compiler, $callable)
-    {
-        $query_parameters = new Ordered_Collection();
-
-        $sql = $this->query_statement_to_sql(
-            $query_statement_compiler->get_query_statement(),
-            $query_parameters
-        );
-
-        return $callable( $sql, $query_parameters );
     }
 }

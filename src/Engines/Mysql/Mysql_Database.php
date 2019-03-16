@@ -132,10 +132,6 @@ class Mysql_Database extends Sql_Database
      */
     public function execute_sql_string($sql, $sql_parameters = [])
     {
-        if( $this->query_inspector_callable !== null ) {
-            ($this->query_inspector_callable)( $sql, $sql_parameters );
-        }
-
         $statement_handle = $this->connection_handle->prepare( $sql );
 
         if( $statement_handle === false ) {

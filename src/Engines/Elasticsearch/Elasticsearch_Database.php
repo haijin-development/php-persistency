@@ -19,6 +19,8 @@ use Haijin\Persistency\Engines\Elasticsearch\Statements\Elasticsearch_Update_Sta
 use Haijin\Persistency\Statement_Compiler\Update_Statement_Compiler;
 use Haijin\Persistency\Engines\Elasticsearch\Statements_Compiler\Elasticsearch_Update_Statement_Compiler;
 
+use Haijin\Persistency\Announcements\About_To_Execute_Elasticsearch_Statement;
+
 class Elasticsearch_Database extends Database
 {
     protected $last_created_id;
@@ -130,7 +132,7 @@ class Elasticsearch_Database extends Database
 
     public function clear_all($collection_name)
     {
-        $this->connection_handle->deleteByQuery([
+        $parameters = [
             'index' => $collection_name,
             'type' => $collection_name,
             'body' => [
@@ -140,7 +142,11 @@ class Elasticsearch_Database extends Database
             ],
             'conflicts' => 'proceed',
             'refresh' => true
-        ]);
+        ];
+
+        $this->announce_about_to_execute( 'deleteByQuery', $parameters );
+
+        $this->connection_handle->deleteByQuery( $parameters );
     }
 
     /**
@@ -182,9 +188,7 @@ class Elasticsearch_Database extends Database
                 );
         }
 
-        if( $this->query_inspector_callable != null ) {
-            ($this->query_inspector_callable)( $count_parameters );
-        }
+        $this->announce_about_to_execute( 'count', $count_parameters );
 
         $result = $this->connection_handle->count( $count_parameters );
 
@@ -234,9 +238,7 @@ class Elasticsearch_Database extends Database
                 );
         }
 
-        if( $this->query_inspector_callable != null ) {
-            ($this->query_inspector_callable)( $search_parameters );
-        }
+        $this->announce_about_to_execute( 'search', $search_parameters );
 
         $result = $this->connection_handle->search( $search_parameters );
 
@@ -255,15 +257,15 @@ class Elasticsearch_Database extends Database
                 'id' => $id
             ];
 
-        if( $this->query_inspector_callable != null ) {
-            ($this->query_inspector_callable)( $search_parameters );
-        }
+        $this->announce_about_to_execute( 'exists', $search_parameters );
 
         $exists = $this->connection_handle->exists( $search_parameters );
 
         if( ! $exists ) {
             return null;
         }
+
+        $this->announce_about_to_execute( 'get', $search_parameters );
 
         $result = $this->connection_handle->get( $search_parameters );
 
@@ -304,9 +306,7 @@ class Elasticsearch_Database extends Database
                 );
         }
 
-        if( $this->query_inspector_callable != null ) {
-            ($this->query_inspector_callable)( $create_parameters );
-        }
+        $this->announce_about_to_execute( 'index', $create_parameters );
 
         $this->connection_handle->index( $create_parameters );
     }
@@ -348,9 +348,7 @@ class Elasticsearch_Database extends Database
                 );
         }
 
-        if( $this->query_inspector_callable != null ) {
-            ($this->query_inspector_callable)( $update_parameters );
-        }
+        $this->announce_about_to_execute( 'updateByQuery', $update_parameters );
 
         $result = $this->connection_handle->updateByQuery( $update_parameters );
     }
@@ -373,9 +371,7 @@ class Elasticsearch_Database extends Database
             'refresh' => true
         ];
 
-        if( $this->query_inspector_callable != null ) {
-            ($this->query_inspector_callable)( $update_parameters );
-        }
+        $this->announce_about_to_execute( 'update', $update_parameters );
 
         $result = $this->connection_handle->update( $update_parameters );
     }
@@ -408,9 +404,7 @@ class Elasticsearch_Database extends Database
                 );
         }
 
-        if( $this->query_inspector_callable != null ) {
-            ($this->query_inspector_callable)( $delete_parameters );
-        }
+        $this->announce_about_to_execute( 'deleteByQuery', $delete_parameters );
 
         $result = $this->connection_handle->deleteByQuery( $delete_parameters );
     }
@@ -428,9 +422,7 @@ class Elasticsearch_Database extends Database
             'refresh' => true
         ];
 
-        if( $this->query_inspector_callable != null ) {
-            ($this->query_inspector_callable)( $delete_parameters );
-        }
+        $this->announce_about_to_execute( 'delete', $delete_parameters );
 
         $this->connection_handle->delete( $delete_parameters );
     }
@@ -528,39 +520,19 @@ class Elasticsearch_Database extends Database
         return Create::an( Elasticsearch_Query_Builder::class )->with();
     }
 
-    /// Debugging
-
-    /**
-     * Evaluates the $callable with the debugging information about the built query.
-     * Each Database subclass defines the $callable parameters. For instance, for
-     * sql database one parameter can be the built sql string.
-     * This method is intenteded for debugging purposes, not to use in production.
-     *
-     * @param $query Query_Statement_Compiler The parameter of the query_callable.
-     * @param callable $callable A callable with the debugging information as its parametets.
-     *
-     * Example of use:
-     *
-     *      $database->query( function($query) use($database) {
-     *
-     *      $query->collection( "users" );
-     *
-     *      $database->inspect_query( $query, function($sql, $query_parameters) {
-     *          var_dump( $sql );
-     *          var_dump( $query_parameters );
-     *      });
-     *  });
-     *
-     */
-    public function inspect_query($query, $callable)
-    {
-        throw new Haijin_Error( "inspect_query" );
-    }
-
     /// Double disptach
 
     public function visit($visitor)
     {
         return $visitor->accept_elasticsearch_database( $this );
+    }
+
+    /// Annnouncing
+
+    protected function announce_about_to_execute($endpoint, $parameters)
+    {
+        $this->announce(
+            new About_To_Execute_Elasticsearch_Statement( $endpoint, $parameters )
+        );
     }
 }
