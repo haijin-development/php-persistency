@@ -4,6 +4,8 @@ namespace Haijin\Persistency\Sql\Expression_Builders;
 
 use Haijin\Instantiator\Create;
 use Haijin\Persistency\Statements_Visitors\Expression_Visitor;
+use Haijin\Persistency\Errors\Query_Expressions\Invalid_Expression_Error;
+
 
 /**
  * Base class for objects building SQL from a
@@ -78,5 +80,12 @@ class Sql_Expression_Builder extends Expression_Visitor
     protected function expressions_list($expressions)
     {
         return join( ', ', $this->collect_expressions_sql( $expressions ) );        
+    }
+
+    /// Raising errors
+
+    protected function raise_invalid_expression($message, $expression)
+    {
+        throw new Invalid_Expression_Error( $message, $expression );
     }
 }

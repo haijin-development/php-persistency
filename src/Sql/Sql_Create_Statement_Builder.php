@@ -9,27 +9,11 @@ use Haijin\Persistency\Sql\Expression_Builders\Common_Expressions\Sql_Expression
 
 class Sql_Create_Statement_Builder extends Sql_Expression_Builder
 {
+    /// Initializing
+
     public function __construct()
     {
         parent::__construct( new Ordered_Collection() );
-    }
-
-    /// Building
-
-    /**
-     * Builds and returns a new SQL string.
-     *
-     * @param callable $expression_callable The callable to build the Query_Statement
-     *      using a DSL.
-     *
-     * @return Query_Statement The built Query_Statement.
-     */
-    public function build($expression_callable)
-    {
-        $create_statement = $this->new_create_statement_compiler()
-            ->compile( $expression_callable );
-
-        return $this->build_sql_from( $create_statement );
     }
 
     /// Visiting
@@ -39,6 +23,8 @@ class Sql_Create_Statement_Builder extends Sql_Expression_Builder
      */
     public function accept_create_statement($create_statement)
     {
+        $this->validate_statement( $create_statement );
+
         $sql = "insert into ";
 
         $sql .= $this->visit( $create_statement->get_collection_expression() );
@@ -81,6 +67,25 @@ class Sql_Create_Statement_Builder extends Sql_Expression_Builder
                 ") values (" . 
                 join( ", ", $attribute_values ) .
                 ")";
+    }
+
+    /// Validating
+
+    protected function validate_statement($create_statement)
+    {
+        if( $create_statement->get_collection_expression() === null ) {
+            $this->raise_invalid_expression(
+                "The create statement is missing the \$query->collection(...) expression.",
+                $create_statement
+            );
+        }
+
+        if( $create_statement->get_records_values_expression() === null ) {
+            $this->raise_invalid_expression(
+                "The create statement is missing the \$query->record(...) expression.",
+                $create_statement
+            );
+        }
     }
 
     //// Query expression

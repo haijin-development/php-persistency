@@ -28,9 +28,21 @@ trait Expressions_DSL_Trait
     /**
      * Returns a new Field_Expression.
      */
-    public function field($field_name)
+    public function field(
+        $field_name, $optional_binary_operator = null, $optional_value = null
+    )
     {
-        return $this->new_field_expression( $field_name );
+        $expression = $this->new_field_expression( $field_name );
+
+        if( $optional_binary_operator !== null ) {
+            $expression = $expression->op( $optional_binary_operator );
+        }
+
+        if( $optional_value !== null ) {
+            $expression = $expression->value( $optional_value );
+        }        
+
+        return $expression;
     }
 
     /**

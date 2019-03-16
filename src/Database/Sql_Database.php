@@ -109,8 +109,6 @@ abstract class Sql_Database extends Database
                 $query_parameters
             );
 
-        $this->announce_about_to_execute( $sql, $sql_parameters );
-
         return $this->execute_sql_string( $sql, $sql_parameters );
     }
 
@@ -192,6 +190,43 @@ abstract class Sql_Database extends Database
 
         return $sql_parameters;
     }
+
+    /**
+     * Executes the $sql string as it is.
+     * Returns the result of the execution.
+     */
+    public function execute_sql_string($sql, $sql_parameters = [])
+    {
+        $this->announce_about_to_execute( $sql, $sql_parameters );
+
+        $result_rows = $this->_execute_sql_string( $sql, $sql_parameters );
+
+        return $this->process_result_rows( $result_rows );
+    }
+
+    /**
+     * Evaluates the $sql string as it is.
+     * Returns nothing.
+     */
+    public function evaluate_sql_string($sql, $sql_parameters = [])
+    {
+        $this->announce_about_to_execute( $sql, $sql_parameters );
+
+        return $this->_evaluate_sql_string( $sql, $sql_parameters );
+    }
+
+    /**
+     * Low level implementation of the query execution.
+     * Binds the parameters, calls the query on the handler and gets the resulting rows.
+     * Returns an array of rows.
+     */
+    abstract public function _execute_sql_string($sql, $sql_parameters);
+
+    /**
+     * Low level implementation of the query evaluation.
+     * Binds the parameters and calls the query on the handler.
+     */
+    abstract public function _evaluate_sql_string($sql, $sql_parameters);
 
     /**
      * Process the associative array resulting from a Mysql query.

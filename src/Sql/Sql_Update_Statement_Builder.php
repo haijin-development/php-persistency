@@ -15,50 +15,53 @@ class Sql_Update_Statement_Builder extends Sql_Expression_Builder
         parent::__construct( new Ordered_Collection() );
     }
 
-    /// Building
-
-    /**
-     * Builds and returns a new SQL string.
-     *
-     * @param callable $expression_callable The callable to build the Query_Statement
-     *      using a DSL.
-     *
-     * @return Query_Statement The built Query_Statement.
-     */
-    public function build($expression_callable)
-    {
-        $create_statement = $this->new_create_statement_compiler()
-            ->compile( $expression_callable );
-
-        return $this->build_sql_from( $create_statement );
-    }
-
     /// Visiting
 
     /**
      * Accepts a Query_Statement.
      */
-    public function accept_update_statement($create_statement)
+    public function accept_update_statement($update_statement)
     {
+        $this->validate_statement( $update_statement );
+
         $sql = "update ";
 
-        $sql .= $this->visit( $create_statement->get_collection_expression() );
+        $sql .= $this->visit( $update_statement->get_collection_expression() );
 
         $sql .= " set ";
 
-        $sql .= $this->visit( $create_statement->get_records_values_expression() );
+        $sql .= $this->visit( $update_statement->get_records_values_expression() );
 
-        if( $create_statement->has_filter_expression() ) {
+        if( $update_statement->has_filter_expression() ) {
 
             $sql .= " where ";
 
-            $sql .= $this->visit( $create_statement->get_filter_expression() );
+            $sql .= $this->visit( $update_statement->get_filter_expression() );
 
         }
 
         $sql .= ";";
 
         return $sql;
+    }
+
+    /// Validating
+
+    protected function validate_statement($update_statement)
+    {
+        if( $update_statement->get_collection_expression() === null ) {
+            $this->raise_invalid_expression(
+                "The update statement is missing the \$query->collection(...) expression.",
+                $update_statement
+            );
+        }
+
+        if( $update_statement->get_records_values_expression() === null ) {
+            $this->raise_invalid_expression(
+                "The update statement is missing the \$query->record(...) expression.",
+                $update_statement
+            );
+        }
     }
 
     /**

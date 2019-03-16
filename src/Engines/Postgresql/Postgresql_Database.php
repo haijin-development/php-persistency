@@ -134,9 +134,9 @@ class Postgresql_Database extends Sql_Database
      * Executes the $sql string as it is.
      * Returns the result of the execution.
      */
-    public function execute_sql_string($sql, $sql_parameters = [])
+    public function _execute_sql_string($sql, $sql_parameters = [])
     {
-        $result_handle = $this->evaluate_sql_string( $sql, $sql_parameters );
+        $result_handle = $this->_evaluate_sql_string( $sql, $sql_parameters );
 
         $rows = pg_fetch_all( $result_handle );
 
@@ -154,7 +154,7 @@ class Postgresql_Database extends Sql_Database
      * Returns the result handle the evaluation. The result handle must be released with
      * .\pg_free_result( $result_handle );
      */
-    public function evaluate_sql_string($sql, $sql_parameters = [])
+    public function _evaluate_sql_string($sql, $sql_parameters = [])
     {
         $types_converter = $this->get_types_converter();
 

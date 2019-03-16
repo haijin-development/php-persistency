@@ -14,40 +14,24 @@ class Sql_Delete_Statement_Builder extends Sql_Expression_Builder
         parent::__construct( new Ordered_Collection() );
     }
 
-    /// Building
-
-    /**
-     * Builds and returns a new SQL string.
-     *
-     * @param callable $expression_callable The callable to build the Query_Statement
-     *      using a DSL.
-     *
-     * @return Query_Statement The built Query_Statement.
-     */
-    public function build($expression_callable)
-    {
-        $create_statement = $this->new_create_statement_compiler()
-            ->compile( $expression_callable );
-
-        return $this->build_sql_from( $create_statement );
-    }
-
     /// Visiting
 
     /**
      * Accepts a Query_Statement.
      */
-    public function accept_delete_statement($create_statement)
+    public function accept_delete_statement($delete_statement)
     {
+        $this->validate_statement( $delete_statement );
+
         $sql = "delete from ";
 
-        $sql .= $this->visit( $create_statement->get_collection_expression() );
+        $sql .= $this->visit( $delete_statement->get_collection_expression() );
 
-        if( $create_statement->has_filter_expression() ) {
+        if( $delete_statement->has_filter_expression() ) {
 
             $sql .= " where ";
 
-            $sql .= $this->visit( $create_statement->get_filter_expression() );
+            $sql .= $this->visit( $delete_statement->get_filter_expression() );
 
         }
 
@@ -71,6 +55,18 @@ class Sql_Delete_Statement_Builder extends Sql_Expression_Builder
     {
         return $this->new_sql_filter_builder()
             ->build_sql_from( $filter_expression );
+    }
+
+    /// Validating
+
+    protected function validate_statement($delete_statement)
+    {
+        if( $delete_statement->get_collection_expression() === null ) {
+            $this->raise_invalid_expression(
+                "The delete statement is missing the \$query->collection(...) expression.",
+                $delete_statement
+            );
+        }
     }
 
     //// Creating instances

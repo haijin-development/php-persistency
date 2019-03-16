@@ -159,9 +159,9 @@ class Sqlite_Database extends Sql_Database
      * Executes the $sql string as it is.
      * Returns the result of the execution.
      */
-    public function execute_sql_string($sql, $sql_parameters = [])
+    public function _execute_sql_string($sql, $sql_parameters = [])
     {
-        $result_handle = $this->evaluate_sql_string( $sql, $sql_parameters );
+        $result_handle = $this->_evaluate_sql_string( $sql, $sql_parameters );
 
         $rows = [];
 
@@ -178,7 +178,7 @@ class Sqlite_Database extends Sql_Database
      * Ecaluates the $sql string as it is.
      * Returns nothing.
      */
-    public function evaluate_sql_string($sql, $sql_parameters = [])
+    public function _evaluate_sql_string($sql, $sql_parameters = [])
     {
         $statement_handle = $this->connection_handle->prepare( $sql );
 

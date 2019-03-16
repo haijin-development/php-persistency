@@ -23,23 +23,24 @@ class Sql_Query_Statement_Builder extends Sql_Expression_Builder
         parent::__construct( new Ordered_Collection() );
     }
 
-    /// Building
+     /// Building
 
-    /**
-     * Builds and returns a new SQL string.
-     *
-     * @param callable $expression_callable The callable to build the Query_Statement
-     *      using a DSL.
-     *
-     * @return Query_Statement The built Query_Statement.
-     */
-    public function build($expression_callable)
-    {
-        $query_statement = $this->new_query_statement_compiler()
-            ->compile( $expression_callable );
+     /**
+      * Builds and returns a new SQL string.
+      *
+      * @param callable $expression_callable The callable to build the Query_Statement
+      *      using a DSL.
+      *
+      * @return Query_Statement The built Query_Statement.
+      */
+     public function build($expression_callable)
+     {
+         $create_statement = $this->new_query_statement_compiler()
+             ->compile( $expression_callable );
 
-        return $this->build_sql_from( $query_statement );
-    }
+         return $this->build_sql_from( $create_statement );
+     }
+
 
     /// Visiting
 
@@ -48,6 +49,8 @@ class Sql_Query_Statement_Builder extends Sql_Expression_Builder
      */
     public function accept_query_statement($query_statement)
     {
+        $this->validate_statement( $query_statement );
+
         $sql = "";
 
         $sql .= $this->nested_proyections_sql_from( $query_statement );
@@ -212,6 +215,18 @@ class Sql_Query_Statement_Builder extends Sql_Expression_Builder
     protected function new_query_statement_compiler()
     {
         return Create::object( Query_Statement_Compiler::class );
+    }
+
+    /// Validating
+
+    protected function validate_statement($query_statement)
+    {
+        if( $query_statement->get_collection_expression() === null ) {
+            $this->raise_invalid_expression(
+                "The query statement is missing the \$query->collection(...) expression.",
+                $query_statement
+            );
+        }
     }
 
     //// Sql builders
