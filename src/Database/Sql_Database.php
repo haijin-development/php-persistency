@@ -109,12 +109,7 @@ abstract class Sql_Database extends Database
                 $query_parameters
             );
 
-        $this->announce(
-            new About_To_Execute_Sql_Statement(
-                $sql,
-                $sql_parameters
-            )
-        );
+        $this->announce_about_to_execute( $sql, $sql_parameters );
 
         return $this->execute_sql_string( $sql, $sql_parameters );
     }
@@ -228,5 +223,14 @@ abstract class Sql_Database extends Database
     protected function new_sql_delete_statement_builder()
     {
         return Create::object( Sql_Delete_Statement_Builder::class);
+    }
+
+    /// Announcing
+
+    protected function announce_about_to_execute($sql, $parameters)
+    {
+        $this->announce(
+            new About_To_Execute_Sql_Statement( $sql, $parameters )
+        );
     }
 }

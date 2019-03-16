@@ -527,7 +527,7 @@ class Elasticsearch_Database extends Database
         return $visitor->accept_elasticsearch_database( $this );
     }
 
-    /// Annnouncing
+    /// Announcing
 
     protected function announce_about_to_execute($endpoint, $parameters)
     {

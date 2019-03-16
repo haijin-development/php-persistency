@@ -4,6 +4,7 @@ namespace Haijin\Persistency\Persistent_Collection;
 
 use Haijin\Instantiator\Create;
 use Haijin\Persistency\Errors\Persistency_Error;
+use Haijin\Errors\Haijin_Error;
 
 class Persistent_Collection
 {

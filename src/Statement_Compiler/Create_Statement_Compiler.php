@@ -38,8 +38,11 @@ class Create_Statement_Compiler extends Statement_Compiler
         return $this;
     }
 
-    public function set($field_name, $value_expression)
+    public function set($field_name, $value_or_expression)
     {
-        return $this->new_field_value_expression( $field_name, $value_expression );
+        return $this->new_field_value_expression(
+            $field_name,
+            $this->_value_to_expression( $value_or_expression )
+        );
     }
 }
