@@ -8,9 +8,10 @@ use Haijin\Ordered_Collection;
 class Query_Statement extends Statement
 {
     protected $proyection_expression;
-    protected $filter_expression;
     protected $join_expressions;
+    protected $filter_expression;
     protected $group_by_expression;
+    protected $having_expression;
     protected $order_by_expression;
     protected $pagination_expression;
     protected $eager_fetch_spec;
@@ -25,9 +26,10 @@ class Query_Statement extends Statement
         parent::__construct( $expression_context );
 
         $this->proyection_expression = $this->new_proyection_expression();
-        $this->filter_expression = null;
         $this->join_expressions = new Ordered_Collection();
+        $this->filter_expression = null;
         $this->group_by_expression = null;
+        $this->having_expression = null;
         $this->order_by_expression = null;
         $this->pagination_expression = null;
         $this->eager_fetch_spec = null;
@@ -96,6 +98,22 @@ class Query_Statement extends Statement
     }
 
     /**
+     * Returns the having expression.
+     */
+    public function get_having_expression()
+    {
+        return $this->having_expression;
+    }
+
+    /**
+     * Sets the having_expression.
+     */
+    public function set_having_expression($having_expression)
+    {
+        $this->having_expression = $having_expression;
+    }
+
+    /**
      * Gets the group_by_expression.
      */
     public function get_group_by_expression()
@@ -154,19 +172,24 @@ class Query_Statement extends Statement
         return $this->proyection_expression->not_empty();
     }
 
-    public function has_filter_expression()
-    {
-        return $this->filter_expression !== null;
-    }
-
     public function has_join_expressions()
     {
         return $this->join_expressions->not_empty();
     }
 
+    public function has_filter_expression()
+    {
+        return $this->filter_expression !== null;
+    }
+
     public function has_group_by_expression()
     {
         return $this->group_by_expression !== null;
+    }
+
+    public function has_having_expression()
+    {
+        return $this->having_expression !== null;
     }
 
     public function has_order_by_expression()

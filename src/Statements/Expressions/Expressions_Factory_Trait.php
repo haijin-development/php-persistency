@@ -71,6 +71,14 @@ trait Expressions_Factory_Trait
         );
     }
 
+    protected function new_having_expression($expression)
+    {
+        return Create::object( Having_Expression::class,
+            $this->context,
+            $expression
+        );
+    }
+
     protected function new_order_by_expression()
     {
         return Create::object( Order_By_Expression::class, 

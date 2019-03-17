@@ -75,6 +75,14 @@ class Expression_Visitor extends Abstract_Expression_Visitor
     }
 
     /**
+     * Accepts a Having_Expression.
+     */
+    public function accept_having_expression($having_expression)
+    {
+        $this->raise_unexpected_expression_error( $having_expression );
+    }
+
+    /**
      * Accepts a Group_By_Expression.
      */
     public function accept_group_by_expression($group_by_expression)

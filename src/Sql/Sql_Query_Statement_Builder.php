@@ -12,6 +12,7 @@ use Haijin\Persistency\Sql\Expression_Builders\Sql_Proyection_Builder;
 use Haijin\Persistency\Sql\Expression_Builders\Sql_Join_Builder;
 use Haijin\Persistency\Sql\Expression_Builders\Sql_Filter_Builder;
 use Haijin\Persistency\Sql\Expression_Builders\Sql_Group_By_Builder;
+use Haijin\Persistency\Sql\Expression_Builders\Sql_Having_Builder;
 use Haijin\Persistency\Sql\Expression_Builders\Sql_Order_By_Builder;
 use Haijin\Persistency\Sql\Expression_Builders\Sql_Pagination_Builder;
 
@@ -67,6 +68,10 @@ class Sql_Query_Statement_Builder extends Sql_Expression_Builder
 
         if( $query_statement->has_group_by_expression() ) {
             $sql .= $this->visit( $query_statement->get_group_by_expression() );
+        }
+
+        if( $query_statement->has_having_expression() ) {
+            $sql .= $this->visit( $query_statement->get_having_expression() );
         }
 
         if( $query_statement->has_order_by_expression() ) {
@@ -167,6 +172,21 @@ class Sql_Query_Statement_Builder extends Sql_Expression_Builder
         }
 
         return ' where ' . $sql ;
+    }
+
+    /**
+     * Accepts a Having_Expression.
+     */
+    public function accept_having_expression($having_expression)
+    {
+        $sql = $this->new_sql_having_builder()
+                    ->build_sql_from( $having_expression );
+
+        if( $sql == '' ) {
+            return '';
+        }
+
+        return ' having ' . $sql ;
     }
 
     /**
@@ -288,6 +308,14 @@ class Sql_Query_Statement_Builder extends Sql_Expression_Builder
     {
         return Create::object(
             Sql_Filter_Builder::class,
+            $this->collected_parameters
+        );
+    }
+
+    protected function new_sql_having_builder()
+    {
+        return Create::object(
+            Sql_Having_Builder::class,
             $this->collected_parameters
         );
     }   

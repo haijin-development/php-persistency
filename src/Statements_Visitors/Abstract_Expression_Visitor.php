@@ -55,6 +55,11 @@ abstract class Abstract_Expression_Visitor
     abstract public function accept_filter_expression($filter_expression);
 
     /**
+     * Accepts a Having_Expression.
+     */
+    abstract public function accept_having_expression($having_expression);
+
+    /**
      * Accepts a Group_By_Expression.
      */
     abstract public function accept_group_by_expression($group_by_expression);

@@ -120,6 +120,18 @@ class Query_Statement_Compiler extends Statement_Compiler
     }
 
     /**
+     * Creates a Filter_Expression with the having expression of the query.
+     *
+     * @param Filter_Expression $filter_expression The filter expression of the query.
+     */
+    public function having($filter_expression)
+    {
+        $this->statement_expression->set_having_expression(
+            $this->new_having_expression( $filter_expression )
+        );
+    }
+
+    /**
      * Creates an Order_By_Expression with the proyected expressions of the query.
      *
      * @param array $proyected_expressions Each parameter is an expression defining
