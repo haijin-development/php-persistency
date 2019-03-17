@@ -201,6 +201,7 @@ These are valid expressions:
 $query->field( 'name' ) ->upper()
 $query->field( 'name' ) ->not_null()
 $query->field( 'name' ) ->match( 'Lisa' )
+$query->field( 'name', '=', 'Lisa' )
 ```
 
 equivalent to:
@@ -209,6 +210,7 @@ equivalent to:
 $query->upper( $query->field( 'name' ) )
 $query->not_null( $query->field( 'name' ) )
 $query->match( $query->field( 'name' ), 'Lisa' )
+$query->field( 'name' ) ->op( '=') ->value( 'Lisa' )
 ```
 
 #### Allows to define expression macros with significant semantic names to simplify complex queries and improve expressiveness
@@ -228,12 +230,12 @@ $users = Users_Collection::get()->all( function($query) {
 
                 ->op( '=' )
 
-                ->lower( 'Lisa Simpson' )
+                ->lower( 'Lisa Simpson' );
     });
 
     $query->let( 'matches_address', function($query) {
         return $query
-                ->field( 'address' ) ->op( 'like' ) ->value( '%Evergreen' )
+                ->field( 'address', 'like', '%Evergreen' );
     });
 
     $query->filter(
@@ -264,12 +266,12 @@ $users = Users_Collection::get()->all( function($query) use($full_name, $address
 
                 ->op( '=' )
 
-                ->lower( $full_name )
+                ->lower( $full_name );
     });
 
     $query->let( 'matches_address', function($query) {
         return $query
-                ->field( 'address' ) ->op( 'like' ) ->value( $address )
+                ->field( 'address', 'like', $address );
     });
 
     $query->filter(
@@ -297,12 +299,12 @@ $users = Users_Collection::get()->all( function($query) use($full_name, $address
 
                 ->op( '=' )
 
-                ->lower( $query->param( 'full_name' ) )
+                ->lower( $query->param( 'full_name' ) );
     });
 
     $query->let( 'matches_address', function($query) {
         return $query
-                ->field( 'address' ) ->op( 'like' ) ->param( 'address' )
+                ->field( 'address', 'like', $query->param( 'address' ) );
     });
 
     $query->filter(
@@ -364,7 +366,7 @@ $users = Users_Collection::get()->all( function($query) use($full_name, $address
 
                 ->op( '=' )
 
-                ->lower( $full_name )
+                ->lower( $full_name );
 
     });
 
@@ -375,7 +377,7 @@ $users = Users_Collection::get()->all( function($query) use($full_name, $address
         }
 
         return $query
-                ->field( 'address' ) ->op( 'like' ) ->value( $address )
+                ->field( 'address', 'like', $address );
 
     });
 
@@ -418,7 +420,7 @@ $users = Users_Collection::get()->all( function($query) use($full_name, $address
             }
 
             return $query
-                    ->field( 'street_name' ) ->op( 'like' ) ->value( $address )
+                    ->field( 'street_name', 'like', $address );
 
         });
 
@@ -437,7 +439,7 @@ $users = Users_Collection::get()->all( function($query) use($full_name, $address
 
                 ->op( '=' )
 
-                ->lower( $full_name )
+                ->lower( $full_name );
 
     });
 
@@ -510,7 +512,7 @@ class Users_Persistent_Collection extends Persistent_Collection
                     }
 
                     return $query
-                            ->field( 'street_name' ) ->op( 'like' ) ->value( $address )
+                            ->field( 'street_name', 'like', $address );
 
                 });
 
@@ -529,7 +531,7 @@ class Users_Persistent_Collection extends Persistent_Collection
 
                         ->op( '=' )
 
-                        ->lower( $full_name )
+                        ->lower( $full_name );
 
             });
 
@@ -584,7 +586,7 @@ function create_user($user)
 }
 ```
 
-Another use case might be the use of a database for regular persitency and a redundant database to perform heavy queries without relying on the database configuration:
+Another use case might be the use of a database for regular persistency and a redundant database to perform heavy queries without relying on the database configuration, and both database can even be different persistency engines like Mysql for real persistency and Sqlite for cached queries:
 
 ```php
 /**
@@ -608,7 +610,7 @@ $users = Read_Only_Users_Collection::do()->find_users_with_a_regular_query();
 ```
 
 
-The model is the same all over the application and it is the context using the model the one that defines which queries and scopes to use by choosing one `Persistent_Collection` or another one.
+The model is the same all over the application and it's the context using the model the one that defines which queries and scopes to use with a clear and simple statement by choosing one `Persistent_Collection` or another one.
 
 
 #### Allows to specify an arbitrary depth of nested eager fetches on each query call.
@@ -632,7 +634,7 @@ Usually the setup of the database for testing is complicated and unclear.
 
 Fixtures are defined in a different file than the test, making it unclear for the developer what does the database contain.
 
-Mocking the database, or any other object, does not execirse the real application so we discourage to do it.
+Mocking the database, or any other object, does not execirse the real application so we discourage to use mocks.
 
 `haijin/persistency` allows to easily and clearly populate in each test, in the same test file, the database:
 
