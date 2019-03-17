@@ -3,7 +3,7 @@
 use Haijin\Persistency\Engines\Elasticsearch\Elasticsearch_Database;
 use Haijin\Persistency\Announcements\About_To_Execute_Statement;
 
-$spec->describe( "When a Elasticsearch database makes announcements events", function() {
+$spec->describe( "When a Elasticsearch database makes announcements", function() {
 
     $this->let( "database", function() {
 

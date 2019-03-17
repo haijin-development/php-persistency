@@ -119,6 +119,8 @@ class Elasticsearch_Persistent_Collection extends Persistent_Collection
 
     public function update($object)
     {
+        $this->announce_about_to_update_object( $object );
+
         $record_values = $this->get_record_values_from( $object );
 
         $this->get_database()->update_by_id(
@@ -127,6 +129,8 @@ class Elasticsearch_Persistent_Collection extends Persistent_Collection
             $this->collection_name
         );
 
+        $this->announce_object_updated( $object );
+
         return $object;
     }
 
@@ -134,10 +138,14 @@ class Elasticsearch_Persistent_Collection extends Persistent_Collection
 
     public function delete($object)
     {
+        $this->announce_about_to_delete_object( $object );
+
         $this->get_database()->delete_by_id(
             $this->get_id_of( $object ),
             $this->collection_name
         );
+
+        $this->announce_object_deleted( $object );
 
         return $object;
     }

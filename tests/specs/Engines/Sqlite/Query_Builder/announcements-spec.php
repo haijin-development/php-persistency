@@ -3,7 +3,7 @@
 use Haijin\Persistency\Engines\Sqlite\Sqlite_Database;
 use Haijin\Persistency\Announcements\About_To_Execute_Statement;
 
-$spec->describe( "When a Sqlite database makes announcements events", function() {
+$spec->describe( "When a Sqlite database makes announcements", function() {
 
     $this->let( "database", function() {
 

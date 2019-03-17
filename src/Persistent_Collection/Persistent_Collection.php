@@ -5,9 +5,21 @@ namespace Haijin\Persistency\Persistent_Collection;
 use Haijin\Instantiator\Create;
 use Haijin\Persistency\Errors\Persistency_Error;
 use Haijin\Errors\Haijin_Error;
+use Haijin\Announcements\Announcer_Trait;
+use Haijin\Persistency\Announcements\About_To_Create_Object;
+use Haijin\Persistency\Announcements\About_To_Update_Object;
+use Haijin\Persistency\Announcements\About_To_Delete_Object;
+use Haijin\Persistency\Announcements\Object_Created;
+use Haijin\Persistency\Announcements\Object_Updated;
+use Haijin\Persistency\Announcements\Object_Deleted;
+use Haijin\Persistency\Announcements\Object_Creation_Canceled;
+use Haijin\Persistency\Announcements\Object_Update_Canceled;
+use Haijin\Persistency\Announcements\Object_Deletion_Canceled;
 
 class Persistent_Collection
 {
+    use Announcer_Trait;
+
     protected $database;
     protected $collection_name;
     protected $objects_instantiator;
@@ -384,6 +396,17 @@ class Persistent_Collection
 
     public function create($object)
     {
+        $creation_announcement = $this->announce_about_to_create_object( $object );
+
+        if( $creation_announcement->was_canceled() ) {
+
+            $this->announce_object_creation_canceled(
+                $object, $creation_announcement->get_cancelation_reasons()
+            );
+
+            return;
+        }
+
         $record_values = $this->insert_record(
 
             $this->get_record_values_from( $object )
@@ -402,6 +425,8 @@ class Persistent_Collection
             );
 
         }
+
+        $this->announce_object_created( $object );
 
         return $object;
     }
@@ -504,6 +529,17 @@ class Persistent_Collection
 
     public function update($object)
     {
+        $update_announcement = $this->announce_about_to_update_object( $object );
+
+        if( $update_announcement->was_canceled() ) {
+
+            $this->announce_object_update_canceled(
+                $object, $update_announcement->get_cancelation_reasons()
+            );
+
+            return;
+        }
+
         $id_field = $this->get_id_field();
         $id = $this->get_id_of( $object );
         $record_values = $this->get_record_values_from( $object );
@@ -527,6 +563,8 @@ class Persistent_Collection
             );
 
         });
+
+        $this->announce_object_updated( $object );
 
         return $object;
     }
@@ -558,6 +596,17 @@ class Persistent_Collection
 
     public function delete($object)
     {
+        $deletion_announcement = $this->announce_about_to_delete_object( $object );
+
+        if( $deletion_announcement->was_canceled() ) {
+
+            $this->announce_object_deletion_canceled(
+                $object, $deletion_announcement->get_cancelation_reasons()
+            );
+
+            return;
+        }
+
         $id_field = $this->get_id_field();
 
         $id = $this->get_id_of( $object );
@@ -574,6 +623,8 @@ class Persistent_Collection
             );
 
         }, [] );
+
+        $this->announce_object_deleted( $object );
 
         return $object;
     }
@@ -705,6 +756,82 @@ class Persistent_Collection
         throw new Haijin_Error( "Expected '\$named_parameters' to be an associative array." );
     }
 
+    /// Announcing
+
+    protected function announce_about_to_create_object($object)
+    {
+        $announcement = new About_To_Create_Object( $object );
+
+        $this->announce( $announcement );
+
+        return $announcement;
+    }
+
+    protected function announce_object_created($object)
+    {
+        $announcement = new Object_Created( $object );
+
+        $this->announce( $announcement );
+
+        return $announcement;
+    }
+
+    protected function announce_object_creation_canceled($object, $cancelation_reasons)
+    {
+        $this->announce(
+            new Object_Creation_Canceled( $object, $cancelation_reasons )
+        );
+    }
+
+    protected function announce_about_to_update_object($object)
+    {
+        $announcement = new About_To_Update_Object( $object );
+
+        $this->announce( $announcement );
+
+        return $announcement;
+    }
+
+    protected function announce_object_updated($object)
+    {
+        $announcement = new Object_Updated( $object );
+
+        $this->announce( $announcement );
+
+        return $announcement;
+    }
+
+    protected function announce_object_update_canceled($object, $cancelation_reasons)
+    {
+        $this->announce(
+            new Object_Update_Canceled( $object, $cancelation_reasons )
+        );
+    }
+
+    protected function announce_about_to_delete_object($object)
+    {
+        $announcement = new About_To_Delete_Object( $object );
+
+        $this->announce( $announcement );
+
+        return $announcement;
+    }
+
+    protected function announce_object_deleted($object)
+    {
+        $announcement = new Object_Deleted( $object );
+
+        $this->announce( $announcement );
+
+        return $announcement;
+    }
+
+    protected function announce_object_deletion_canceled($object, $cancelation_reasons)
+    {
+        $this->announce(
+            new Object_Deletion_Canceled( $object, $cancelation_reasons )
+        );
+    }
 
     /// Raising errors
 

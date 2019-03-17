@@ -731,14 +731,20 @@ $spec->describe( "When calling the delete user endpoint", function() {
         5. [Creating objects](#c-2-2-5)
             1. [create](#c-2-2-5-1)
             2. [create_from_attributes](#c-2-2-5-2)
+            3. [Creation announcements](#c-2-2-5-3)
+            4. [Creation cancelation](#c-2-2-5-4)
         6. [Updating objects](#c-2-2-6)
             1. [update](#c-2-2-6-1)
             2. [update_from_attributes](#c-2-2-6-2)
             3. [update_all](#c-2-2-6-3)
+            4. [Update announcements](#c-2-2-6-4)
+            5. [Update cancelation](#c-2-2-6-5)
         7. [Deleting objects](#c-2-2-7)
             1. [delete](#c-2-2-7-1)
             2. [delete_all](#c-2-2-7-2)
             3. [clear_all](#c-2-2-7-3)
+            4. [Deletion announcements](#c-2-2-7-4)
+            5. [Deletion cancelation](#c-2-2-7-5)
         8. [Finding objects](#c-2-2-8)
             1. [find_by_id](#c-2-2-8-1)
             2. [find_by_id_if_absent](#c-2-2-8-2)
@@ -758,9 +764,10 @@ $spec->describe( "When calling the delete user endpoint", function() {
             5. [Syncronized index](#c-2-2-12-5)
             6. [Default eager fetch](#c-2-2-12-6)
     3. [Migrations](#c-2-3)
-3. [Elasticsearch specifics](#c-3)
-4. [Running the tests](#c-4)
-5. [Developing with Vagrant](#c-5)
+3. [Announcements](#c-3)
+4. [Elasticsearch specifics](#c-4)
+5. [Running the tests](#c-5)
+6. [Developing with Vagrant](#c-6)
 
 <a name="c-1"></a>
 ## Installation
@@ -2175,6 +2182,64 @@ $user = Users_Collection::do()->create_from_attributes([
     ]);
 ```
 
+<a name="c-2-2-5-3"></a>
+#### Creation announcements
+
+`Persistent_Collection` makes an announcement before and after creating objects.
+
+To listen to the creation announcements do:
+
+```php
+Users_Collection::get()->when(
+    About_To_Create_Object::class,
+    $this,
+    function($announcement) {
+        $announcement->get_object();
+});
+
+Users_Collection::get()->when(
+    Object_Created::class,
+    $this,
+    function($announcement) {
+        $announcement->get_object();
+});
+
+Users_Collection::get()->when(
+    Object_Creation_Canceled::class,
+    $this,
+    function($announcement) {
+        $announcement->get_object();
+        $announcement->get_cancelation_reasons();
+});
+```
+
+to stop listening to these announcements do:
+
+```php
+Users_Collection::get()->drop_announcements_to( About_To_Create_Object::class, $this );
+Users_Collection::get()->drop_announcements_to( Object_Created::class, $this );
+Users_Collection::get()->drop_announcements_to( Object_Creation_Canceled::class, $this );
+
+// or
+
+Users_Collection::get()->drop_all_announcements_to( $this );
+```
+<a name="c-2-2-5-4"></a>
+#### Creation cancelation
+
+Listeners can cancel the creation of an object with:
+
+```php
+Users_Collection::get()->when(
+    About_To_Create_Object::class,
+    $this,
+    function($announcement) {
+        $announcement->cancel( 'Cancelation reason' );
+});
+```
+
+although we strongly discourage the use of this pattern, and more in general the use of the `Observer` pattern to modify or extend the behaviour of the announcer/subject, but since it's a pattern frequently used in other ORMs we offer the possibility to use it.
+
 <a name="c-2-2-6"></a>
 #### Updating objects
 
@@ -2245,6 +2310,65 @@ Users_Collection::do()->update_all( function($query) {
     "id" => 2
 ]);
 ```
+
+<a name="c-2-2-6-4"></a>
+#### Update announcements
+
+`Persistent_Collection` makes an announcement before and after updating a single object.
+
+To listen to the update announcements do:
+
+```php
+Users_Collection::get()->when(
+    About_To_Update_Object::class,
+    $this,
+    function($announcement) {
+        $announcement->get_object();
+});
+
+Users_Collection::get()->when(
+    Object_Updated::class,
+    $this,
+    function($announcement) {
+        $announcement->get_object();
+});
+
+Users_Collection::get()->when(
+    Object_Update_Canceled::class,
+    $this,
+    function($announcement) {
+        $announcement->get_object();
+        $announcement->get_cancelation_reasons();
+});
+```
+
+to stop listening to these announcements do:
+
+```php
+Users_Collection::get()->drop_announcements_to( About_To_Update_Object::class, $this );
+Users_Collection::get()->drop_announcements_to( Object_Updated::class, $this );
+Users_Collection::get()->drop_announcements_to( Object_Update_Canceled::class, $this );
+
+// or
+
+Users_Collection::get()->drop_all_announcements_to( $this );
+```
+<a name="c-2-2-6-5"></a>
+#### Update cancelation
+
+Listeners can cancel the update of a single object with:
+
+```php
+Users_Collection::get()->when(
+    About_To_Update_Object::class,
+    $this,
+    function($announcement) {
+        $announcement->cancel( 'Cancelation reason' );
+});
+```
+
+although we strongly discourage the use of this pattern, and more in general the use of the `Observer` pattern to modify or extend the behaviour of the announcer/subject, but since it's a pattern frequently used in other ORMs we offer the possibility to use it.
+
 
 <a name="c-2-2-7"></a>
 #### Deleting objects
@@ -2337,6 +2461,64 @@ $this->after_all( function() {
 ```
 
 but it is not meant to be used in real applications. That's why it is a different method from `delete_all`.
+
+<a name="c-2-2-6-4"></a>
+#### Deletion announcements
+
+`Persistent_Collection` makes an announcement before and after deleting a single object.
+
+To listen to the deletion announcements do:
+
+```php
+Users_Collection::get()->when(
+    About_To_Delete_Object::class,
+    $this,
+    function($announcement) {
+        $announcement->get_object();
+});
+
+Users_Collection::get()->when(
+    Object_Deleted::class,
+    $this,
+    function($announcement) {
+        $announcement->get_object();
+});
+
+Users_Collection::get()->when(
+    Object_Delete_Canceled::class,
+    $this,
+    function($announcement) {
+        $announcement->get_object();
+        $announcement->get_cancelation_reasons();
+});
+```
+
+to stop listening to these announcements do:
+
+```php
+Users_Collection::get()->drop_announcements_to( About_To_Delete_Object::class, $this );
+Users_Collection::get()->drop_announcements_to( Object_Deleted::class, $this );
+Users_Collection::get()->drop_announcements_to( Object_Delete_Canceled::class, $this );
+
+// or
+
+Users_Collection::get()->drop_all_announcements_to( $this );
+```
+<a name="c-2-2-6-5"></a>
+#### Deletion cancelation
+
+Listeners can cancel the deletion of a single object with:
+
+```php
+Users_Collection::get()->when(
+    About_To_Delete_Object::class,
+    $this,
+    function($announcement) {
+        $announcement->cancel( 'Cancelation reason' );
+});
+```
+
+although we strongly discourage the use of this pattern, and more in general the use of the `Observer` pattern to modify or extend the behaviour of the announcer/subject, but since it's a pattern frequently used in other ORMs we offer the possibility to use it.
 
 <a name="c-2-2-8"></a>
 #### Finding objects
@@ -3109,8 +3291,34 @@ class Users_Persistent_Collection extends Persistent_Collection
 }
 ```
 
-
 <a name="c-3"></a>
+#### Announcements
+
+The full list of announcements of `Database` and `Persistent_Collection` objects.
+All these `Announcements` are in the `Haijin\Persistency\Announcements` namespace, include it when listening to these announcements.
+
+```php
+Announcement
+    Persistency_Announcement
+        Persistent_Collection_Announcement  // announced by a Persistent_Collection
+            About_To_Execute_Announcement
+                About_To_Create_Object
+                About_To_Update_Object
+                About_To_Delete_Object
+            Object_Created
+            Object_Updated
+            Object_Deleted
+            Execution_Canceled_Statement
+                Object_Creation_Canceled
+                Object_Update_Canceled
+                Object_Deletion_Canceled
+        Database_Announcement               // announced by a Database
+            About_To_Execute_Statement
+                About_To_Execute_Elasticsearch_Statement
+                About_To_Execute_Sql_Statement
+```
+
+<a name="c-4"></a>
 ### Elasticsearch specifics
 
 #### Persistent_Collection super class
@@ -3200,7 +3408,7 @@ Elasticsearch_Users_Collection::do()->create_from_attributes([
 
 #### Records update
 
-Currently a document can not be udpated with named parameters.
+Currently a document can not be updated with named parameters.
 
 Updating records in a collection works like with any other collection:
 
@@ -3350,14 +3558,14 @@ $this->expect( $id ) ->to() ->equal( 1 );
 });
 ```
 
-<a name="c-4"></a>
+<a name="c-5"></a>
 ## Running the tests
 
 ```
 composer specs
 ```
 
-<a name="c-5"></a>
+<a name="c-6"></a>
 ## Developing with Vagrant
 
 Vagrant eases the creation and setup of virtual machines to create development environments.

@@ -3,7 +3,7 @@
 use Haijin\Persistency\Engines\Postgresql\Postgresql_Database;
 use Haijin\Persistency\Announcements\About_To_Execute_Statement;
 
-$spec->describe( "When a Postgresql database makes announcements events", function() {
+$spec->describe( "When a Postgresql database makes announcements", function() {
 
     $this->let( "database", function() {
 
