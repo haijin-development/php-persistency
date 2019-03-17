@@ -35,7 +35,7 @@ class About_To_Execute_Sql_Statement extends About_To_Execute_Statement
     {
         $parameters_json = json_encode( $this->parameters );
 
-        return $this->get_database_class() .
+        return $this->get_announcer_print_string() .
             " about to execute: '" . $this->sql .
             "' with parameters: '" .$parameters_json . "'";
     }

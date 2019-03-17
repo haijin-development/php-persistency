@@ -40,7 +40,7 @@ $spec->describe( "When a Elasticsearch database makes announcements events", fun
                 $this->expect( $announcement->__toString() ) ->to()
                     ->equal( 'Haijin\Persistency\Engines\Elasticsearch\Elasticsearch_Database about to execute: \'search\' with parameters: \'{"index":"users","type":"users","body":{"query":{"match":{"name":"Lisa"}}},"sort":[]}\'' );
 
-                $this->expect( $announcement->get_database_class() ) ->to()
+                $this->expect( $announcement->get_announcer_print_string() ) ->to()
                     ->equal( Elasticsearch_Database::class );
 
                 $this->expect( $announcement->get_endpoint() ) ->to()
@@ -87,7 +87,7 @@ $spec->describe( "When a Elasticsearch database makes announcements events", fun
                 $this->expect( $announcement->__toString() ) ->to()
                     ->equal( 'Haijin\Persistency\Engines\Elasticsearch\Elasticsearch_Database about to execute: \'index\' with parameters: \'{"index":"users","type":"users","id":1,"body":{"name":"Lisa"},"refresh":true}\'' );
 
-                $this->expect( $announcement->get_database_class() ) ->to()
+                $this->expect( $announcement->get_announcer_print_string() ) ->to()
                     ->equal( Elasticsearch_Database::class );
 
                 $this->expect( $announcement->get_endpoint() ) ->to()
@@ -135,7 +135,7 @@ $spec->describe( "When a Elasticsearch database makes announcements events", fun
                 $this->expect( $announcement->__toString() ) ->to()
                     ->equal( 'Haijin\Persistency\Engines\Elasticsearch\Elasticsearch_Database about to execute: \'updateByQuery\' with parameters: \'{"index":"users","type":"users","body":{"query":{"match":{"name":"Maggie"}},"script":{"lang":"painless","source":"ctx._source.name = \'Margaret\'"}},"refresh":true}\'' );
 
-                $this->expect( $announcement->get_database_class() ) ->to()
+                $this->expect( $announcement->get_announcer_print_string() ) ->to()
                     ->equal( Elasticsearch_Database::class );
 
                 $this->expect( $announcement->get_endpoint() ) ->to()
@@ -181,7 +181,7 @@ $spec->describe( "When a Elasticsearch database makes announcements events", fun
                 $this->expect( $announcement->__toString() ) ->to()
                     ->equal( 'Haijin\Persistency\Engines\Elasticsearch\Elasticsearch_Database about to execute: \'deleteByQuery\' with parameters: \'{"index":"users","type":"users","body":{"query":{"match":{"name":"Maggie"}}},"refresh":true}\'' );
 
-                $this->expect( $announcement->get_database_class() ) ->to()
+                $this->expect( $announcement->get_announcer_print_string() ) ->to()
                     ->equal( Elasticsearch_Database::class );
 
                 $this->expect( $announcement->get_endpoint() ) ->to()

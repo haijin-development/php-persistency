@@ -35,7 +35,7 @@ class About_To_Execute_Elasticsearch_Statement extends About_To_Execute_Statemen
     {
         $parameters_json = json_encode( $this->parameters );
 
-        return $this->get_database_class() .
+        return $this->get_announcer_print_string() .
             " about to execute: '" . $this->endpoint .
             "' with parameters: '" .$parameters_json . "'";
     }

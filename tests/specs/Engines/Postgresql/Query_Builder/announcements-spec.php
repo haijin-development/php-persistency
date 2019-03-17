@@ -40,7 +40,7 @@ $spec->describe( "When a Postgresql database makes announcements events", functi
                 $this->expect( $announcement->__toString() ) ->to()
                     ->equal( "Haijin\Persistency\Engines\Postgresql\Postgresql_Database about to execute: 'select users.* from users where users.name = $1;' with parameters: '[\"Lisa\"]'" );
 
-                $this->expect( $announcement->get_database_class() ) ->to()
+                $this->expect( $announcement->get_announcer_print_string() ) ->to()
                     ->equal( Postgresql_Database::class );
 
                 $this->expect( $announcement->get_sql() ) ->to()
@@ -75,7 +75,7 @@ $spec->describe( "When a Postgresql database makes announcements events", functi
                 $this->expect( $announcement->__toString() ) ->to()
                     ->equal( "Haijin\Persistency\Engines\Postgresql\Postgresql_Database about to execute: 'insert into users (name) values ($1);' with parameters: '[\"Lisa\"]'" );
 
-                $this->expect( $announcement->get_database_class() ) ->to()
+                $this->expect( $announcement->get_announcer_print_string() ) ->to()
                     ->equal( Postgresql_Database::class );
 
                 $this->expect( $announcement->get_sql() ) ->to()
@@ -114,7 +114,7 @@ $spec->describe( "When a Postgresql database makes announcements events", functi
                 $this->expect( $announcement->__toString() ) ->to()
                     ->equal( "Haijin\Persistency\Engines\Postgresql\Postgresql_Database about to execute: 'update users set name = $1 where users.name = $2;' with parameters: '[\"Margaret\",\"Maggie\"]'" );
 
-                $this->expect( $announcement->get_database_class() ) ->to()
+                $this->expect( $announcement->get_announcer_print_string() ) ->to()
                     ->equal( Postgresql_Database::class );
 
                 $this->expect( $announcement->get_sql() ) ->to()
@@ -149,7 +149,7 @@ $spec->describe( "When a Postgresql database makes announcements events", functi
                 $this->expect( $announcement->__toString() ) ->to()
                     ->equal( "Haijin\Persistency\Engines\Postgresql\Postgresql_Database about to execute: 'delete from users where users.name = $1;' with parameters: '[\"Maggie\"]'" );
 
-                $this->expect( $announcement->get_database_class() ) ->to()
+                $this->expect( $announcement->get_announcer_print_string() ) ->to()
                     ->equal( Postgresql_Database::class );
 
                 $this->expect( $announcement->get_sql() ) ->to()

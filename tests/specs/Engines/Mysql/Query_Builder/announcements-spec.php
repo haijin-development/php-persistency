@@ -38,7 +38,7 @@ $spec->describe( "When a MySql database makes announcements events", function() 
                 $this->expect( $announcement->__toString() ) ->to()
                     ->equal( "Haijin\Persistency\Engines\Mysql\Mysql_Database about to execute: 'select users.* from users where users.name = ?;' with parameters: '[\"Lisa\"]'" );
 
-                $this->expect( $announcement->get_database_class() ) ->to()
+                $this->expect( $announcement->get_announcer_print_string() ) ->to()
                     ->equal( Mysql_Database::class );
 
                 $this->expect( $announcement->get_sql() ) ->to()
@@ -73,7 +73,7 @@ $spec->describe( "When a MySql database makes announcements events", function() 
                 $this->expect( $announcement->__toString() ) ->to()
                     ->equal( "Haijin\Persistency\Engines\Mysql\Mysql_Database about to execute: 'insert into users (name) values (?);' with parameters: '[\"Lisa\"]'" );
 
-                $this->expect( $announcement->get_database_class() ) ->to()
+                $this->expect( $announcement->get_announcer_print_string() ) ->to()
                     ->equal( Mysql_Database::class );
 
                 $this->expect( $announcement->get_sql() ) ->to()
@@ -112,7 +112,7 @@ $spec->describe( "When a MySql database makes announcements events", function() 
                 $this->expect( $announcement->__toString() ) ->to()
                     ->equal( "Haijin\Persistency\Engines\Mysql\Mysql_Database about to execute: 'update users set name = ? where users.name = ?;' with parameters: '[\"Margaret\",\"Maggie\"]'" );
 
-                $this->expect( $announcement->get_database_class() ) ->to()
+                $this->expect( $announcement->get_announcer_print_string() ) ->to()
                     ->equal( Mysql_Database::class );
 
                 $this->expect( $announcement->get_sql() ) ->to()
@@ -147,7 +147,7 @@ $spec->describe( "When a MySql database makes announcements events", function() 
                 $this->expect( $announcement->__toString() ) ->to()
                     ->equal( "Haijin\Persistency\Engines\Mysql\Mysql_Database about to execute: 'delete from users where users.name = ?;' with parameters: '[\"Maggie\"]'" );
 
-                $this->expect( $announcement->get_database_class() ) ->to()
+                $this->expect( $announcement->get_announcer_print_string() ) ->to()
                     ->equal( Mysql_Database::class );
 
                 $this->expect( $announcement->get_sql() ) ->to()
