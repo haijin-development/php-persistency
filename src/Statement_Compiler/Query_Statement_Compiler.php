@@ -83,7 +83,7 @@ class Query_Statement_Compiler extends Statement_Compiler
             $expression_context,
             function() use($from_collection, $joined_collection_name) {
 
-                $join_expression = $this->_create_join(
+                $join_expression = $this->_create_inner_join(
                     $from_collection,
                     $joined_collection_name
                 );
@@ -94,14 +94,142 @@ class Query_Statement_Compiler extends Statement_Compiler
         });
     }
 
-    protected function _create_join($from_collection, $joined_collection_name)
+    public function inner_join($joined_collection_name)
+    {
+        return $this->join( $joined_collection_name );
+    }
+
+    public function left_join($joined_collection_name)
+    {
+        $expression_context = $this->new_expression_context(
+            $this->get_macros_dictionary()
+        );
+
+        $from_collection = $this->get_context_collection();
+
+        return $this->_with_expression_context_do(
+            $expression_context,
+            function() use($from_collection, $joined_collection_name) {
+
+                $join_expression = $this->_create_left_outer_join(
+                    $from_collection,
+                    $joined_collection_name
+                );
+
+            $this->statement_expression->add_join_expression( $join_expression );
+
+            return $join_expression;
+        });
+    }
+
+    public function left_outer_join($joined_collection_name)
+    {
+        return $this->left_join( $joined_collection_name );
+    }
+
+    public function right_join($joined_collection_name)
+    {
+        $expression_context = $this->new_expression_context(
+            $this->get_macros_dictionary()
+        );
+
+        $from_collection = $this->get_context_collection();
+
+        return $this->_with_expression_context_do(
+            $expression_context,
+            function() use($from_collection, $joined_collection_name) {
+
+                $join_expression = $this->_create_right_outer_join(
+                    $from_collection,
+                    $joined_collection_name
+                );
+
+            $this->statement_expression->add_join_expression( $join_expression );
+
+            return $join_expression;
+        });
+    }
+
+    public function right_outer_join($joined_collection_name)
+    {
+        return $this->right_join( $joined_collection_name );
+    }
+
+    public function full_join($joined_collection_name)
+    {
+        $expression_context = $this->new_expression_context(
+            $this->get_macros_dictionary()
+        );
+
+        $from_collection = $this->get_context_collection();
+
+        return $this->_with_expression_context_do(
+            $expression_context,
+            function() use($from_collection, $joined_collection_name) {
+
+                $join_expression = $this->_create_full_outer_join(
+                    $from_collection,
+                    $joined_collection_name
+                );
+
+            $this->statement_expression->add_join_expression( $join_expression );
+
+            return $join_expression;
+        });
+    }
+
+    public function full_outer_join($joined_collection_name)
+    {
+        return $this->full_join( $joined_collection_name );
+    }
+
+    protected function _create_inner_join($from_collection, $joined_collection_name)
     {
         $joined_collection =
             $this->new_collection_expression( $joined_collection_name );
 
         $this->context->set_current_collection( $joined_collection );
 
-        return $this->new_join_expression(
+        return $this->new_inner_join_expression(
+            $from_collection,
+            $joined_collection
+        );
+    }
+
+    protected function _create_left_outer_join($from_collection, $joined_collection_name)
+    {
+        $joined_collection =
+            $this->new_collection_expression( $joined_collection_name );
+
+        $this->context->set_current_collection( $joined_collection );
+
+        return $this->new_left_outer_join_expression(
+            $from_collection,
+            $joined_collection
+        );
+    }
+
+    protected function _create_right_outer_join($from_collection, $joined_collection_name)
+    {
+        $joined_collection =
+            $this->new_collection_expression( $joined_collection_name );
+
+        $this->context->set_current_collection( $joined_collection );
+
+        return $this->new_right_outer_join_expression(
+            $from_collection,
+            $joined_collection
+        );
+    }
+
+    protected function _create_full_outer_join($from_collection, $joined_collection_name)
+    {
+        $joined_collection =
+            $this->new_collection_expression( $joined_collection_name );
+
+        $this->context->set_current_collection( $joined_collection );
+
+        return $this->new_full_outer_join_expression(
             $from_collection,
             $joined_collection
         );

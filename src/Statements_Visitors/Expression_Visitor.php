@@ -59,9 +59,33 @@ class Expression_Visitor extends Abstract_Expression_Visitor
     }
 
     /**
-     * Accepts a Join_Expression.
+     * Accepts an Inner_Join_Expression.
      */
-    public function accept_join_expression($join_expression)
+    public function accept_inner_join_expression($join_expression)
+    {
+        $this->raise_unexpected_expression_error( $join_expression );
+    }
+
+    /**
+     * Accepts a Left_Outer_Join_Expression.
+     */
+    public function accept_left_outer_join_expression($join_expression)
+    {
+        $this->raise_unexpected_expression_error( $join_expression );
+    }
+
+    /**
+     * Accepts a Right_Outer_Join_Expression.
+     */
+    public function accept_right_outer_join_expression($join_expression)
+    {
+        $this->raise_unexpected_expression_error( $join_expression );
+    }
+
+    /**
+     * Accepts a Full_Outer_Join_Expression.
+     */
+    public function accept_full_outer_join_expression($join_expression)
     {
         $this->raise_unexpected_expression_error( $join_expression );
     }

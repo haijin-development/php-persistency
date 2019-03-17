@@ -10,11 +10,43 @@ class Sql_Join_Builder extends Sql_Expression_Builder
     /// Visiting
 
     /**
-     * Accepts a Join_Expression.
+     * Accepts an Inner_Join_Expression.
      */
-    public function accept_join_expression($join_expression)
+    public function accept_inner_join_expression($join_expression)
     {
-        return "join " . 
+        return $this->build_sql_join_expression( 'join ', $join_expression );
+    }
+
+    /**
+     * Accepts a Left_Outer_Join_Expression.
+     */
+    public function accept_left_outer_join_expression($join_expression)
+    {
+        return $this->build_sql_join_expression( 'left outer join ', $join_expression );
+    }
+
+    /**
+     * Accepts a Right_Outer_Join_Expression.
+     */
+    public function accept_right_outer_join_expression($join_expression)
+    {
+        return $this->build_sql_join_expression( 'right outer join ', $join_expression );
+    }
+
+    /**
+     * Accepts a Full_Outer_Join_Expression.
+     */
+    public function accept_full_outer_join_expression($join_expression)
+    {
+        return $this->build_sql_join_expression( 'full outer join ', $join_expression );
+    }
+
+    /**
+     * Accepts an Inner_Join_Expression.
+     */
+    public function build_sql_join_expression($join_type, $join_expression)
+    {
+        return $join_type .
             $this->collection_sql_from( $join_expression ) .
             " on " .
             $this->from_field_sql_from( $join_expression ) .

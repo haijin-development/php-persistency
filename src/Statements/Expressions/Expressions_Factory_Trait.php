@@ -38,9 +38,36 @@ trait Expressions_Factory_Trait
         return $proyection;
     }
 
-    protected function new_join_expression($from_collection, $to_collection)
+    protected function new_inner_join_expression($from_collection, $to_collection)
     {
-        return Create::object( Join_Expression::class, 
+        return Create::object( Inner_Join_Expression::class, 
+            $this->context,
+            $from_collection,
+            $to_collection
+        );
+    }
+
+    protected function new_left_outer_join_expression($from_collection, $to_collection)
+    {
+        return Create::object( Left_Outer_Join_Expression::class, 
+            $this->context,
+            $from_collection,
+            $to_collection
+        );
+    }
+
+    protected function new_right_outer_join_expression($from_collection, $to_collection)
+    {
+        return Create::object( Right_Outer_Join_Expression::class, 
+            $this->context,
+            $from_collection,
+            $to_collection
+        );
+    }
+
+    protected function new_full_outer_join_expression($from_collection, $to_collection)
+    {
+        return Create::object( Full_Outer_Join_Expression::class, 
             $this->context,
             $from_collection,
             $to_collection

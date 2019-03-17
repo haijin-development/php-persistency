@@ -6,7 +6,7 @@ use Haijin\Instantiator\Create;
 use Haijin\Persistency\Statement_Compiler\Query_Statement_Compiler;
 use Haijin\Ordered_Collection;
 
-class Join_Expression extends Expression
+abstract class Join_Expression extends Expression
 {
     protected $from_collection;
     protected $to_collection;
@@ -197,12 +197,5 @@ class Join_Expression extends Expression
     public function new_query_statement_compiler($expression_context = null)
     {
         return Create::object( Query_Statement_Compiler::class,  $expression_context );
-    }
-
-    /// Visiting
-
-    public function accept_visitor($visitor)
-    {
-        return $visitor->accept_join_expression( $this );
     }
 }
