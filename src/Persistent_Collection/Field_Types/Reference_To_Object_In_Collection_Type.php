@@ -88,4 +88,11 @@ class Reference_To_Object_In_Collection_Type extends Abstract_Type
 
         return $objects;
     }
+
+    /// Double dispatch - Building html
+
+    public function build_join_expression_with($sql_builder, $with_expression)
+    {
+        return $sql_builder->build_object_reference_to_sql( $with_expression );
+    }
 }

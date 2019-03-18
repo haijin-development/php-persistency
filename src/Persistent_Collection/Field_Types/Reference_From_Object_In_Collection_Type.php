@@ -91,4 +91,11 @@ class Reference_From_Object_In_Collection_Type extends Abstract_Type
 
         return $references;
     }
+
+    /// Double dispatch - Building html
+
+    public function build_join_expression_with($sql_builder, $with_expression)
+    {
+        return $sql_builder->build_object_reference_from_sql( $with_expression );
+    }
 }

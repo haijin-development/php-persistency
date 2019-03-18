@@ -22,7 +22,7 @@ class Invalid_Expression_Error extends Persistency_Error
      * @param string $error_message The error message.
      * @param Expression $expression The unexpected Expression.
      */
-    public function __construct($error_message, $expression)
+    public function __construct($error_message, $expression = null)
     {
         parent::__construct( $error_message );
 

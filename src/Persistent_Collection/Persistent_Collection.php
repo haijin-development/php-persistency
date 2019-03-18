@@ -4,7 +4,7 @@ namespace Haijin\Persistency\Persistent_Collection;
 
 use Haijin\Instantiator\Create;
 use Haijin\Persistency\Errors\Persistency_Error;
-use Haijin\Errors\Haijin_Error;
+use Haijin\Persistency\Errors\Query_Expressions\Invalid_Expression_Error;
 use Haijin\Announcements\Announcer_Trait;
 use Haijin\Persistency\Announcements\About_To_Create_Object;
 use Haijin\Persistency\Announcements\About_To_Update_Object;
@@ -63,6 +63,8 @@ class Persistent_Collection
 
     public function get_database()
     {
+        $this->validate_database();
+
         return $this->database;
     }
 
@@ -285,6 +287,9 @@ class Persistent_Collection
 
         $records = $this->get_database()->query( function($query)
                                             use($collection_name, $filter_callable) {
+
+            $query->set_meta_model( $this );
+
             $query->collection( $collection_name );
 
             $filter_callable( $query );
@@ -355,6 +360,8 @@ class Persistent_Collection
 
         return $this->first( function($query) use($collection_name, $id_field) {
 
+            $query->set_meta_model( $this );
+
             $query->collection( $collection_name );
 
             $query->order_by(
@@ -382,6 +389,8 @@ class Persistent_Collection
 
         return $this->get_database()->count( function($query)
                                             use($collection_name, $filter_callable) {
+
+            $query->set_meta_model( $this );
 
             $query->collection( $collection_name );
 
@@ -434,7 +443,7 @@ class Persistent_Collection
     public function create_from_attributes($attributes)
     {
         if( ! is_array( $attributes ) ) {
-            throw new Haijin_Error(
+            throw new Invalid_Expression_Error(
                 "create_from_attributes() expects an associative array."
             );
         }
@@ -463,7 +472,7 @@ class Persistent_Collection
     public function insert_record($record_values)
     {
         if( ! is_array( $record_values ) ) {
-            throw new Haijin_Error(
+            throw new Invalid_Expression_Error(
                 "insert_record() expects an associative array."
             );
         }
@@ -472,6 +481,8 @@ class Persistent_Collection
 
         $this->get_database()->create( function($query)
                                     use($collection_name, $record_values) {
+
+            $query->set_meta_model( $this );
 
             $query->collection( $collection_name );
 
@@ -503,7 +514,7 @@ class Persistent_Collection
     public function update_from_attributes($object, $attributes)
     {
         if( ! is_array( $attributes ) ) {
-            throw new Haijin_Error(
+            throw new Invalid_Expression_Error(
                 "create_from_attributes() expects an associative array."
             );
         }
@@ -549,6 +560,8 @@ class Persistent_Collection
         $this->get_database()->update( function($query)
                                     use($collection_name, $id_field, $id, $record_values) {
 
+            $query->set_meta_model( $this );
+
             $query->collection( $collection_name );
 
             $expressions = [];
@@ -577,6 +590,8 @@ class Persistent_Collection
 
         $records = $this->get_database()->update( function($query)
                                             use($collection_name, $filter_callable) {
+
+            $query->set_meta_model( $this );
 
             $query->collection( $collection_name );
 
@@ -616,6 +631,8 @@ class Persistent_Collection
         $this->get_database()->delete( function($query)
                                     use($collection_name, $id_field, $id) {
 
+            $query->set_meta_model( $this );
+
             $query->collection( $collection_name );
 
             $query->filter(
@@ -637,6 +654,8 @@ class Persistent_Collection
 
         $records = $this->get_database()->delete( function($query)
                                             use($collection_name, $filter_callable) {
+
+            $query->set_meta_model( $this );
 
             $query->collection( $collection_name );
 
@@ -753,7 +772,9 @@ class Persistent_Collection
             return;
         }
 
-        throw new Haijin_Error( "Expected '\$named_parameters' to be an associative array." );
+        throw new Invalid_Expression_Error(
+            "Expected '\$named_parameters' to be an associative array."
+        );
     }
 
     /// Announcing
@@ -833,16 +854,33 @@ class Persistent_Collection
         );
     }
 
+    /// Validating
+
+    protected function validate_database()
+    {
+        if( $this->database !== null ) {
+            return;
+        }
+
+        $class_name = get_class( $this );
+
+        throw new Persistency_Error(
+            "{$class_name} must '->set_database(\$database)' first."
+        );
+    }
+
     /// Raising errors
 
     protected function raise_missing_primary_key_error()
     {
-        throw new Haijin_Error( "Missing a primary key field in the definition." );
+        throw new Invalid_Expression_Error(
+            "Missing a primary key field in the definition."
+        );
     }
 
     protected function raise_unkown_instantiator_error()
     {
-        throw new Haijin_Error( "Unkown instantiator." );
+        throw new Invalid_Expression_Error( "Unkown instantiator." );
     }
 
     protected function raise_more_than_one_record_found_error($found_count)
@@ -854,7 +892,7 @@ class Persistent_Collection
     {
         $class_name = get_class( $this );
 
-        throw new Haijin_Error(
+        throw new Invalid_Expression_Error(
             "Field mapping at field '{$field_name}' in class {$class_name} not found."
         );        
     }

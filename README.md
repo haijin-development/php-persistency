@@ -406,8 +406,7 @@ $users = Users_Collection::get()->all( function($query) use($full_name, $address
         $query->field( 'name' )
     );
 
-    $query->join( "address" ) ->from( "id" ) ->to( "user_id" )
-                                        ->eval( function($query) use($address) {
+    $query->with( "address" ) ->eval( function($query) use($address) {
 
         $query->proyect(
             $query->ignore()
@@ -498,8 +497,7 @@ class Users_Persistent_Collection extends Persistent_Collection
                 $query->field( 'name' )
             );
 
-            $query->join( "address" ) ->from( "id" ) ->to( "user_id" )
-                                        ->eval( function($query) use($address) {
+            $query->with( "address" ) ->eval( function($query) use($address) {
 
                 $query->proyect(
                     $query->ignore()
@@ -755,6 +753,7 @@ $spec->describe( "When calling the delete user endpoint", function() {
             1. [all](#c-2-2-10-1)
             2. [first](#c-2-2-10-2)
             3. [last](#c-2-2-10-3)
+            4. [with](#c-2-2-10-4)
         11. [Eager fetching](#c-2-2-11)
         12. [Persistent_Collection patterns](#c-2-2-12)
             1. [Singleton collection](#c-2-2-12-1)
@@ -763,7 +762,11 @@ $spec->describe( "When calling the delete user endpoint", function() {
             4. [Cascade delete](#c-2-2-12-4)
             5. [Syncronized index](#c-2-2-12-5)
             6. [Default eager fetch](#c-2-2-12-6)
-    3. [Migrations](#c-2-3)
+    3. [Reference](#c-2-3)
+        1. [Sql queries](#c-2-3-1)
+        1. [Elasticsearch queries](#c-2-3-2)
+        2. [Persistent_Collection protocol](#c-2-3-3)
+    4. [Migrations](#c-2-4)
 3. [Announcements](#c-3)
 4. [Elasticsearch specifics](#c-4)
 5. [Running the tests](#c-5)
@@ -2732,6 +2735,23 @@ Mostly useful when testing.
 $user = Users_Collection::get()->last();
 ```
 
+<a name="c-2-2-10-4"></a>
+##### with instead of join
+
+To join with other referenced collections use `with` instead of `join`.
+
+`with` makes a `left outer join` with the referenced collection.
+
+```php
+$user = Users_Collection::get()->first( function($query) {
+
+    $query->with( 'address' ) ->eval( function($query) {
+        ///...
+    });
+
+});
+```
+
 <a name="c-2-2-11"></a>
 #### Eager fetching
 
@@ -3289,6 +3309,357 @@ class Users_Persistent_Collection extends Persistent_Collection
         }, [], $eager_fetch );
     }
 }
+```
+
+<a name="c-2-3"></a>
+#### Reference
+
+
+<a name="c-2-3-1"></a>
+##### Sql queries
+
+List of available statements.
+
+**Query**
+
+```php
+$database->query( function($query) {
+
+    $query->collection( 'table_name' );
+
+    $query->proyect(
+        $query->field( 'a_field' ),
+        $query->value( 'a value' ),
+        $query->upper( $query->value( 'any other valid function or expression' ) ),
+        $query->field( 'a_field' ) ->upper(),
+        $query->ignore()
+    );
+
+    $query->let( 'a_subexpression', function($query) {
+
+        return $query->field( 'a_field', '=', 123 );
+
+    });
+
+    $query->let( 'a_subexpression', function($query) {
+
+        return $query->ignore();
+
+    });
+
+    $query->join( 'another_table' ) ->from( 'left_id' ) ->to( 'right_id' );
+
+    $query->join( 'another_table' ) ->from( 'left_id' ) ->to( 'right_id' ) ->eval(function($query) {
+
+        $query->proyect(
+            // ...
+        );
+
+        $query->let( '...', function($query) {
+            // ...
+        });
+
+        $query->join( '...' ) ->from( '...' ) ->to( '...' ) ->eval( function($query) {
+            // ...
+        });
+
+    });
+
+    $query->with( 'a_field_referencing_a_persistent_collection' ) ->eval(function($query) {
+
+        $query->proyect(
+            // ...
+        );
+
+        $query->let( '...', function($query) {
+            // ...
+        });
+
+        $query->join( '...' ) ->from( '...' ) ->to( '...' ) ->eval( function($query) {
+            // ...
+        });
+
+        $query->with( '...' ) ->eval( function($query) {
+            // ...
+        });
+
+    });
+
+    $query->filter(
+        $query
+            ->field( 'name', '=', 'lisa' )
+            ->or()
+            ->field( 'name' ) ->op( '=' ) ->value( 'lisa' )
+            ->or()
+            ->field( 'name' ) ->op( '<>' ) ->field( 'last_name' )
+            ->or()
+            ->field( 'name' ) ->op( '=' ) ->any_function( $query->field( 'last_name' ) )
+            ->or()
+            ->field( 'name' ) ->is_null()
+            ->or()
+            ->field( 'name' ) ->not_null()
+            ->or()
+            ->field( 'name' ) ->in( [ 1, 2, 3 ] )
+            ->or()
+            ->field( 'name' ) ->any_function( 'second_parameter' )
+            ->or()
+            ->backets(
+                $query->field( 'name', '=', 'lisa' )
+                ->and()
+                ->field( 'name', '=', 'lisa' )
+            )
+            ->or()
+            ->field( 'a_table.name', '=', 'lisa' )
+            ->or()
+            ->field( 'name', '=', $query->param( 'named_parameter' ) )
+            ->or()
+            ->sub_expression_defined_with_let
+    );
+
+    $query->having(
+        /// same as filter
+    );
+
+    $query->group_by(
+        // same as proyect
+    );
+
+    $query->order_by(
+        // same as proyect
+        // ...
+        $query->field( 'a_field' ) ->asc(),
+        $query->field( 'a_field' ) ->desc()
+    );
+
+    $query->pagination(
+        $query->limit( 10 )
+    );
+
+    $query->pagination(
+        $query->limit( 10 ),
+        $query->offset( 100 )
+    );
+
+    $query->pagination(
+        $query->page( 0 ),
+        $query->page_size( 10 ),
+    );
+
+}
+```
+
+**Create**
+
+```php
+$database->create( function($query) {
+
+    $query->collection( 'table_name' );
+
+    $query->record(
+        $query->set( 'field', 123 ),
+        $query->set( 'field', $query->value( 123 ) ),
+        $query->set( 'field', $query->any_function_or_expression() )
+    );
+
+});
+```
+
+**Update**
+
+```php
+$database->update( function($query) {
+
+    $query->collection( 'table_name' );
+
+    $query->record(
+        $query->set( 'field', 123 ),
+        $query->set( 'field', $query->value( 123 ) ),
+        $query->set( 'field', $query->any_function_or_expression() )
+        $query->set( 'field', $query->field( 'another_field' ) ->op( '*' ) ->value( 3 ) )
+    );
+
+    $query->filter(
+        // same as previous filter
+    );
+});
+```
+
+**Delete**
+
+```php
+$database->update( function($query) {
+
+    $query->collection( 'table_name' );
+
+    $query->filter(
+        // same as previous filter
+    );
+});
+```
+
+<a name="c-2-3-2"></a>
+##### Elasticsearch queries
+
+```php
+$database->query( function($query) {
+
+    $query->collection( 'index_name' );
+
+    $query->proyect(
+        $query->field( 'a_field' ),
+        $query->ignore()
+    );
+
+    $query->let( 'a_subexpression', function($query) {
+
+        return $query->term( 'a_field', 123 );
+
+    });
+
+    $query->let( 'a_subexpression', function($query) {
+
+        return $query->ignore();
+
+    });
+
+    $query->filter(
+        $query
+            ->any_nesting_function(
+                // ...
+            )
+            ->any_leaf_function( 'field', 'value' )
+            ->sub_expression_defined_with_let
+    );
+
+    $query->group_by(
+        // same as filter
+    );
+
+    $query->order_by(
+        // same as proyect
+        // ...
+        $query->field( 'a_field' ) ->asc(),
+        $query->field( 'a_field' ) ->desc()
+    );
+
+    $query->pagination(
+        $query->limit( 10 )
+    );
+
+    $query->pagination(
+        $query->limit( 10 ),
+        $query->offset( 100 )
+    );
+
+    $query->pagination(
+        $query->page( 0 ),
+        $query->page_size( 10 ),
+    );
+
+}
+```
+
+**Create**
+
+```php
+$database->create( function($query) {
+
+    $query->collection( 'index_name' );
+
+    $query->record(
+        $query->set( 'field', 'value' ),
+        $query->set( 'field', 'value' ),
+        $query->set( 'field', 'value' )
+    );
+
+});
+```
+
+**Update**
+
+```php
+$database->update( function($query) {
+
+    $query->collection( 'index_name' );
+
+    $query->script([
+        "lang" => "painless",
+        "source" => "..."
+    ]);
+
+    $query->filter(
+        // same as previous filter
+    );
+});
+```
+
+**Delete**
+
+```php
+$database->update( function($query) {
+
+    $query->collection( 'index_name' );
+
+    $query->filter(
+        // same as previous filter
+    );
+});
+```
+
+<a name="c-2-3-3"></a>
+##### Persistent_Collection protocol
+
+**Searching**
+
+```php
+$collection->find_by_id( $id, $named_parameters = [], $eager_fetch = [] );
+
+$collection->find_all_by_ids(
+    $ids_collection, $named_parameters = [], $eager_fetch = []
+);
+
+$collection->find_by_id_if_absent(
+    $id, $absent_callable, $named_parameters = [], $eager_fetch = []
+);
+
+$collection->find_by( $field_values, $named_parameters = [], $eager_fetch = [] );
+
+$collection->find_by_if_absent(
+    $field_values, $absent_callable, $named_parameters = [], $eager_fetch = []
+);
+
+$collection->all( $filter_callable = null, $named_parameters = [], $eager_fetch = [] );
+
+$collection->first( $filter_callable = null, $named_parameters = [], $eager_fetch = [] );
+
+$collection->last( $eager_fetch = [] );
+
+$collection->count( $filter_callable = null, $named_parameters = [] );
+```
+
+**Creating**
+
+```php
+$collection->create( $object );
+$collection->create_from_attributes( $record_values );
+$collection->insert_record($record_values);
+```
+
+**Updating**
+
+```php
+$collection->update( $object );
+$collection->update_from_attributes( $object, $record_values );
+$collection->update_all( $filter_callable, $named_parameters = [] );
+```
+
+**Deleting**
+
+```php
+$collection->delete( $object );
+$collection->delete_all($filter_callable, $named_parameters = []);
+
+$collection->clear_all()
 ```
 
 <a name="c-3"></a>

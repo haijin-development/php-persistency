@@ -14,6 +14,7 @@ abstract class Join_Expression extends Expression
     protected $to_field;
     protected $proyection_expression;
     protected $join_expressions;
+    protected $meta_model;
 
     /// Initializing
 
@@ -27,9 +28,28 @@ abstract class Join_Expression extends Expression
         $this->to_field = null;
         $this->proyection_expression = $this->new_proyection_expression();
         $this->join_expressions = new Ordered_Collection();
+        $this->meta_model = null;
     }
 
     /// Accessing
+
+    /**
+     * Returns the meta_model of the expression.
+     */
+    public function get_meta_model()
+    {
+        return $this->meta_model;
+    }
+
+    /**
+     * Sets the meta_model.
+     */
+    public function set_meta_model($meta_model)
+    {
+        $this->meta_model = $meta_model;
+
+        return $this;
+    }
 
     public function get_from_collection()
     {
@@ -204,6 +224,7 @@ abstract class Join_Expression extends Expression
 
     public function new_query_statement_compiler($expression_context = null)
     {
-        return Create::object( Query_Statement_Compiler::class,  $expression_context );
+        return Create::object( Query_Statement_Compiler::class,  $expression_context )
+                    ->set_meta_model( $this->meta_model );
     }
 }

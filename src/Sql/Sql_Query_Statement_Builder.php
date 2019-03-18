@@ -157,12 +157,21 @@ class Sql_Query_Statement_Builder extends Sql_Expression_Builder
     }
 
     /**
-     * Accepts n Full_Outer_Join_Expression.
+     * Accepts a Full_Outer_Join_Expression.
      */
     public function accept_full_outer_join_expression($join_expression)
     {
         return $this->new_sql_join_builder()
             ->build_sql_from( $join_expression );
+    }
+
+    /**
+     * Accepts a With_Expression.
+     */
+    public function accept_with_expression($with_expression)
+    {
+        return $this->new_sql_join_builder()
+            ->build_sql_from( $with_expression );
     }
 
     protected function join_expressions_sql_from($query_statement)

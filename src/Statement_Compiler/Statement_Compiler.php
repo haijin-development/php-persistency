@@ -154,6 +154,11 @@ abstract class Statement_Compiler
         return $this;
     }
 
+    public function get_meta_model()
+    {
+        return $this->statement_expression->get_meta_model();
+    }
+
     /**
      * Defines the optional meta model to allow the use of '$query->with(...)'
      * statement.
@@ -164,11 +169,16 @@ abstract class Statement_Compiler
      * @return CollectionExpressionBuilder Returns $this object to allow
      *      further configuration of the Collection_Expression.
      */
-    public function meta_model($persistent_collection)
+    public function set_meta_model($persistent_collection)
     {
         $this->statement_expression->set_meta_model( $persistent_collection );
 
         return $this;
+    }
+
+    public function meta_model($persistent_collection)
+    {
+        return $this->set_meta_model( $persistent_collection );
     }
 
     /// Macro expressions

@@ -187,13 +187,9 @@ class Query_Statement_Compiler extends Statement_Compiler
 
     public function with($reference_field_name)
     {
-        $meta_model = $this->statement_expression->get_meta_model();
+        $meta_model = $this->get_meta_model();
 
-        if( $meta_model === null ) {
-            $this->_raise_invalid_expression_error(
-                "Trying to use '\$query->with( \"{$reference_field_name}\" )' without setting a '\$query->set_meta_model( \$persistent_collection );' first."
-            );
-        }
+        $this->validate_meta_model( $reference_field_name, $meta_model );
 
         $expression_context = $this->new_expression_context(
             $this->get_macros_dictionary()
@@ -203,14 +199,20 @@ class Query_Statement_Compiler extends Statement_Compiler
 
         $joined_field = $meta_model->get_field_mapping_at( $reference_field_name );
 
+        $this->validate_relation_field( $joined_field );
+
         return $this->_with_expression_context_do(
             $expression_context,
             function() use($from_collection, $joined_field) {
 
                 $join_expression = $this->_create_with_expression(
                     $from_collection,
-                    $$joined_field
+                    $joined_field
                 );
+
+            $join_expression->set_meta_model(
+                $joined_field->get_referenced_collection()
+            );
 
             $this->statement_expression->add_join_expression( $join_expression );
 
@@ -272,8 +274,13 @@ class Query_Statement_Compiler extends Statement_Compiler
 
     protected function _create_with_expression($from_collection, $joined_field_mapping)
     {
+        $joined_collection_name = $joined_field_mapping
+                ->get_type()
+                ->get_referenced_collection()
+                ->get_collection_name();
+
         $this->context->set_current_collection(
-            $joined_field_mapping->get_joined_collection()
+            $this->new_collection_expression( $joined_collection_name )
         );
 
         return $this->new_with_expression(
@@ -377,51 +384,27 @@ class Query_Statement_Compiler extends Statement_Compiler
         $this->statement_expression->set_eager_fetch_spec( $eager_fetch_spec );
     }
 
-    /// Macro expressions
+    /// Validation
 
-    public function let($macro_name, $definition_callable)
+    protected function validate_meta_model($reference_field_name, $meta_model)
     {
-        $macro_expression = $definition_callable( $this );
-
-        if( $macro_expression === null ) {
-            $this->_raise_macro_expression_evaluated_to_null_error( $macro_name );
+        if( $meta_model === null ) {
+            $this->_raise_invalid_expression_error(
+                "Trying to use '\$query->with( \"{$reference_field_name}\" )' without setting a '\$query->set_meta_model( \$persistent_collection );' first."
+            );
         }
 
-        $this->get_macros_dictionary()[ $macro_name ] = $macro_expression;
     }
 
-    /**
-     * Assumes that the attribute is a macro expressions. Searches for a defined macro
-     * expression with that name and returns its evaluation. If none is found raises
-     * an error.
-     */
-    public function __get($macro_name)
+    protected function validate_relation_field($field_mapping)
     {
-        return $this->get_macros_dictionary()->at( $macro_name, $this );
-    }
+        $type = $field_mapping->get_type();
 
-    /// Helper methods
-
-    protected function _with_expression_context_do($expression_context, $callable)
-    {
-        $this->previous_expression_context = $this->context;
-
-        $this->context = $expression_context;
-
-        try {
-            return $callable();
-        } finally {
-            $this->context = $this->previous_expression_context;
+        if( $type === null || ! $type->references_other_collection() ) {
+            $this->_raise_invalid_expression_error(
+                "Trying to use '\$query->with( \"{$field_mapping->get_field_name()}\" )' with a no relational field type."
+            );
         }
-    }
 
-    /// Raising errors
-
-    protected function _raise_macro_expression_evaluated_to_null_error($macro_name)
-    {
-        throw new Macro_Expression_Evaluated_To_Null_Error(
-            "The macro expression '{$macro_name}' evaluated to null. Probably it is missing the return statement.",
-            $macro_name
-        );
     }
 }

@@ -22,6 +22,13 @@ class Value_Type extends Abstract_Type
         return false;
     }
 
+    /// Accessing
+
+    public function get_referenced_collection()
+    {
+        return null;
+    }
+
     /// Converting
 
     public function convert_from_database(
@@ -54,5 +61,12 @@ class Value_Type extends Abstract_Type
         throw new Invalid_Expression_Error(
             "Can not use '\$query->with()' with a value field."
         );
+    }
+
+    /// Double dispatch - Building html
+
+    public function build_join_expression_with($sql_builder, $with_expression)
+    {
+        return null;
     }
 }

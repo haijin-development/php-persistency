@@ -74,5 +74,7 @@ abstract class Statement extends Expression
     public function set_meta_model($meta_model)
     {
         $this->meta_model = $meta_model;
+
+        return $this;
     }
 }

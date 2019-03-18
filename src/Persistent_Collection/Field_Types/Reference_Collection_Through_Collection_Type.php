@@ -152,4 +152,11 @@ class Reference_Collection_Through_Collection_Type extends Abstract_Type
 
         return $objects;
     }
+
+    /// Double dispatch - Building html
+
+    public function build_join_expression_with($sql_builder, $with_expression)
+    {
+        return $sql_builder->build_collection_through_sql( $with_expression );
+    }
 }

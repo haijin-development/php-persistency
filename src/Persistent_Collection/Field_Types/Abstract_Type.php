@@ -12,6 +12,10 @@ abstract class Abstract_Type
 
     abstract public function convert_to_database($value, $database);
 
+    /// Accessing
+
+    abstract public function get_referenced_collection();
+
     /// Asking
 
     abstract public function references_other_collection();
@@ -20,4 +24,8 @@ abstract class Abstract_Type
     {
         return true;
     }
+
+    /// Double dispatch - Building html
+
+    abstract public function build_join_expression_with($sql_builder, $with_expression);
 }

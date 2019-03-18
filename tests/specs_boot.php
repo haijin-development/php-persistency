@@ -12,6 +12,8 @@ require_once __DIR__ . "/samples/models/Address.php";
 require_once __DIR__ . "/samples/models/Record_With_Types.php";
 require_once __DIR__ . "/samples/models/Addresses_Collection.php";
 require_once __DIR__ . "/samples/models/Users_Collection.php";
+require_once __DIR__ . "/samples/models/Addresses_2_Collection.php";
+require_once __DIR__ . "/samples/models/Users_2_Collection.php";
 require_once __DIR__ . "/samples/models/Elasticsearch_Users_Collection.php";
 require_once __DIR__ . "/samples/models/Types_Collection.php";
 require_once __DIR__ . "/samples/models/Elasticsearch_Types_Collection.php";
