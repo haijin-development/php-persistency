@@ -4,6 +4,7 @@ namespace Haijin\Persistency\Statement_Compiler;
 
 use Haijin\Instantiator\Create;
 use Haijin\Persistency\Errors\Query_Expressions\Macro_Expression_Evaluated_To_Null_Error;
+use Haijin\Persistency\Errors\Query_Expressions\Invalid_Expression_Error;
 use Haijin\Persistency\Statements\Expressions\Expressions_Factory_Trait;
 use Haijin\Persistency\Statements\Expressions\Expressions_DSL_Trait;
 
@@ -153,6 +154,23 @@ abstract class Statement_Compiler
         return $this;
     }
 
+    /**
+     * Defines the optional meta model to allow the use of '$query->with(...)'
+     * statement.
+     *
+     * @param Persistent_Collection $persistent_collection The Persistent_Collection
+     * that holds the definition of the fields.
+     *
+     * @return CollectionExpressionBuilder Returns $this object to allow
+     *      further configuration of the Collection_Expression.
+     */
+    public function meta_model($persistent_collection)
+    {
+        $this->statement_expression->set_meta_model( $persistent_collection );
+
+        return $this;
+    }
+
     /// Macro expressions
 
     public function let($macro_name, $definition_callable)
@@ -199,5 +217,10 @@ abstract class Statement_Compiler
             "The macro expression '{$macro_name}' evaluated to null. Probably it is missing the return statement.",
             $macro_name
         );
+    }
+
+    protected function _raise_invalid_expression_error($message)
+    {
+        throw new Invalid_Expression_Error( $message, $this );
     }
 }

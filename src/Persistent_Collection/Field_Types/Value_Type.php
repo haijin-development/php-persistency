@@ -2,6 +2,8 @@
 
 namespace Haijin\Persistency\Persistent_Collection\Field_Types;
 
+use Haijin\Persistency\Errors\Query_Expressions\Invalid_Expression_Error;
+
 class Value_Type extends Abstract_Type
 {
     protected $type;
@@ -43,5 +45,14 @@ class Value_Type extends Abstract_Type
     public function convert_to_database($value, $database)
     {
         return $value;
+    }
+
+    /// Joining double dispatch
+
+    public function join_from($query_expression, $field_mapping)
+    {
+        throw new Invalid_Expression_Error(
+            "Can not use '\$query->with()' with a value field."
+        );
     }
 }

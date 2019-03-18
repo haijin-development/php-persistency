@@ -183,6 +183,21 @@ class Query_Statement_Compiler extends Statement_Compiler
         return $this->full_join( $joined_collection_name );
     }
 
+    /// Joining referenced collections
+
+    public function with($reference_field_name)
+    {
+        $meta_model = $this->statement_expression->get_meta_model();
+
+        if( $meta_model === null ) {
+            $this->_raise_invalid_expression_error(
+                "Trying to use '\$query->with( \"{$reference_field_name}\" )' without setting a '\$query->set_meta_model( \$persistent_collection );' first."
+            );
+        }
+
+        throw new \Exception( "Not yet implemented" );
+    }
+
     protected function _create_inner_join($from_collection, $joined_collection_name)
     {
         $joined_collection =

@@ -29,6 +29,38 @@ class Reference_Collection_Through_Collection_Type extends Abstract_Type
         $this->config = $config;
     }
 
+    /// Accessing
+
+    public function get_left_collection()
+    {
+        return $this->left_collection;
+    }
+
+    public function get_middle_table()
+    {
+        return $this->middle_table;
+    }
+
+    public function get_left_id_field()
+    {
+        return $this->left_id_field;
+    }
+
+    public function get_right_id_field()
+    {
+        return $this->right_id_field;
+    }
+
+    public function get_right_collection()
+    {
+        return $this->right_collection;
+    }
+
+    public function get_referenced_collection()
+    {
+        return $this->right_collection;
+    }
+
     /// Asking
 
     public function references_other_collection()
@@ -39,11 +71,6 @@ class Reference_Collection_Through_Collection_Type extends Abstract_Type
     public function can_write_to_database()
     {
         return false;
-    }
-
-    public function get_referenced_collection()
-    {
-        return $this->right_collection;
     }
 
     /// Converting

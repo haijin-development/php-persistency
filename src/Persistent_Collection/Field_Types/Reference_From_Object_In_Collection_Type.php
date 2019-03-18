@@ -19,6 +19,18 @@ class Reference_From_Object_In_Collection_Type extends Abstract_Type
         $this->config = $config;
     }
 
+    /// Accessing
+
+    public function get_referenced_collection()
+    {
+        return $this->persistent_collection;
+    }
+
+    public function get_id_field()
+    {
+        return $this->id_field;
+    }
+
     /// Asking
 
     public function references_other_collection()
@@ -29,11 +41,6 @@ class Reference_From_Object_In_Collection_Type extends Abstract_Type
     public function can_write_to_database()
     {
         return false;
-    }
-
-    public function get_referenced_collection()
-    {
-        return $this->persistent_collection;
     }
 
     /// Converting
