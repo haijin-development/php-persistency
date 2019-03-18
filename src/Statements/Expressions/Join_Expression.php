@@ -147,6 +147,14 @@ abstract class Join_Expression extends Expression
         $this->to_collection->set_context( $new_context );
         $this->set_context( $new_context );
         $this->proyection_expression->set_context( $new_context );
+
+        if( $this->from_field !== null ) {
+            $this->from( $this->from_field->get_field_name() );
+        }
+
+        if( $this->to_field !== null ) {
+            $this->to( $this->to_field->get_field_name() );            
+        }
     }
 
     public function from($from_field)

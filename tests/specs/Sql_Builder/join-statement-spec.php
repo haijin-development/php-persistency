@@ -46,6 +46,25 @@ $spec->describe( "When building the join statement of a sql expression", functio
 
     });
 
+    $this->it( "builds an aliased join after defining the from and to fields", function() {
+
+        $sql = $this->query_builder->build( function($query) {
+
+            $query->collection( "users" );
+
+            $query->join( "address" ) ->from( "id" ) ->to( "user_id" ) ->as( "a" );
+
+        });
+
+        $expected_sql = 
+            "select users.*, a.* " .
+            "from users " .
+            "join address as a on users.id = a.user_id;";
+
+        $this->expect( $sql ) ->to() ->equal( $expected_sql );
+
+    });
+
     $this->it( "builds multiple joins", function() {
 
         $sql = $this->query_builder->build( function($query) {

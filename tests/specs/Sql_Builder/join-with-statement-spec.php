@@ -2,13 +2,13 @@
 
 use Haijin\Persistency\Sql\Sql_Query_Statement_Builder;
 
-$spec->xdescribe( "When building a join with a collection statement", function() {
+$spec->describe( "When building a join with a collection statement", function() {
 
     $this->let( "query_builder", function() {
         return new Sql_Query_Statement_Builder();
     });
 
-    $this->describe( "when joining with a reference_to_object field", function() {
+    $this->xdescribe( "when joining with a reference_to_object field", function() {
 
         $this->it( "builds a left outer join", function() {
 
@@ -35,7 +35,7 @@ $spec->xdescribe( "When building a join with a collection statement", function()
 
         });
 
-        $this->it( "builds an aliased join", function() {
+        $this->xit( "builds an aliased join", function() {
 
             $sql = $this->query_builder->build( function($query) {
 
@@ -58,7 +58,7 @@ $spec->xdescribe( "When building a join with a collection statement", function()
 
     });
 
-    $this->describe( "when joining with a reference_from_object field", function() {
+    $this->xdescribe( "when joining with a reference_from_object field", function() {
 
         $this->it( "builds a left outer join", function() {
 
@@ -87,7 +87,7 @@ $spec->xdescribe( "When building a join with a collection statement", function()
 
     });
 
-    $this->describe( "when joining with a reference_from_collection field", function() {
+    $this->xdescribe( "when joining with a reference_from_collection field", function() {
 
         $this->it( "builds a left outer join", function() {
 
@@ -116,7 +116,7 @@ $spec->xdescribe( "When building a join with a collection statement", function()
 
     });
 
-    $this->describe( "when joining with a reference_from_collection field", function() {
+    $this->xdescribe( "when joining with a reference_from_collection field", function() {
 
         $this->it( "builds a left outer join", function() {
 

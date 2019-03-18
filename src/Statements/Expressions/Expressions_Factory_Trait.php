@@ -74,6 +74,15 @@ trait Expressions_Factory_Trait
         );
     }
 
+    protected function new_with_expression($from_collection, $joined_field_mapping)
+    {
+        return Create::object( With_Expression::class, 
+            $this->context,
+            $from_collection,
+            $joined_field_mapping
+        );
+    }
+
     protected function new_filter_expression($expression)
     {
         return Create::object( Filter_Expression::class, 

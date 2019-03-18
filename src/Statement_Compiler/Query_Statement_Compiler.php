@@ -195,7 +195,27 @@ class Query_Statement_Compiler extends Statement_Compiler
             );
         }
 
-        throw new \Exception( "Not yet implemented" );
+        $expression_context = $this->new_expression_context(
+            $this->get_macros_dictionary()
+        );
+
+        $from_collection = $this->get_context_collection();
+
+        $joined_field = $meta_model->get_field_mapping_at( $reference_field_name );
+
+        return $this->_with_expression_context_do(
+            $expression_context,
+            function() use($from_collection, $joined_field) {
+
+                $join_expression = $this->_create_with_expression(
+                    $from_collection,
+                    $$joined_field
+                );
+
+            $this->statement_expression->add_join_expression( $join_expression );
+
+            return $join_expression;
+        });
     }
 
     protected function _create_inner_join($from_collection, $joined_collection_name)
@@ -247,6 +267,18 @@ class Query_Statement_Compiler extends Statement_Compiler
         return $this->new_full_outer_join_expression(
             $from_collection,
             $joined_collection
+        );
+    }
+
+    protected function _create_with_expression($from_collection, $joined_field_mapping)
+    {
+        $this->context->set_current_collection(
+            $joined_field_mapping->get_joined_collection()
+        );
+
+        return $this->new_with_expression(
+            $from_collection,
+            $joined_field_mapping
         );
     }
 
