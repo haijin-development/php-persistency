@@ -25,6 +25,15 @@ class Database_CLI
         return $this->migrations_builder;
     }
 
+    public function get_running_env()
+    {
+        if( isset( $this->argv[ 2 ] ) ) {
+            return $this->argv[ 2 ];
+        }
+
+        return 'production';
+    }
+
     /// Command line interface
 
     public function evaluate()
