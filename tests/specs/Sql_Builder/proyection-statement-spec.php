@@ -187,13 +187,13 @@ $spec->describe( "When building the proyection statement of a sql expression", f
             $query->collection( "users" );
 
             $query->proyect(
-                $query->count()
+                $query->count( '*' )
             );
 
         });
 
         $this->expect( $sql ) ->to() ->equal(
-            "select count(*) from users;"
+            "select count('*') from users;"
         );
 
     });

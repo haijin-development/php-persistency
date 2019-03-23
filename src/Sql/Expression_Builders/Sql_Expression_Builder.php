@@ -82,6 +82,13 @@ class Sql_Expression_Builder extends Expression_Visitor
         return join( ', ', $this->collect_expressions_sql( $expressions ) );        
     }
 
+    /// Visiting
+
+    public function accept_raw_expression($raw_expression)
+    {
+        return $raw_expression->get_value();
+    }
+
     /// Raising errors
 
     protected function raise_invalid_expression($message, $expression)

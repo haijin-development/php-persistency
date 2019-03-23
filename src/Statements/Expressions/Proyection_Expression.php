@@ -46,6 +46,14 @@ class Proyection_Expression extends Expression
         return $this->proyected_expressions;
     }
 
+    /**
+     * Sets the collection of proyected expressions.
+     */
+    public function set_proyected_expressions($proyected_expressions)
+    {
+        $this->proyected_expressions = $proyected_expressions;
+    }
+
     /// Adding proyected expressions
 
     /**

@@ -1,6 +1,8 @@
 <?php
 
 use Haijin\Persistency\Engines\Sqlite\Sqlite_Database;
+use Haijin\Errors\Haijin_Error;
+use Haijin\Persistency\Errors\Connections\Named_Parameter_Not_Found_Error;
 
 $spec->describe( "When evaluating a delete statement in a MySql database", function() {
 
@@ -209,6 +211,66 @@ $spec->describe( "When evaluating a delete statement in a MySql database", funct
                 "last_name" => "Simpson"
             ]
         ]);
+    });
+
+    $this->it( "raises an error with missing parameters", function() {
+
+        $this->expect( function() {
+
+            $compiled_query = $this->database->compile( function($compiler) {
+
+                $compiler->delete( function($query) {
+
+                    $query->collection( "users" );
+
+                    $query->filter(
+                        $query->field( "name" ) ->op( "=" ) ->param( "name" )
+                    );
+
+                });
+
+            });
+
+            $this->database->execute( $compiled_query, [] );
+
+        }) ->to() ->raise(
+            Named_Parameter_Not_Found_Error::class,
+            function($error) {
+                $this->expect( $error->getMessage() ) ->to() ->equal( 
+                    "The query named parameter 'name' was not found."
+                );
+            }
+        );
+    });
+
+    $this->it( "raises an error with invalid parameters", function() {
+
+        $this->expect( function() {
+
+            $compiled_query = $this->database->compile( function($compiler) {
+
+                $compiler->delete( function($query) {
+
+                    $query->collection( "users" );
+
+                    $query->filter(
+                        $query->field( "name" ) ->op( "=" ) ->param( "name" )
+                    );
+
+                });
+
+            });
+
+            $this->database->execute( $compiled_query, "not-an-array" );
+
+        }) ->to() ->raise(
+            Haijin_Error::class,
+            function($error) {
+                $this->expect( $error->getMessage() ) ->to() ->equal( 
+                    "Expected named parameters to be an associative array."
+                );
+            }
+        );
     });
 
 });

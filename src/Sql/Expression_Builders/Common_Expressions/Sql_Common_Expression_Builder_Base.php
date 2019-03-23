@@ -97,14 +97,6 @@ class Sql_Common_Expression_Builder_Base extends Sql_Expression_Builder
     /// Visiting
 
     /**
-     * Accepts a Count_Expression.
-     */
-    public function accept_count_expression($count_expression)
-    {
-        return "count(*)";
-    }
-
-    /**
      * Accepts an All_Fields_Expression.
      */
     public function accept_all_fields_expression($all_fields_expression)

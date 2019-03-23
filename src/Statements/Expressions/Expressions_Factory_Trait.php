@@ -129,13 +129,6 @@ trait Expressions_Factory_Trait
         );
     }
 
-    public function new_count_expression()
-    {
-        return Create::object( Count_Expression::class, 
-            $this->context
-        );
-    }
-
     public function new_all_fields_expression()
     {
         return Create::an( All_Fields_Expression::class )->with(
@@ -154,6 +147,14 @@ trait Expressions_Factory_Trait
     public function new_value_expression($value)
     {
         return Create::object( Value_Expression::class, 
+            $this->context,
+            $value
+        );
+    }
+
+    public function new_raw_expression($value)
+    {
+        return Create::object( Raw_Expression::class, 
             $this->context,
             $value
         );

@@ -14,35 +14,6 @@ use Haijin\Persistency\Announcements\About_To_Execute_Sql_Statement;
 
 abstract class Sql_Database extends Database
 {
-    /// Transactions
-
-    public function begin_transaction()
-    {
-        $result = $this->connection_handle->query( "begin;" );
-
-        if( $result === false ) {
-            $this->raise_database_query_error( $this->connection_handle->error );
-        }
-    }
-
-    public function commit_transaction()
-    {
-        $result = $this->connection_handle->query( "commit;" );
-
-        if( $result === false ) {
-            $this->raise_database_query_error( $this->connection_handle->error );
-        }
-    }
-
-    public function rollback_transaction()
-    {
-        $result = $this->connection_handle->query( "rollback;" );
-
-        if( $result === false ) {
-            $this->raise_database_query_error( $this->connection_handle->error );
-        }
-    }
-
     /// Querying
 
     public function clear_all($collection_name)
@@ -58,6 +29,7 @@ abstract class Sql_Database extends Database
     {
         $compiler = $this->new_compiler();
 
+        /// Compile the query received in the parameter
         $compiled_statement = $compiler->compile(
                                 function($compiler) use($query_callable) {
 
@@ -69,25 +41,30 @@ abstract class Sql_Database extends Database
 
         });
 
+        // if the query does not have a proyection_expressions, create one
         if( $compiled_statement->get_proyection_expression()->is_empty() ) {
-
             $compiled_statement = $compiler->eval( function($compiler) {
-
                 $compiler->query( function($query) {
-
                     $query->proyect(
-                        $query->count()
+                        $query->raw( '*' )
                     );
-
                 });
-
             });
-
         }
+
+        // Wrap the only proyected expression with a count and an alias
+        $proyection = $compiled_statement->get_proyection_expression()
+            ->get_proyected_expressions()[ 0 ];
+
+
+        $compiled_statement->get_proyection_expression()
+            ->set_proyected_expressions(
+                new Ordered_Collection( [ $proyection->count()->as( 'c' ) ] )
+            );
 
         $result = $this->execute( $compiled_statement, $named_parameters );
 
-        return $result[ 0 ][ 'count(*)' ];
+        return $this->process_result_rows( $result )[0]['c'];
     }
 
     /// Executing

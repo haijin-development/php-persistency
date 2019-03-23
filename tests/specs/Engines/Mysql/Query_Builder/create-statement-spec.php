@@ -1,6 +1,8 @@
 <?php
 
 use Haijin\Persistency\Engines\Mysql\Mysql_Database;
+use Haijin\Errors\Haijin_Error;
+use Haijin\Persistency\Errors\Connections\Named_Parameter_Not_Found_Error;
 
 $spec->describe( "When evaluating a create statement in a MySql database", function() {
 
@@ -366,6 +368,70 @@ $spec->describe( "When evaluating a create statement in a MySql database", funct
             ],
         ]);
 
+    });
+
+    $this->it( "raises an error with missing parameters", function() {
+
+        $this->expect( function() {
+
+            $compiled_statement = $this->database->compile( function($compiler) {
+
+                $compiler->create( function($query) {
+
+                    $query->collection( "users" );
+
+                    $query->record(
+                        $query->set( "name", $query->param( "name" ) ),
+                        $query->set( "last_name", $query->param( "last_name" ) )
+                    );
+
+                });
+
+            });
+
+            $this->database->execute( $compiled_statement, [
+                "name" => "Homer"
+            ]);
+
+        }) ->to() ->raise(
+            Named_Parameter_Not_Found_Error::class,
+            function($error) {
+                $this->expect( $error->getMessage() ) ->to() ->equal( 
+                    "The query named parameter 'last_name' was not found."
+                );
+            }
+        );
+    });
+
+    $this->it( "raises an error with invalid parameters", function() {
+
+        $this->expect( function() {
+
+            $compiled_statement = $this->database->compile( function($compiler) {
+
+                $compiler->create( function($query) {
+
+                    $query->collection( "users" );
+
+                    $query->record(
+                        $query->set( "name", $query->param( "name" ) ),
+                        $query->set( "last_name", $query->param( "last_name" ) )
+                    );
+
+                });
+
+            });
+
+            $this->database->execute( $compiled_statement, '' );
+
+        }) ->to() ->raise(
+            Haijin_Error::class,
+            function($error) {
+                $this->expect( $error->getMessage() ) ->to() ->equal( 
+                    "Expected named parameters to be an associative array."
+                );
+            }
+        );
     });
 
 });

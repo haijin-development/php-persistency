@@ -139,14 +139,6 @@ class Expression_Visitor extends Abstract_Expression_Visitor
     }
 
     /**
-     * Accepts a Count_Expression.
-     */
-    public function accept_count_expression($count_expression)
-    {
-        $this->raise_unexpected_expression_error( $count_expression );
-    }
-
-    /**
      * Accepts an All_Fields_Expression.
      */
     public function accept_all_fields_expression($all_fields_expression)
@@ -168,6 +160,14 @@ class Expression_Visitor extends Abstract_Expression_Visitor
     public function accept_value_expression($value_expression)
     {
         $this->raise_unexpected_expression_error( $value_expression );
+    }
+
+    /**
+     * Accepts a Raw_Expression.
+     */
+    public function accept_raw_expression($raw_expression)
+    {
+        $this->raise_unexpected_expression_error( $raw_expression );        
     }
 
     /**

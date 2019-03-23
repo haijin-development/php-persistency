@@ -51,7 +51,7 @@ $spec->describe( "When building the group by statement of a sql expression", fun
 
             $query->proyect(
                 $query->field( 'last_name' ),
-                $query->count() ->as( 'total' )
+                $query->count('*') ->as( 'total' )
             );
 
             $query->group_by(

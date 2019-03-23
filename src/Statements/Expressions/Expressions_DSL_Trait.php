@@ -10,14 +10,6 @@ trait Expressions_DSL_Trait
     /// DSL
 
     /**
-     * Returns a new Count_Expression.
-     */
-    public function count()
-    {
-        return $this->new_count_expression();
-    }
-
-    /**
      * Returns a new All_Fields_Expression.
      */
     public function all()
@@ -59,6 +51,14 @@ trait Expressions_DSL_Trait
     public function param($parameter_name)
     {
         return $this->new_named_parameter_expression( $parameter_name );
+    }
+
+    /**
+     * Returns a new Raw_Expression.
+     */
+    public function raw($value)
+    {
+        return $this->new_raw_expression( $value );
     }
 
     /**

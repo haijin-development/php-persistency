@@ -398,7 +398,7 @@ class Persistent_Collection
                 $filter_callable( $query );
             }
 
-        }, $named_parameters);
+        }, $named_parameters );
     }
 
     /// Creating

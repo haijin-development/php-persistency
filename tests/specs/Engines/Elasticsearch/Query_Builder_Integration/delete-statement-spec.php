@@ -2,6 +2,8 @@
 
 use Haijin\Persistency\Engines\Elasticsearch\Elasticsearch_Database;
 
+use Haijin\Errors\Haijin_Error;
+
 $spec->describe( "When evaluating a delete statement in a Elasticsearch database", function() {
 
     $this->before_each( function() {
@@ -231,6 +233,39 @@ $spec->describe( "When evaluating a delete statement in a Elasticsearch database
                 "last_name" => "Simpson"
             ]
         ]);
+    });
+
+    $this->it( "raises an error with invalid parameters", function() {
+
+        $this->expect( function() {
+
+            $compiled_query = $this->database->compile( function($compiler) {
+
+                $compiler->delete( function($query) {
+
+                    $query->collection( "users" );
+
+                    $query->filter(
+                        $query->match(
+                            $query->field( "name" ),
+                            $query->param( "name" )
+                        )
+                    );
+
+                });
+
+            });
+
+            $this->database->execute( $compiled_query, "not-an-array" );
+
+        }) ->to() ->raise(
+            Haijin_Error::class,
+            function($error) {
+                $this->expect( $error->getMessage() ) ->to() ->equal( 
+                    "Expected named parameters to be an associative array."
+                );
+            }
+        );
     });
 
 });

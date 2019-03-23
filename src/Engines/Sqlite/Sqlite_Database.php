@@ -78,46 +78,6 @@ class Sqlite_Database extends Sql_Database
 
     /// Querying
 
-    /**
-     * Compiles the $query_callable and counts the number of matching records.
-     * Returns the number of records.
-     */
-    public function count($query_callable, $named_parameters = [])
-    {
-        $compiler = $this->new_compiler();
-
-        $compiled_statement = $compiler->compile(
-                                    function($compiler) use($query_callable) {
-
-            $compiler->query( function($query) use($query_callable) {
-
-                $query->eval( $query_callable );
-
-            });
-
-        });
-
-        if( $compiled_statement->get_proyection_expression()->is_empty() ) {
-
-            $compiled_statement = $compiler->eval( function($compiler) {
-
-                $compiler->query( function($query) {
-
-                    $query->proyect(
-                        $query->count()
-                    );
-
-                });
-
-            });
-
-        }
-
-        $result = $this->execute( $compiled_statement, $named_parameters );
-
-        return $result[ 0 ][ 'count(*)' ];
-    }
-
     public function clear_all($collection_name)
     {
         $this->evaluate_sql_string( "delete from {$collection_name};" );

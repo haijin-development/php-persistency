@@ -1,6 +1,7 @@
 <?php
 
 use Haijin\Persistency\Engines\Sqlite\Sqlite_Database;
+use Haijin\Persistency\Errors\Connections\Named_Parameter_Not_Found_Error;
 
 $spec->describe( "When building the filter statement of a Sqlite expression", function() {
 
@@ -351,7 +352,7 @@ $spec->describe( "When building the filter statement of a Sqlite expression", fu
             });
 
         }) ->to() ->raise(
-            \Haijin\Persistency\Errors\Connections\Named_Parameter_Not_Found_Error::class,
+            Named_Parameter_Not_Found_Error::class,
             function($error) {
 
                 $this->expect( $error->getMessage() ) ->to() ->equal(

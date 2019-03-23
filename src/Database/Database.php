@@ -7,6 +7,7 @@ use Haijin\Instantiator\Create;
 use Haijin\Announcements\Announcer_Trait;
 use Haijin\Persistency\Types_Converters\Types_Converter;
 use Haijin\Persistency\Statement_Compiler\Compiler;
+use Haijin\Errors\Haijin_Error;
 use Haijin\Persistency\Errors\Connections\Database_Query_Error;
 use Haijin\Persistency\Errors\Connections\Uninitialized_Connection_Error;
 use Haijin\Persistency\Errors\Connections\Connection_Failure_Error;
@@ -295,7 +296,7 @@ abstract class Database
     protected function validate_named_parameters($named_parameters)
     {
         if( ! is_array( $named_parameters ) ) {
-            $this->raise_invalid_named_parameter_error();
+            return $this->raise_invalid_named_parameter_error();
         }
     }
 
@@ -312,10 +313,6 @@ abstract class Database
      */
     protected function raise_connection_failed_error($error_message)
     {
-        if( $error_message === null ) {
-            $error_message = 'The connection to the database failed.';
-        }
-
         throw new Connection_Failure_Error( $error_message, $this );
     }
 
@@ -352,7 +349,7 @@ abstract class Database
     protected function raise_invalid_named_parameter_error()
     {
         throw new Haijin_Error(
-            "Expected parameter to be an associative array"
+            "Expected named parameters to be an associative array."
         );
     }
 }

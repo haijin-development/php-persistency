@@ -1,6 +1,7 @@
 <?php
 
 use Haijin\Persistency\Engines\Postgresql\Postgresql_Database;
+use Haijin\Persistency\Errors\Connections\Named_Parameter_Not_Found_Error;
 
 $spec->describe( "When building the filter statement of a Postgresql expression", function() {
 
@@ -336,7 +337,7 @@ $spec->describe( "When building the filter statement of a Postgresql expression"
 
     });
 
-    $this->it( "builds named parameters", function() {
+    $this->it( "raises an error with missing parameters", function() {
 
         $this->expect( function() {
 
@@ -353,7 +354,7 @@ $spec->describe( "When building the filter statement of a Postgresql expression"
             });
 
         }) ->to() ->raise(
-            \Haijin\Persistency\Errors\Connections\Named_Parameter_Not_Found_Error::class,
+            Named_Parameter_Not_Found_Error::class,
             function($error) {
 
                 $this->expect( $error->getMessage() ) ->to() ->equal(
