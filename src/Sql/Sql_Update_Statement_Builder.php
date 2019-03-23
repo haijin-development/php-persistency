@@ -4,11 +4,11 @@ namespace Haijin\Persistency\Sql;
 
 use Haijin\Instantiator\Create;
 use Haijin\Ordered_Collection;
-use Haijin\Persistency\Sql\Expression_Builders\Sql_Expression_Builder;
 use Haijin\Persistency\Sql\Expression_Builders\Common_Expressions\Sql_Expression_In_Filter_Builder;
 use Haijin\Persistency\Sql\Expression_Builders\Sql_Filter_Builder;
+use Haijin\Persistency\Statement_Compiler\Update_Statement_Compiler;
 
-class Sql_Update_Statement_Builder extends Sql_Expression_Builder
+class Sql_Update_Statement_Builder extends Sql_Create_Statement_Builder
 {
     public function __construct()
     {
@@ -49,15 +49,15 @@ class Sql_Update_Statement_Builder extends Sql_Expression_Builder
 
     protected function validate_statement($update_statement)
     {
-        if( $update_statement->get_collection_expression() === null ) {
-            $this->raise_invalid_expression(
+        if( ! $update_statement->has_collection_expression() ) {
+            $this->raise_invalid_expression_error(
                 "The update statement is missing the \$query->collection(...) expression.",
                 $update_statement
             );
         }
 
         if( $update_statement->get_records_values_expression() === null ) {
-            $this->raise_invalid_expression(
+            $this->raise_invalid_expression_error(
                 "The update statement is missing the \$query->record(...) expression.",
                 $update_statement
             );
@@ -100,7 +100,12 @@ class Sql_Update_Statement_Builder extends Sql_Expression_Builder
             ->build_sql_from( $filter_expression );
     }
 
-    //// Creating instances
+    /// Creating instances
+
+    protected function new_statement_compiler()
+    {
+        return Create::object( Update_Statement_Compiler::class );
+    }
 
     protected function new_sql_expression_builder()
     {

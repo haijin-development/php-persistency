@@ -10,4 +10,11 @@ class Right_Outer_Join_Expression extends Join_Expression
     {
         return $visitor->accept_right_outer_join_expression( $this );
     }
+
+    /// Asking
+
+    public function is_right_outer_join_expression()
+    {
+        return true;
+    }
 }

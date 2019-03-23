@@ -68,6 +68,16 @@ abstract class Database
      */
     abstract public function connect(...$params);
 
+    public function get_connection_handle()
+    {
+        return $this->connection_handle;
+    }
+
+    public function with_handle_do($callable)
+    {
+        return $callable( $this->get_connection_handle() );
+    }
+
     /// Querying
 
     /**

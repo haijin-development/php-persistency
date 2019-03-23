@@ -2,6 +2,8 @@
 
 namespace Haijin\Persistency\Types_Converters;
 
+use Haijin\Errors\Haijin_Error;
+
 class Types_Converter
 {
     protected $converters;
@@ -48,8 +50,8 @@ class Types_Converter
 
     public function convert_from_database($type, $value)
     {
-        if( ! isset( $this->converters[ $type ] ) ) {
-            throw new Haijin_Error( "Unkown type converter: '$type'" );
+        if( $type === null || ! isset( $this->converters[ $type ] ) ) {
+            throw new Haijin_Error( "Unkown type converter: '{$type}'." );
         }
 
         return $this->converters[ $type ]->from_database( $value );
@@ -73,13 +75,15 @@ class Types_Converter
                 $type = "integer";
             } elseif( is_double( $value ) ) {
                 $type = "double";
-            } elseif( is_array( $value ) ) {
+            } elseif( is_array( $value ) || is_a( $value, \stdclass::class ) ) {
                 $type = "json";
+            } else {
+                $type = get_class( $value );
             }
         }
 
         if( ! isset( $this->converters[ $type ] ) ) {
-            throw new Haijin_Error( "Unkown type converter: '$type'" );
+            throw new Haijin_Error( "Unkown type converter: '{$type}'." );
         }
 
         return $this->converters[ $type ]->to_database( $value );

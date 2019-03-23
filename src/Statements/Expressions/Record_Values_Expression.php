@@ -20,20 +20,9 @@ class Record_Values_Expression extends Expression
 
     /// Asking
 
-    /**
-     * Returns true if the collection of proyected expressions is empty, false otherwise.
-     */
-    public function is_empty()
+    public function is_record_values_expression()
     {
-        return $this->field_values == [];
-    }
-
-    /**
-     * Returns true if the collection of proyected expressions is not empty, false otherwise.
-     */
-    public function not_empty()
-    {
-        return ! $this->is_empty();
+        return true;
     }
 
     /// Accessing

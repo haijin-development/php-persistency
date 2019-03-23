@@ -77,4 +77,11 @@ abstract class Statement extends Expression
 
         return $this;
     }
+
+    /// Accessing
+
+    public function has_collection_expression()
+    {
+        return $this->collection_expression !== null;
+    }
 }

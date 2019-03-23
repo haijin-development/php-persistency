@@ -27,6 +27,13 @@ class Filter_Expression extends Expression
         return $this->matching_expression;
     }
 
+    /// Asking
+
+    public function is_filter_expression()
+    {
+        return true;
+    }
+
     /// Visiting
 
     public function accept_visitor($visitor)

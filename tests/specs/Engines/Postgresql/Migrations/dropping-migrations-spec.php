@@ -25,7 +25,7 @@ $spec->describe( "When dropping migrations", function() {
 
         $migrations = $cli->get_migrations_builder();
 
-        require  __DIR__ . "/../../samples/migrations/no-migrations-config.php";
+        require  "tests/samples/migrations/postgresql/no-migrations-config.php";
 
         $cli->evaluate();
 
@@ -49,7 +49,7 @@ $spec->describe( "When dropping migrations", function() {
 
         $migrations = $cli->get_migrations_builder();
 
-        require  __DIR__ . "/../../samples/migrations/no-migrations-config.php";
+        require  "tests/samples/migrations/postgresql/no-migrations-config.php";
 
         $cli->evaluate();
 

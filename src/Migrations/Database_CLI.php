@@ -85,11 +85,4 @@ class Database_CLI
 
         echo "Migrations table initialized.\n";
     }
-
-    /// Instantiating
-
-    protected function new_migrations_builder()
-    {
-        return new Migrations_Builder();
-    }
 }

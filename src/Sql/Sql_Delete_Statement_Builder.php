@@ -4,10 +4,10 @@ namespace Haijin\Persistency\Sql;
 
 use Haijin\Instantiator\Create;
 use Haijin\Ordered_Collection;
-use Haijin\Persistency\Sql\Expression_Builders\Sql_Expression_Builder;
 use Haijin\Persistency\Sql\Expression_Builders\Sql_Filter_Builder;
+use Haijin\Persistency\Statement_Compiler\Delete_Statement_Compiler;
 
-class Sql_Delete_Statement_Builder extends Sql_Expression_Builder
+class Sql_Delete_Statement_Builder extends Sql_Create_Statement_Builder
 {
     public function __construct()
     {
@@ -61,15 +61,20 @@ class Sql_Delete_Statement_Builder extends Sql_Expression_Builder
 
     protected function validate_statement($delete_statement)
     {
-        if( $delete_statement->get_collection_expression() === null ) {
-            $this->raise_invalid_expression(
+        if( ! $delete_statement->has_collection_expression() ) {
+            $this->raise_invalid_expression_error(
                 "The delete statement is missing the \$query->collection(...) expression.",
                 $delete_statement
             );
         }
     }
 
-    //// Creating instances
+    /// Creating instances
+
+    protected function new_statement_compiler()
+    {
+        return Create::object( Delete_Statement_Compiler::class );
+    }
 
     protected function new_sql_filter_builder()
     {

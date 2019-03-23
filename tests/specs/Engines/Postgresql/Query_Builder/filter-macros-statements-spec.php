@@ -1,6 +1,7 @@
 <?php
 
 use Haijin\Persistency\Engines\Postgresql\Postgresql_Database;
+use Haijin\Persistency\Errors\Query_Expressions\Macro_Expression_Not_Found_Error;
 
 $spec->describe( "When using macros in the filter statement of a Postgresql expression", function() {
 
@@ -92,9 +93,42 @@ $spec->describe( "When using macros in the filter statement of a Postgresql expr
         }) ->to() ->raise(
             \Haijin\Persistency\Errors\Query_Expressions\Macro_Expression_Evaluated_To_Null_Error::class,
             function($error) {
+
                 $this->expect( $error->getMessage() ) ->to() ->equal(
                     "The macro expression 'matches_name' evaluated to null. Probably it is missing the return statement."
                 );
+
+                $this->expect( $error->get_macro_name() ) ->to() ->equal( 'matches_name' );
+
+            }
+        );
+
+    });
+
+    $this->it( "raises an error if the macro expression is not found", function() {
+
+        $this->expect( function() {
+
+            $this->database->query( function($query) {
+
+                $query->collection( "users_read_only" );
+
+                $query->filter( $query
+                    ->matches_name
+                );
+
+            });
+
+        }) ->to() ->raise(
+            Macro_Expression_Not_Found_Error::class,
+            function($error) {
+
+                $this->expect( $error->getMessage() ) ->to() ->equal(
+                    "The macro expression 'matches_name' definition was not found."
+                );
+
+                $this->expect( $error->get_macro_name() ) ->to() ->equal( 'matches_name' );
+
             }
         );
 

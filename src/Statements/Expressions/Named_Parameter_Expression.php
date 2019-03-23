@@ -27,6 +27,13 @@ class Named_Parameter_Expression extends Expression
         return $this->parameter_name;
     }
 
+    /// Asking
+
+    public function is_named_parameter_expression()
+    {
+        return true;
+    }
+
     /// Visiting
 
     public function accept_visitor($visitor)

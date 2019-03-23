@@ -34,6 +34,13 @@ class Alias_Expression extends Expression
         return $this->alias;
     }
 
+    /// Asking
+
+    public function is_alias_expression()
+    {
+        return true;
+    }
+
     /// Visiting
 
     public function accept_visitor($visitor)

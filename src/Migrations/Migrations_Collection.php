@@ -27,7 +27,7 @@ class Migrations_Persistent_Collection extends Persistent_Collection
                 ->write_with( "set_name()" );
 
             $mapping->field( "migration_run_at" )
-                ->type( "integer" )
+                ->type( "date_time" )
                 ->read_with( "get_run_at()" )
                 ->write_with( "set_run_at()" );
 
@@ -37,6 +37,15 @@ class Migrations_Persistent_Collection extends Persistent_Collection
                 ->write_with( "set_source_filename()" );
         };
 
+    }
+
+    public function create($migration)
+    {
+        if( $migration->get_run_at() === null ) {
+            $migration->set_run_at( new \DateTime() );
+        }
+
+        parent::create( $migration );
     }
 }
 

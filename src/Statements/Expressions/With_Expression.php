@@ -31,6 +31,13 @@ class With_Expression extends Join_Expression
         return $this->joined_field_mapping;
     }
 
+    /// Asking
+
+    public function is_with_expression()
+    {
+        return true;
+    }
+
     /// Visiting
 
     public function accept_visitor($visitor)

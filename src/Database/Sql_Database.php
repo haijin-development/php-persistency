@@ -14,13 +14,6 @@ use Haijin\Persistency\Announcements\About_To_Execute_Sql_Statement;
 
 abstract class Sql_Database extends Database
 {
-    /// Querying
-
-    public function clear_all($collection_name)
-    {
-        $this->evaluate_sql_string( "truncate {$collection_name};" );
-    }
-
     /**
      * Compiles the $query_callable and counts the number of matching records.
      * Returns the number of records.

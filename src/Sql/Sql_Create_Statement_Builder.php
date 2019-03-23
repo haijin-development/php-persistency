@@ -4,10 +4,10 @@ namespace Haijin\Persistency\Sql;
 
 use Haijin\Instantiator\Create;
 use Haijin\Ordered_Collection;
-use Haijin\Persistency\Sql\Expression_Builders\Sql_Expression_Builder;
+use Haijin\Persistency\Statement_Compiler\Create_Statement_Compiler;
 use Haijin\Persistency\Sql\Expression_Builders\Common_Expressions\Sql_Expression_In_Filter_Builder;
 
-class Sql_Create_Statement_Builder extends Sql_Expression_Builder
+class Sql_Create_Statement_Builder extends Sql_Statement_Builder
 {
     /// Initializing
 
@@ -73,22 +73,27 @@ class Sql_Create_Statement_Builder extends Sql_Expression_Builder
 
     protected function validate_statement($create_statement)
     {
-        if( $create_statement->get_collection_expression() === null ) {
-            $this->raise_invalid_expression(
+        if( ! $create_statement->has_collection_expression() ) {
+            $this->raise_invalid_expression_error(
                 "The create statement is missing the \$query->collection(...) expression.",
                 $create_statement
             );
         }
 
         if( $create_statement->get_records_values_expression() === null ) {
-            $this->raise_invalid_expression(
+            $this->raise_invalid_expression_error(
                 "The create statement is missing the \$query->record(...) expression.",
                 $create_statement
             );
         }
     }
 
-    //// Query expression
+    /// Creating instances
+
+    protected function new_statement_compiler()
+    {
+        return Create::object( Create_Statement_Compiler::class );
+    }
 
     protected function new_sql_expression_builder()
     {

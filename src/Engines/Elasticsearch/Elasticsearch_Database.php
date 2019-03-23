@@ -89,11 +89,6 @@ class Elasticsearch_Database extends Database
         return $this;
     }
 
-    public function with_handle_do($callable)
-    {
-        return $callable( $this->connection_handle );
-    }
-
     /// Transactions
 
     public function begin_transaction()
@@ -517,7 +512,7 @@ class Elasticsearch_Database extends Database
 
     protected function new_elasticsearch_query_builder()
     {
-        return Create::an( Elasticsearch_Query_Builder::class )->with();
+        return Create::object( Elasticsearch_Query_Builder::class );
     }
 
     /// Double disptach

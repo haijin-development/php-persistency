@@ -6,7 +6,7 @@ use Haijin\Instantiator\Create;
 
 class Migration
 {
-    public $id;
+    protected $id;
     protected $name;
     protected $run_at;
     protected $migration_scripts;
@@ -18,6 +18,7 @@ class Migration
     {
         $this->id = null;
         $this->name = null;
+        $this->run_at = null;
         $this->migration_scripts = [];
         $this->source_filename = null;
     }
@@ -100,7 +101,7 @@ class Migration
         $migration->set_source_filename( $filename->to_string() );
     }
 
-    public function describe( $description, $script_callable)
+    public function describe($description, $script_callable)
     {
         $this->add_migration_script(
             new Migration_Script( $description, $script_callable )

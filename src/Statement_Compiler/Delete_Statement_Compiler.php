@@ -20,13 +20,6 @@ class Delete_Statement_Compiler extends Statement_Compiler
         );
     }
 
-    /// Accessing
-
-    public function get_delete_expression()
-    {
-        return $this->statement_expression;
-    }
-
     /// DSL
 
     public function filter($filter_expression)

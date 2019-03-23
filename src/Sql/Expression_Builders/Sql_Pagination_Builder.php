@@ -6,6 +6,7 @@ use Haijin\Instantiator\Create;
 use Haijin\Persistency\Errors\Query_Expressions\Missing_Limit_Expression_Error;
 use Haijin\Persistency\Errors\Query_Expressions\Missing_Page_Number_Expression_Error;
 use Haijin\Persistency\Errors\Query_Expressions\Missing_Page_Size_Expression_Error;
+use Haijin\Persistency\Errors\Query_Expressions\Invalid_Expression_Error;
 
 class Sql_Pagination_Builder extends Sql_Expression_Builder
 {
@@ -26,9 +27,7 @@ class Sql_Pagination_Builder extends Sql_Expression_Builder
         $limit = $pagination_expression->get_limit();
         $offset = $pagination_expression->get_offset();
 
-        if( $offset !== null || $limit !== null ) {
-            return $this->offset_and_limit_sql( $offset, $limit );
-        }
+        return $this->offset_and_limit_sql( $offset, $limit );
     }
 
     protected function page_sql($page_number, $page_size)

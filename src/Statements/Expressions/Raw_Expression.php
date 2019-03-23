@@ -27,6 +27,13 @@ class Raw_Expression extends Expression
         return $this->value;
     }
 
+    /// Asking
+
+    public function is_raw_expression()
+    {
+        return true;
+    }
+
     /// Visiting
 
     public function accept_visitor($visitor)

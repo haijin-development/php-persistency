@@ -47,14 +47,19 @@ class Sqlite_Methods
 
         $spec->def( "drop_sqlite_tables", function() {
 
-            $this->sqlite->query( "DROP TABLE IF EXISTS users_read_only;" );
-            $this->sqlite->query( "DROP TABLE IF EXISTS address_1;" );
-            $this->sqlite->query( "DROP TABLE IF EXISTS address_2;" );
-            $this->sqlite->query( "DROP TABLE IF EXISTS cities;" );
-            $this->sqlite->query( "DROP TABLE IF EXISTS users;" );
-            $this->sqlite->query( "DROP TABLE IF EXISTS addresses;" );
-            $this->sqlite->query( "DROP TABLE IF EXISTS users_addresses;" );
-            $this->sqlite->query( "DROP TABLE IF EXISTS types;" );
+            $result_handle = $this->sqlite->query(
+                "SELECT * FROM sqlite_master WHERE type = 'table';"
+            );
+
+            $tables = [];
+
+            while( $row = $result_handle->fetchArray( SQLITE3_ASSOC ) ) {
+                $tables[] = $row[ 'tbl_name' ];
+            }
+
+            foreach( $tables as $table_name ) {
+                $this->sqlite->query( "DROP TABLE {$table_name};" );
+            }
 
         });
 

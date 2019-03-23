@@ -20,6 +20,11 @@ class Proyection_Expression extends Expression
 
     /// Asking
 
+    public function is_proyection_expression()
+    {
+        return true;
+    }
+
     /**
      * Returns true if the collection of proyected expressions is empty, false otherwise.
      */
@@ -57,18 +62,6 @@ class Proyection_Expression extends Expression
     /// Adding proyected expressions
 
     /**
-     * Adds a proyected expression to the collection of proyected_expressions.
-     *
-     * @param Expression $proyected_expression The expression to add to the query proyections.
-     */
-    public function add($proyected_expression)
-    {
-        $this->add_all( [ $proyected_expression ] );
-
-        return $this;
-    }
-
-    /**
      * Adds all the $proyected_expressions to the collection of proyected_expressions.
      *
      * @param Expression $proyected_expression The expression to add to the query proyections.
@@ -78,13 +71,6 @@ class Proyection_Expression extends Expression
         $this->proyected_expressions->add_all( $proyected_expressions );
 
         return $this;
-    }
-
-    /// Iterating
-
-    public function proyected_expressions_do($callable)
-    {
-        return $this->proyected_expressions->each_do( $callable );
     }
 
     /// Visiting

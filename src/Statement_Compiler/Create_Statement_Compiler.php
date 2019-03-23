@@ -20,13 +20,6 @@ class Create_Statement_Compiler extends Statement_Compiler
         );
     }
 
-    /// Accessing
-
-    public function get_create_expression()
-    {
-        return $this->statement_expression;
-    }
-
     /// DSL
 
     public function record(...$attribute_values)

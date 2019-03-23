@@ -42,14 +42,6 @@ trait Expression_Trait
         return $this->op( "or" );
     }
 
-    /**
-     * Wraps a query Expression with brackets.
-     */
-    public function brackets($expression)
-    {
-        return $this->new_brackets_expression( $expression );
-    }
-
     public function __call($function_name, $parameters)
     {
         $parameters = array_merge( [$this], $parameters );

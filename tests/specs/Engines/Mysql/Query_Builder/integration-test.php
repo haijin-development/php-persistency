@@ -25,7 +25,7 @@ $spec->describe( "When building a MySql expression", function() {
                 $query->field( "last_name" )
             );
 
-            $query->join( "address_1" ) ->from( "id" ) ->to( "id_user" )
+            $query->inner_join( "address_1" ) ->from( "id" ) ->to( "id_user" )
                 ->eval( function($query) {
                     $query->proyect(
                         $query->concat(

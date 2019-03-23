@@ -37,15 +37,18 @@ class Mysql_Methods
 
         $spec->def( "drop_mysql_tables", function() {
 
-            $this->mysql->query( "DROP TABLE IF EXISTS users_read_only;" );
-            $this->mysql->query( "DROP TABLE IF EXISTS address_1;" );
-            $this->mysql->query( "DROP TABLE IF EXISTS address_2;" );
-            $this->mysql->query( "DROP TABLE IF EXISTS cities;" );
+            $result_handle = $this->mysql->query(
+                "SHOW TABLES;"
+            );
 
-            $this->mysql->query( "DROP TABLE IF EXISTS users;" );
-            $this->mysql->query( "DROP TABLE IF EXISTS addresses;" );
-            $this->mysql->query( "DROP TABLE IF EXISTS users_addresses;" );
-            $this->mysql->query( "DROP TABLE IF EXISTS types;" );
+            foreach( $result_handle->fetch_all( MYSQLI_ASSOC ) as $table ) {
+
+                $table_name = array_values( $table )[0];
+
+                $this->mysql->query( "DROP TABLE {$table_name};" );
+
+            }
+
         });
 
         $spec->def( "create_mysql_tables", function() {

@@ -27,9 +27,11 @@ class Brackets_Expression extends Expression
         return $this->expression;
     }
 
-    public function set_expression($expression)
+    /// Asking
+
+    public function is_brackets_expression()
     {
-        $this->expression = $expression;
+        return true;
     }
 
     /// Visiting

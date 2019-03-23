@@ -1,16 +1,14 @@
 <?php
 
-use Haijin\Persistency\Engines\Mysql\Mysql_Database;
-
 $migration->definition( function() {
 
     $this->id = 2;
 
     $this->name = "Create products tables";
 
-    $this->describe( "Create the products Mysql table", function($mysql_database) {
+    $this->describe( "Create the products Mysql table", function($database) {
 
-        $mysql_database->evaluate_sql_string(
+        $database->evaluate_sql_string(
             "CREATE TABLE IF NOT EXISTS `products` (
                 `id` INT NOT NULL AUTO_INCREMENT,
                 `name` VARCHAR(100) NULL,

@@ -32,6 +32,13 @@ class Field_Value_Expression extends Expression
         return $this->value_expression;
     }
 
+    /// Asking
+
+    public function is_field_value_expression()
+    {
+        return true;
+    }
+
     /// Visiting
 
     public function accept_visitor($visitor)

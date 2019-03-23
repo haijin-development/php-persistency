@@ -12,4 +12,11 @@ class All_Fields_Expression extends Expression
     {
         return $visitor->accept_all_fields_expression( $this );
     }
+
+    /// Asking
+
+    public function is_all_fields_expression()
+    {
+        return true;
+    }
 }

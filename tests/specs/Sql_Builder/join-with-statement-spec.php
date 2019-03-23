@@ -1,8 +1,8 @@
 <?php
 
-use Haijin\Persistency\Errors\Query_Expressions\Invalid_Expression_Error;
 use Haijin\Persistency\Sql\Sql_Query_Statement_Builder;
-
+use Haijin\Persistency\Statement_Compiler\Query_Statement_Compiler;
+use Haijin\Persistency\Errors\Query_Expressions\Invalid_Expression_Error;
 
 $spec->describe( "When building a join with a collection statement", function() {
 
@@ -600,6 +600,9 @@ $spec->describe( "When building a join with a collection statement", function() 
                 $this->expect( $error->getMessage() ) ->to() ->equal(
                     "Trying to use '\$query->with( \"address_id\" )' without setting a '\$query->set_meta_model( \$persistent_collection );' first."
                 );
+
+                $this->expect( $error->get_expression() ) ->to()
+                    ->be() ->a( Query_Statement_Compiler::class );
         });
 
     });

@@ -224,6 +224,26 @@ $spec->describe( "When building the filter statement of a sql expression", funct
 
     });
 
+    $this->it( "builds a brackets after expression expression", function() {
+
+        $sql = $this->query_builder->build( function($query) {
+
+            $query->collection( "users" );
+
+            $query->filter(
+                $query->field( 'name' ) ->op( '=' ) ->brackets(
+                    $query->value( 1 )
+                )
+            );
+
+        });
+
+        $this->expect( $sql ) ->to() ->equal(
+            "select users.* from users where users.name = (1);"
+        );
+
+    });
+
     $this->it( "builds an and expression", function() {
 
         $sql = $this->query_builder->build( function($query) {

@@ -20,20 +20,9 @@ class Order_By_Expression extends Expression
 
     /// Asking
 
-    /**
-     * Returns true if the collection of proyected expressions is empty, false otherwise.
-     */
-    public function is_empty()
+    public function is_order_by_expression()
     {
-        return $this->order_by_expressions->is_empty();
-    }
-
-    /**
-     * Returns true if the collection of proyected expressions is not empty, false otherwise.
-     */
-    public function not_empty()
-    {
-        return $this->order_by_expressions->not_empty();
+        return true;
     }
 
     /// Accessing
@@ -49,16 +38,6 @@ class Order_By_Expression extends Expression
     /// Adding proyected expressions
 
     /**
-     * Adds an order_by expression.
-     */
-    public function add($order_by_expression)
-    {
-        $this->add_all( [ $order_by_expression ] );
-
-        return $this;
-    }
-
-    /**
      * Adds all the $expressions.
      */
     public function add_all($expressions)
@@ -66,15 +45,6 @@ class Order_By_Expression extends Expression
         $this->order_by_expressions->add_all( $expressions );
 
         return $this;
-    }
-
-    /// Querying
-
-    /// Iterating
-
-    public function order_by_expressions_do($callable)
-    {
-        return $this->order_by_expressions->each_do( $callable );
     }
 
     /// Visiting

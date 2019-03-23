@@ -14,7 +14,6 @@ class Query_Statement extends Statement
     protected $having_expression;
     protected $order_by_expression;
     protected $pagination_expression;
-    protected $eager_fetch_spec;
 
     /// Initializing
 
@@ -32,7 +31,6 @@ class Query_Statement extends Statement
         $this->having_expression = null;
         $this->order_by_expression = null;
         $this->pagination_expression = null;
-        $this->eager_fetch_spec = null;
     }
 
     /// Accessing
@@ -145,26 +143,11 @@ class Query_Statement extends Statement
         $this->pagination_expression = $pagination_expression;
     }
 
-    public function get_eager_fetch_spec()
-    {
-        return $this->eager_fetch_spec;
-    }
-
-    public function set_eager_fetch_spec($eager_fetch_spec)
-    {
-        $this->eager_fetch_spec = $eager_fetch_spec;
-    }
-
     /// Asking
 
     public function is_query_statement()
     {
         return true;
-    }
-
-    public function has_collection_expression()
-    {
-        return $this->collection_expression !== null;
     }
 
     public function has_proyection_expression()
@@ -200,11 +183,6 @@ class Query_Statement extends Statement
     public function has_pagination_expression()
     {
         return $this->pagination_expression !== null;
-    }
-
-    public function has_eager_fetch_spec()
-    {
-        return $this->eager_fetch_spec !== null;
     }
 
     /// Iterating

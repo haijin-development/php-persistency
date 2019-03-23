@@ -62,6 +62,13 @@ class Pagination_Expression extends Expression
         $this->page_size = $page_size;
     }
 
+    /// Asking
+
+    public function is_pagination_expression()
+    {
+        return true;
+    }
+
     /// Visiting
 
     public function accept_visitor($visitor)

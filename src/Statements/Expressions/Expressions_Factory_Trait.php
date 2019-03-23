@@ -131,7 +131,7 @@ trait Expressions_Factory_Trait
 
     public function new_all_fields_expression()
     {
-        return Create::an( All_Fields_Expression::class )->with(
+        return Create::object( All_Fields_Expression::class,
             $this->context
         );
     }
@@ -170,7 +170,7 @@ trait Expressions_Factory_Trait
 
     public function new_alias_expression($alias, $aliased_expression)
     {
-        return Create::an( Alias_Expression::class )->with(
+        return Create::object( Alias_Expression::class,
             $this->context,
             $alias,
             $aliased_expression

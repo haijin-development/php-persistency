@@ -22,14 +22,16 @@ class Collection_Expression extends Expression
         return $this->collection_name;
     }
 
-    public function set_collection_name($collection_name)
-    {
-        $this->collection_name = $collection_name;
-    }
-
     public function get_referenced_name()
     {
         return $this->collection_name;
+    }
+
+    /// Asking
+
+    public function is_collection_expression()
+    {
+        return true;
     }
 
     /// Visiting

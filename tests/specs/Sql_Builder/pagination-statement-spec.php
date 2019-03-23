@@ -1,6 +1,7 @@
 <?php
 
 use Haijin\Persistency\Sql\Sql_Query_Statement_Builder;
+use Haijin\Persistency\Errors\Query_Expressions\Invalid_Expression_Error;
 
 $spec->describe( "When building the pagination statement of a sql expression", function() {
 

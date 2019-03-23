@@ -2,7 +2,6 @@
 
 namespace Haijin\Persistency\Statements_Visitors;
 
-use Haijin\Instantiator\Create;
 use Haijin\Persistency\Errors\Query_Expressions\Unexpected_Expression_Error;
 
 
@@ -15,7 +14,7 @@ class Expression_Visitor extends Abstract_Expression_Visitor
      */
     public function accept_query_statement($query_statement)
     {
-        $this->raise_unexpected_expression_error( $query_statement );
+        return $this->raise_unexpected_expression_error( $query_statement );
     }
 
     /**
@@ -23,7 +22,7 @@ class Expression_Visitor extends Abstract_Expression_Visitor
      */
     public function accept_create_statement($create_statement)
     {
-        $this->raise_unexpected_expression_error( $create_statement );
+        return $this->raise_unexpected_expression_error( $create_statement );
     }
 
     /**
@@ -31,7 +30,7 @@ class Expression_Visitor extends Abstract_Expression_Visitor
      */
     public function accept_update_statement($update_statement)
     {
-        $this->raise_unexpected_expression_error( $update_statement );
+        return $this->raise_unexpected_expression_error( $update_statement );
     }
 
     /**
@@ -39,7 +38,7 @@ class Expression_Visitor extends Abstract_Expression_Visitor
      */
     public function accept_delete_statement($delete_statement)
     {
-        $this->raise_unexpected_expression_error( $delete_statement );
+        return $this->raise_unexpected_expression_error( $delete_statement );
     }
 
     /**
@@ -47,7 +46,7 @@ class Expression_Visitor extends Abstract_Expression_Visitor
      */
     public function accept_collection_expression($collection_expression)
     {
-        $this->raise_unexpected_expression_error( $collection_expression );
+        return $this->raise_unexpected_expression_error( $collection_expression );
     }
 
     /**
@@ -55,7 +54,7 @@ class Expression_Visitor extends Abstract_Expression_Visitor
      */
     public function accept_proyection_expression($proyection_expression)
     {
-        $this->raise_unexpected_expression_error( $proyection_expression );
+        return $this->raise_unexpected_expression_error( $proyection_expression );
     }
 
     /**
@@ -63,7 +62,7 @@ class Expression_Visitor extends Abstract_Expression_Visitor
      */
     public function accept_inner_join_expression($join_expression)
     {
-        $this->raise_unexpected_expression_error( $join_expression );
+        return $this->raise_unexpected_expression_error( $join_expression );
     }
 
     /**
@@ -71,7 +70,7 @@ class Expression_Visitor extends Abstract_Expression_Visitor
      */
     public function accept_left_outer_join_expression($join_expression)
     {
-        $this->raise_unexpected_expression_error( $join_expression );
+        return $this->raise_unexpected_expression_error( $join_expression );
     }
 
     /**
@@ -79,7 +78,7 @@ class Expression_Visitor extends Abstract_Expression_Visitor
      */
     public function accept_right_outer_join_expression($join_expression)
     {
-        $this->raise_unexpected_expression_error( $join_expression );
+        return $this->raise_unexpected_expression_error( $join_expression );
     }
 
     /**
@@ -87,7 +86,7 @@ class Expression_Visitor extends Abstract_Expression_Visitor
      */
     public function accept_full_outer_join_expression($join_expression)
     {
-        $this->raise_unexpected_expression_error( $join_expression );
+        return $this->raise_unexpected_expression_error( $join_expression );
     }
 
     /**
@@ -95,7 +94,7 @@ class Expression_Visitor extends Abstract_Expression_Visitor
      */
     public function accept_filter_expression($filter_expression)
     {
-        $this->raise_unexpected_expression_error( $filter_expression );
+        return $this->raise_unexpected_expression_error( $filter_expression );
     }
 
     /**
@@ -103,7 +102,7 @@ class Expression_Visitor extends Abstract_Expression_Visitor
      */
     public function accept_having_expression($having_expression)
     {
-        $this->raise_unexpected_expression_error( $having_expression );
+        return $this->raise_unexpected_expression_error( $having_expression );
     }
 
     /**
@@ -111,7 +110,7 @@ class Expression_Visitor extends Abstract_Expression_Visitor
      */
     public function accept_group_by_expression($group_by_expression)
     {
-        $this->raise_unexpected_expression_error( $group_by_expression );
+        return $this->raise_unexpected_expression_error( $group_by_expression );
     }
 
     /**
@@ -119,7 +118,7 @@ class Expression_Visitor extends Abstract_Expression_Visitor
      */
     public function accept_order_by_expression($order_by_expression)
     {
-        $this->raise_unexpected_expression_error( $order_by_expression );
+        return $this->raise_unexpected_expression_error( $order_by_expression );
     }
 
     /**
@@ -127,7 +126,7 @@ class Expression_Visitor extends Abstract_Expression_Visitor
      */
     public function accept_pagination_expression($pagination_expression)
     {
-        $this->raise_unexpected_expression_error( $pagination_expression );
+        return $this->raise_unexpected_expression_error( $pagination_expression );
     }
 
     /**
@@ -135,7 +134,7 @@ class Expression_Visitor extends Abstract_Expression_Visitor
      */
     public function accept_alias_expression($alias_expression)
     {
-        $this->raise_unexpected_expression_error( $alias_expression );
+        return $this->raise_unexpected_expression_error( $alias_expression );
     }
 
     /**
@@ -143,7 +142,7 @@ class Expression_Visitor extends Abstract_Expression_Visitor
      */
     public function accept_all_fields_expression($all_fields_expression)
     {
-        $this->raise_unexpected_expression_error( $all_fields_expression );
+        return $this->raise_unexpected_expression_error( $all_fields_expression );
     }
 
     /**
@@ -151,7 +150,7 @@ class Expression_Visitor extends Abstract_Expression_Visitor
      */
     public function accept_field_expression($field_expression)
     {
-        $this->raise_unexpected_expression_error( $field_expression );
+        return $this->raise_unexpected_expression_error( $field_expression );
     }
 
     /**
@@ -159,7 +158,7 @@ class Expression_Visitor extends Abstract_Expression_Visitor
      */
     public function accept_value_expression($value_expression)
     {
-        $this->raise_unexpected_expression_error( $value_expression );
+        return $this->raise_unexpected_expression_error( $value_expression );
     }
 
     /**
@@ -167,7 +166,7 @@ class Expression_Visitor extends Abstract_Expression_Visitor
      */
     public function accept_raw_expression($raw_expression)
     {
-        $this->raise_unexpected_expression_error( $raw_expression );        
+        return $this->raise_unexpected_expression_error( $raw_expression );        
     }
 
     /**
@@ -175,7 +174,7 @@ class Expression_Visitor extends Abstract_Expression_Visitor
      */
     public function accept_named_parameter_expression($named_parameter_expression)
     {
-        $this->raise_unexpected_expression_error( $named_parameter_expression );
+        return $this->raise_unexpected_expression_error( $named_parameter_expression );
     }
 
     /**
@@ -183,7 +182,7 @@ class Expression_Visitor extends Abstract_Expression_Visitor
      */
     public function accept_function_call_expression($function_call_expression)
     {
-        $this->raise_unexpected_expression_error( $function_call_expression );
+        return $this->raise_unexpected_expression_error( $function_call_expression );
     }
 
     /**
@@ -191,7 +190,7 @@ class Expression_Visitor extends Abstract_Expression_Visitor
      */
     public function accept_binary_operator_expression($function_call_expression)
     {
-        $this->raise_unexpected_expression_error( $function_call_expression );
+        return $this->raise_unexpected_expression_error( $function_call_expression );
     }
 
     /**
@@ -199,7 +198,7 @@ class Expression_Visitor extends Abstract_Expression_Visitor
      */
     public function accept_brackets_expression($brackets_expression)
     {
-        $this->raise_unexpected_expression_error( $brackets_expression );
+        return $this->raise_unexpected_expression_error( $brackets_expression );
     }
 
     /**
@@ -207,7 +206,31 @@ class Expression_Visitor extends Abstract_Expression_Visitor
      */
     public function accept_record_values_expression($record_values_expression)
     {
-        $this->raise_unexpected_expression_error( $record_values_expression );
+        return $this->raise_unexpected_expression_error( $record_values_expression );
+    }
+
+    /**
+     * Accepts a Field_Value_Expression.
+     */
+    public function accept_field_value_expression($field_value_expression)
+    {
+        return $this->raise_unexpected_expression_error( $field_value_expression );
+    }
+
+    /**
+     * Accepts an Ignore_Expression.
+     */
+    public function accept_ignore_expression($ignore_expression)
+    {
+        return $this->raise_unexpected_expression_error( $ignore_expression );
+    }
+
+    /**
+     * Accepts a With_Expression.
+     */
+    public function accept_with_expression($with_expression)
+    {
+        return $this->raise_unexpected_expression_error( $with_expression );
     }
 
     /// Raising errors
@@ -217,7 +240,7 @@ class Expression_Visitor extends Abstract_Expression_Visitor
         $expression_name = get_class( $expression );
 
         throw new Unexpected_Expression_Error(
-            "Unexpected {$expression_name}",
+            "Unexpected {$expression_name}.",
             $expression
         );
     }

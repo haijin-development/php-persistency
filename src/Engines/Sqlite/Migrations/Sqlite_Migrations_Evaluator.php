@@ -43,11 +43,10 @@ class Sqlite_Migrations_Evaluator extends Migrations_Evaluator
     {
         $this->migration_database->evaluate_sql_string(
             "CREATE TABLE `{$this->migrations_table_name}` (
-                `id` INT NOT NULL AUTO_INCREMENT,
+                `id` INTEGER PRIMARY KEY,
                 `migration_name` VARCHAR(1024) NOT NULL,
                 `migration_run_at` TIMESTAMP NOT NULL,
-                `source_filename` VARCHAR(1024) NOT NULL,
-                PRIMARY KEY (`id`)
+                `source_filename` VARCHAR(1024) NOT NULL
             );"
         );
     }

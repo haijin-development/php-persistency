@@ -42,11 +42,6 @@ class Binary_Operator_Expression extends Expression
         return $this->parameter_1;
     }
 
-    public function set_parameter_1($expression)
-    {
-        $this->parameter_1 = $expression;
-    }
-
     public function get_parameter_2()
     {
         return $this->parameter_2;
@@ -55,6 +50,13 @@ class Binary_Operator_Expression extends Expression
     public function set_parameter_2($expression)
     {
         $this->parameter_2 = $expression;
+    }
+
+    /// Asking
+
+    public function is_binary_operator_expression()
+    {
+        return true;
     }
 
     /// Visiting

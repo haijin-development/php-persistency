@@ -61,11 +61,6 @@ abstract class Join_Expression extends Expression
         return $this->to_collection;
     }
 
-    public function set_to_collection($to_collection)
-    {
-        $this->to_collection = $to_collection;
-    }
-
     public function get_from_field()
     {
         return $this->from_field;
@@ -91,23 +86,6 @@ abstract class Join_Expression extends Expression
         return $this->proyection_expression;
     }
 
-    public function set_proyection_expression($proyection_expression)
-    {
-        $this->proyection_expression = $proyection_expression;
-    }
-
-    public function add_join_expression($join_expression)
-    {
-        $this->join_expressions->add( $join_expression );
-
-        return $join_expression;
-    }
-
-    public function get_join_expressions()
-    {
-        return $this->join_expressions;
-    }
-
     public function get_nested_join_expressions()
     {
         $joins = Ordered_Collection::with( $this );
@@ -117,16 +95,6 @@ abstract class Join_Expression extends Expression
         });
 
         return $joins;
-    }
-
-    public function get_collection_name()
-    {
-        return $this->to_collection->get_collection_name();
-    }
-
-    public function get_referenced_name()
-    {
-        return $this->to_collection->get_referenced_name();
     }
 
     /// Iterating

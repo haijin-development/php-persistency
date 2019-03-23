@@ -30,14 +30,25 @@ class Postgresql_Methods
 
         $spec->def( "drop_postgresql_tables", function() {
 
-            pg_query( $this->postgresql, "DROP TABLE IF EXISTS users_read_only;" );
-            pg_query( $this->postgresql, "DROP TABLE IF EXISTS address_1;" );
-            pg_query( $this->postgresql, "DROP TABLE IF EXISTS address_2;" );
-            pg_query( $this->postgresql, "DROP TABLE IF EXISTS cities;" );
-            pg_query( $this->postgresql, "DROP TABLE IF EXISTS users;" );
-            pg_query( $this->postgresql, "DROP TABLE IF EXISTS addresses;" );
-            pg_query( $this->postgresql, "DROP TABLE IF EXISTS users_addresses;" );
-            pg_query( $this->postgresql, "DROP TABLE IF EXISTS types;" );
+            $result_handle = pg_query(
+                $this->postgresql,
+                "SELECT table_name FROM information_schema.tables where table_schema = 'public';"
+            );
+
+            $tables = pg_fetch_all( $result_handle );
+
+            \pg_free_result( $result_handle );
+
+            if( $tables === false ) {
+                return;
+            }
+
+            foreach( $tables as $table ) {
+                pg_query(
+                    $this->postgresql,
+                    "DROP TABLE {$table['table_name']};"
+                );    
+            }
 
         });
 

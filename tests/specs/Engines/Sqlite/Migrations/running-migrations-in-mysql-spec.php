@@ -3,7 +3,7 @@
 use Haijin\Persistency\Migrations\Database_CLI;
 use Haijin\Errors\Haijin_Error;
 
-$spec->describe( "When running migrations in mysql", function() {
+$spec->describe( "When running migrations in sqlite", function() {
 
     $this->before_all( function() {
         ob_start();
@@ -20,6 +20,12 @@ $spec->describe( "When running migrations in mysql", function() {
 
     $this->after_all( function() {
         ob_get_clean();
+
+        $this->setup_mysql();
+        $this->setup_postgresql();
+        $this->setup_sqlite();
+        $this->setup_elasticsearch();
+
     });
 
     $this->it( "runs the migrations the first time", function() {
@@ -30,13 +36,13 @@ $spec->describe( "When running migrations in mysql", function() {
 
         $migrations = $cli->get_migrations_builder();
 
-        require  __DIR__ . "/../../samples/migrations/one-mysql-migration-config.php";
+        require  "tests/samples/migrations/sqlite/one-sqlite-migration-config.php";
 
         $cli->evaluate();
 
     });
 
-    $this->it( "runs the migrations the seconds time", function() {
+    $this->it( "runs the migrations the second time", function() {
 
         $argv = [ '', 'migrate' ];
 
@@ -44,7 +50,7 @@ $spec->describe( "When running migrations in mysql", function() {
 
         $migrations = $cli->get_migrations_builder();
 
-        require  __DIR__ . "/../../samples/migrations/one-mysql-migration-config.php";
+        require  "tests/samples/migrations/sqlite/one-sqlite-migration-config.php";
 
         $cli->evaluate();
 
@@ -55,7 +61,7 @@ $spec->describe( "When running migrations in mysql", function() {
 
         $migrations = $cli->get_migrations_builder();
 
-        require  __DIR__ . "/../../samples/migrations/many-mysql-migrations-config.php";
+        require  "tests/samples/migrations/sqlite/many-sqlite-migrations-config.php";
 
         $cli->evaluate();
     });
@@ -68,7 +74,7 @@ $spec->describe( "When running migrations in mysql", function() {
 
         $migrations = $cli->get_migrations_builder();
 
-        require  __DIR__ . "/../../samples/migrations/repeated-migration-ids-config.php";
+        require  "tests/samples/migrations/sqlite/repeated-migration-ids-config.php";
 
         $this->expect( function() use($cli) {
 
@@ -78,7 +84,7 @@ $spec->describe( "When running migrations in mysql", function() {
             Haijin_Error::class,
             function($error) {
                 $this->expect( $error->getMessage() ) ->to() ->match(
-                    "/^The migration in file ['].+[\/]migrations[\/]repeated[-]migration[-]ids[-]config[\/]02[-]create[-]products[.]php['] has a repeated unique id[:] [']1['][.]$/"
+                    "/^The migration in file ['].+[\/]migrations[\/]sqlite[\/]repeated[-]migration[-]ids[-]config[\/]02[-]create[-]products[.]php['] has a repeated unique id[:] [']1['][.]$/"
                 );
             }
 

@@ -139,4 +139,19 @@ abstract class Abstract_Expression_Visitor
      * Accepts a Record_Values_Expression.
      */
     abstract public function accept_record_values_expression($record_values_expression);
+
+    /**
+     * Accepts a Field_Value_Expression.
+     */
+    abstract public function accept_field_value_expression($field_value_expression);
+
+    /**
+     * Accepts an Ignore_Expression.
+     */
+    abstract public function accept_ignore_expression($ignore_expression);
+
+    /**
+     * Accepts a With_Expression.
+     */
+    abstract public function accept_with_expression($with_expression);
 }

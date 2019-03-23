@@ -4,6 +4,7 @@ namespace Haijin\Persistency\Statement_Compiler;
 
 use Haijin\Instantiator\Create;
 use Haijin\Persistency\Errors\Query_Expressions\Macro_Expression_Evaluated_To_Null_Error;
+use Haijin\Persistency\Errors\Query_Expressions\Macro_Expression_Not_Found_Error;
 use Haijin\Persistency\Errors\Query_Expressions\Invalid_Expression_Error;
 use Haijin\Persistency\Statements\Expressions\Expressions_Factory_Trait;
 use Haijin\Persistency\Statements\Expressions\Expressions_DSL_Trait;
@@ -201,7 +202,12 @@ abstract class Statement_Compiler
      */
     public function __get($macro_name)
     {
-        return $this->get_macros_dictionary()->at( $macro_name, $this );
+        return $this->get_macros_dictionary()->at_if_absent(
+            $macro_name,
+            function() use($macro_name) {
+                return $this->_raise_macro_expression_not_found_error( $macro_name );
+            }
+        );
     }
 
     /// Helper methods
@@ -225,6 +231,14 @@ abstract class Statement_Compiler
     {
         throw new Macro_Expression_Evaluated_To_Null_Error(
             "The macro expression '{$macro_name}' evaluated to null. Probably it is missing the return statement.",
+            $macro_name
+        );
+    }
+
+    protected function _raise_macro_expression_not_found_error($macro_name)
+    {
+        throw new Macro_Expression_Not_Found_Error(
+            "The macro expression '{$macro_name}' definition was not found.",
             $macro_name
         );
     }

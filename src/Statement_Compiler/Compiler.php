@@ -37,11 +37,6 @@ class Compiler
         return $this->compiled_statement;
     }
 
-    public function get_compiled_statement()
-    {
-        return $this->compiled_statement;
-    }
-
     /// DSL
 
     public function query($query_callable)
@@ -50,7 +45,7 @@ class Compiler
             $this->compiled_statement =
                 $this->compiler->eval( $query_callable );
 
-            return;
+            return $this->compiled_statement;
         }
 
         $this->compiler = $this->new_query_statement_compiler();
@@ -58,51 +53,58 @@ class Compiler
         $this->compiled_statement = 
             $this->compiler->compile( $query_callable );
 
+        return $this->compiled_statement;
     }
 
     public function create($create_callable)
     {
         if( $this->compiler !== null ) {
             $this->compiled_statement =
-                $this->compiler->eval( $query_callable );
+                $this->compiler->eval( $create_callable );
 
-            return;
+            return $this->compiled_statement;
         }
 
         $this->compiler = $this->new_create_statement_compiler();
 
         $this->compiled_statement = 
             $this->compiler->compile( $create_callable );
+
+        return $this->compiled_statement;
     }
 
     public function update($update_callable)
     {
         if( $this->compiler !== null ) {
             $this->compiled_statement =
-                $this->compiler->eval( $query_callable );
+                $this->compiler->eval( $update_callable );
 
-            return;
+            return $this->compiled_statement;
         }
 
         $this->compiler = $this->new_update_statement_compiler();
 
         $this->compiled_statement = 
             $this->compiler->compile( $update_callable );
+
+        return $this->compiled_statement;
     }
 
     public function delete($delete_callable)
     {
         if( $this->compiler !== null ) {
             $this->compiled_statement =
-                $this->compiler->eval( $query_callable );
+                $this->compiler->eval( $delete_callable );
 
-            return;
+            return $this->compiled_statement;
         }
 
         $this->compiler = $this->new_delete_statement_compiler();
 
         $this->compiled_statement = 
             $this->compiler->compile( $delete_callable );
+
+        return $this->compiled_statement;
     }
 
     /// Instantiating

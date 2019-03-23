@@ -91,8 +91,8 @@ class Sql_Expression_Builder extends Expression_Visitor
 
     /// Raising errors
 
-    protected function raise_invalid_expression($message, $expression)
+    protected function raise_invalid_expression_error($message)
     {
-        throw new Invalid_Expression_Error( $message, $expression );
+        throw new Invalid_Expression_Error( $message, $this );
     }
 }

@@ -20,20 +20,9 @@ class Group_By_Expression extends Expression
 
     /// Asking
 
-    /**
-     * Returns true if the collection of proyected expressions is empty, false otherwise.
-     */
-    public function is_empty()
+    public function is_group_by_expression()
     {
-        return $this->groupping_expressions->is_empty();
-    }
-
-    /**
-     * Returns true if the collection of proyected expressions is not empty, false otherwise.
-     */
-    public function not_empty()
-    {
-        return $this->groupping_expressions->not_empty();
+        return true;
     }
 
     /// Accessing
@@ -49,18 +38,6 @@ class Group_By_Expression extends Expression
     /// Adding groupping expressions
 
     /**
-     * Adds a gtopuing expression to the collection of groupping_expressions.
-     *
-     * @param Expression $groupping_expression The expression to add.
-     */
-    public function add($groupping_expressions)
-    {
-        $this->add_all( [ $proyected_expression ] );
-
-        return $this;
-    }
-
-    /**
      * Adds all the $groupping_expressions to the collection of groupping_expressions.
      *
      * @param Expression $groupping_expressions The expressions to add.
@@ -70,13 +47,6 @@ class Group_By_Expression extends Expression
         $this->groupping_expressions->add_all( $groupping_expressions );
 
         return $this;
-    }
-
-    /// Iterating
-
-    public function proyected_expressions_do($callable)
-    {
-        return $this->proyected_expressions->each_do( $callable );
     }
 
     /// Visiting

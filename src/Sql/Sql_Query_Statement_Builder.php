@@ -4,7 +4,6 @@ namespace Haijin\Persistency\Sql;
 
 use Haijin\Instantiator\Create;
 use Haijin\Ordered_Collection;
-use Haijin\Persistency\Sql\Expression_Builders\Sql_Expression_Builder;
 use Haijin\Persistency\Statement_Compiler\Query_Statement_Compiler;
 
 use Haijin\Persistency\Sql\Expression_Builders\Sql_Collection_Builder;
@@ -17,31 +16,14 @@ use Haijin\Persistency\Sql\Expression_Builders\Sql_Order_By_Builder;
 use Haijin\Persistency\Sql\Expression_Builders\Sql_Pagination_Builder;
 
 
-class Sql_Query_Statement_Builder extends Sql_Expression_Builder
+class Sql_Query_Statement_Builder extends Sql_Create_Statement_Builder
 {
+    /// Initializing
+
     public function __construct()
     {
         parent::__construct( new Ordered_Collection() );
     }
-
-     /// Building
-
-     /**
-      * Builds and returns a new SQL string.
-      *
-      * @param callable $expression_callable The callable to build the Query_Statement
-      *      using a DSL.
-      *
-      * @return Query_Statement The built Query_Statement.
-      */
-     public function build($expression_callable)
-     {
-         $create_statement = $this->new_query_statement_compiler()
-             ->compile( $expression_callable );
-
-         return $this->build_sql_from( $create_statement );
-     }
-
 
     /// Visiting
 
@@ -218,10 +200,6 @@ class Sql_Query_Statement_Builder extends Sql_Expression_Builder
         $sql = $this->new_sql_having_builder()
                     ->build_sql_from( $having_expression );
 
-        if( $sql == '' ) {
-            return '';
-        }
-
         return ' having ' . $sql ;
     }
 
@@ -268,7 +246,7 @@ class Sql_Query_Statement_Builder extends Sql_Expression_Builder
 
     //// Query expression
 
-    protected function new_query_statement_compiler()
+    protected function new_statement_compiler()
     {
         return Create::object( Query_Statement_Compiler::class );
     }
@@ -277,8 +255,8 @@ class Sql_Query_Statement_Builder extends Sql_Expression_Builder
 
     protected function validate_statement($query_statement)
     {
-        if( $query_statement->get_collection_expression() === null ) {
-            $this->raise_invalid_expression(
+        if( ! $query_statement->has_collection_expression() ) {
+            $this->raise_invalid_expression_error(
                 "The query statement is missing the \$query->collection(...) expression.",
                 $query_statement
             );
