@@ -15,7 +15,7 @@ $migrations->configure( function($migrations) {
             $handle->setHosts([ '127.0.0.1:9200' ]);
         });
 
-    $postgressql_database = ( new Postgresql_Database() )
+    $postgresql_database = ( new Postgresql_Database() )
         ->connect(
             'host=localhost port=5432 dbname=haijin-persistency user=haijin password=123456'
         );
@@ -24,13 +24,13 @@ $migrations->configure( function($migrations) {
         ->connect( 'test.db' );
 
 
-    $migrations->database = $postgressql_database;
+    $migrations->database = $postgresql_database;
 
     $migrations->table_name = 'app_migrations';
 
     $migrations->migrated_databases = [
         $mysql_database,
-        $postgressql_database,
+        $postgresql_database,
         $sqlite_database,
         $elastic_search_database
     ];

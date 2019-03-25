@@ -6,7 +6,7 @@ $migration->definition( function() {
 
     $this->name = "Create users tables";
 
-    $this->describe( "Create the users Mysql table", function($mysql_database) {
+    $this->describe( "Create the users Sqlite table", function($mysql_database) {
 
         $mysql_database->evaluate_sql_string(
             "CREATE TABLE IF NOT EXISTS `users` (

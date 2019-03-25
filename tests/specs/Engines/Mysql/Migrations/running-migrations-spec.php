@@ -2,6 +2,8 @@
 
 use Haijin\Persistency\Migrations\Database_CLI;
 use Haijin\Errors\Haijin_Error;
+use Haijin\Persistency\Errors\Connections\Database_Query_Error;
+use Haijin\Errors\File_Not_Found_Error;
 
 $spec->describe( "When running migrations in mysql", function() {
 
@@ -30,47 +32,128 @@ $spec->describe( "When running migrations in mysql", function() {
 
     $this->it( "runs the migrations the first time", function() {
 
-        $argv = [ '', 'migrate' ];
-
-        $cli = new Database_CLI( $argv );
+        $cli = new Database_CLI();
 
         $migrations = $cli->get_migrations_builder();
 
         require  "tests/samples/migrations/mysql/one-mysql-migration-config.php";
 
-        $cli->evaluate();
+        $cli->migrate_command();
 
     });
 
     $this->it( "runs the migrations the second time", function() {
 
-        $argv = [ '', 'migrate' ];
-
-        $cli = new Database_CLI( $argv );
+        $cli = new Database_CLI();
 
         $migrations = $cli->get_migrations_builder();
 
         require  "tests/samples/migrations/mysql/one-mysql-migration-config.php";
 
-        $cli->evaluate();
+        $cli->migrate_command();
 
+        $cli->migrate_command();
+    });
 
-        $argv = [ '', 'migrate' ];
+    $this->it( "raises an error if the migration folder is missing", function() {
 
-        $cli = new Database_CLI( $argv );
+        $cli = new Database_CLI();
 
         $migrations = $cli->get_migrations_builder();
 
-        require  "tests/samples/migrations/mysql/many-mysql-migrations-config.php";
+        require  "tests/samples/migrations/mysql/missing-migration-folder-config.php";
 
-        $cli->evaluate();
+        $this->expect( function() use($cli) {
+
+            $cli->migrate_command();
+
+        }) ->to() ->raise(
+            File_Not_Found_Error::class,
+            function($error) {
+                $this->expect( $error->getMessage() ) ->to() ->equal(
+                    "Folder '/home/vagrant/src/php-persistency/tests/samples/migrations/mysql/missing-migration-folder' not found."
+                );
+            }
+
+        );
+
+    });
+
+    $this->it( "raises an error if the migration id is missing", function() {
+
+        $cli = new Database_CLI();
+
+        $migrations = $cli->get_migrations_builder();
+
+        require  "tests/samples/migrations/mysql/missing-migration-id-config.php";
+
+        $this->expect( function() use($cli) {
+
+            $cli->migrate_command();
+
+        }) ->to() ->raise(
+            Haijin_Error::class,
+            function($error) {
+                $this->expect( $error->getMessage() ) ->to() ->match(
+                    "/^The migration in file '[\/].+[\/]tests[\/]samples[\/]migrations[\/]mysql[\/]missing-migration-id[\/]01-missing-id[.]php' is missing its id[.]$/"
+                );
+            }
+
+        );
+
+    });
+
+    $this->it( "raises an error if the migration name is missing", function() {
+
+        $cli = new Database_CLI();
+
+        $migrations = $cli->get_migrations_builder();
+
+        require  "tests/samples/migrations/mysql/missing-migration-name-config.php";
+
+        $this->expect( function() use($cli) {
+
+            $cli->migrate_command();
+
+        }) ->to() ->raise(
+            Haijin_Error::class,
+            function($error) {
+                $this->expect( $error->getMessage() ) ->to() ->match(
+                    "/^The migration in file '[\/].+[\/]tests[\/]samples[\/]migrations[\/]mysql[\/]missing-migration-name[\/]01-missing-name[.]php' is missing its name[.]$/"
+                );
+            }
+
+        );
+
+    });
+
+    $this->it( "raises an error if the migration script is missing", function() {
+
+        $cli = new Database_CLI();
+
+        $migrations = $cli->get_migrations_builder();
+
+        require  "tests/samples/migrations/mysql/missing-migration-script-config.php";
+
+        $this->expect( function() use($cli) {
+
+            $cli->migrate_command();
+
+        }) ->to() ->raise(
+            Haijin_Error::class,
+            function($error) {
+                $this->expect( $error->getMessage() ) ->to() ->match(
+                    "/^The migration in file '[\/].+[\/]tests[\/]samples[\/]migrations[\/]mysql[\/]missing-migration-script[\/]01-missing-script[.]php' has no scripts defined[.]$/"
+                );
+            }
+
+        );
+
     });
 
     $this->it( "raises an error if a migration id is repeated", function() {
 
-        $argv = [ '', 'migrate' ];
-
-        $cli = new Database_CLI( $argv );
+        $cli = new Database_CLI();
 
         $migrations = $cli->get_migrations_builder();
 
@@ -78,13 +161,37 @@ $spec->describe( "When running migrations in mysql", function() {
 
         $this->expect( function() use($cli) {
 
-            $cli->evaluate();
+            $cli->migrate_command();
 
         }) ->to() ->raise(
             Haijin_Error::class,
             function($error) {
                 $this->expect( $error->getMessage() ) ->to() ->match(
                     "/^The migration in file ['].+[\/]migrations[\/]mysql[\/]repeated[-]migration[-]ids[-]config[\/]02[-]create[-]products[.]php['] has a repeated unique id[:] [']1['][.]$/"
+                );
+            }
+
+        );
+
+    });
+
+    $this->it( "raises an error with an invalid migration script", function() {
+
+        $cli = new Database_CLI();
+
+        $migrations = $cli->get_migrations_builder();
+
+        require  "tests/samples/migrations/mysql/invalid-migration-config.php";
+
+        $this->expect( function() use($cli) {
+
+            $cli->migrate_command();
+
+        }) ->to() ->raise(
+            Database_Query_Error::class,
+            function($error) {
+                $this->expect( $error->getMessage() ) ->to() ->equal(
+                    "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'invalid script' at line 1"
                 );
             }
 

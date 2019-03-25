@@ -35,6 +35,6 @@ $migrations->configure( function($migrations) {
         $elastic_search_database
     ];
 
-    $migrations->folder = __DIR__ . '/many-postgressql-migrations/';
+    $migrations->folder = __DIR__ . '/invalid-migration/';
 
 });

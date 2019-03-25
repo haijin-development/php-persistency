@@ -70,19 +70,6 @@ class Elasticsearch_Filter_Builder extends Expression_Visitor
     }
 
     /**
-     * Accepts a Binary_Operator_Expression.
-     */
-    public function accept_binary_operator_expression($binary_operator_expression)
-    {
-        return[
-            $binary_operator_expression->get_operator_symbol() => [
-               $this->visit( $binary_operator_expression->get_parameter_1() ),
-               $this->visit( $binary_operator_expression->get_parameter_2() )
-            ]
-        ];
-    }
-
-    /**
      * Accepts a Field_Expression.
      */
     public function accept_field_expression($field_expression)

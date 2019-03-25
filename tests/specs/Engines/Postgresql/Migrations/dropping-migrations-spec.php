@@ -19,15 +19,13 @@ $spec->describe( "When dropping migrations", function() {
         $this->drop_sqlite_tables();
         $this->drop_elasticsearch_indices();
 
-        $argv = [ '', 'drop' ];
-
-        $cli = new Database_CLI( $argv );
+        $cli = new Database_CLI();
 
         $migrations = $cli->get_migrations_builder();
 
         require  "tests/samples/migrations/postgresql/no-migrations-config.php";
 
-        $cli->evaluate();
+        $cli->drop_command();
 
     });
 
@@ -43,15 +41,13 @@ $spec->describe( "When dropping migrations", function() {
         $this->create_sqlite_tables();
         $this->create_elasticsearch_indices();
 
-        $argv = [ '', 'drop' ];
-
-        $cli = new Database_CLI( $argv );
+        $cli = new Database_CLI();
 
         $migrations = $cli->get_migrations_builder();
 
         require  "tests/samples/migrations/postgresql/no-migrations-config.php";
 
-        $cli->evaluate();
+        $cli->drop_command();
 
     });
 

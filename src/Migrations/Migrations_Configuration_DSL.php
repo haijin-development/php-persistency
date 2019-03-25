@@ -20,9 +20,19 @@ class Migrations_Configuration_DSL
         $this->migrations_builder->set_migration_database( $database );
     }
 
+    public function get_database()
+    {
+        return $this->migrations_builder->get_migration_database();
+    }
+
     public function set_table_name($table_name)
     {
         $this->migrations_builder->set_table_name( $table_name );
+    }
+
+    public function get_table_name()
+    {
+        return $this->migrations_builder->get_table_name();
     }
 
     public function set_migrated_databases($migrated_databases)
@@ -30,9 +40,19 @@ class Migrations_Configuration_DSL
         $this->migrations_builder->set_migrated_databases( $migrated_databases );
     }
 
+    public function get_migrated_databases()
+    {
+        return $this->migrations_builder->get_migrated_databases();
+    }
+
     public function set_folder($migrations_folder)
     {
         $this->migrations_builder->set_migrations_folder( $migrations_folder );
+    }
+
+    public function get_folder()
+    {
+        return $this->migrations_builder->get_migrations_folder();
     }
 
     public function __set($attribute_name, $value)
@@ -46,6 +66,6 @@ class Migrations_Configuration_DSL
     {
         $getter = "get_{$attribute_name}";
 
-        $this->$getter();
+        return $this->$getter();
     }
 }

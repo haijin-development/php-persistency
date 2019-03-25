@@ -3,19 +3,21 @@
 namespace Haijin\Persistency\Migrations;
 
 use Haijin\Instantiator\Create;
+use Clue\Commander\Router;
 
 class Database_CLI
 {
-    protected $argv;
     protected $migrations_builder;
     protected $mitrations_evaluator;
+    protected $environment;
 
     /// Initializing
 
-    public function __construct($argv)
+    public function __construct()
     {
-        $this->argv = $argv;
         $this->migrations_builder = new Migrations_Builder();
+        $this->migrations_evaluator = null;
+        $this->environment = $this->get_default_env();
     }
 
     /// Accessing
@@ -27,10 +29,11 @@ class Database_CLI
 
     public function get_running_env()
     {
-        if( isset( $this->argv[ 2 ] ) ) {
-            return $this->argv[ 2 ];
-        }
+        return $this->environment;
+    }
 
+    public function get_default_env()
+    {
         return 'production';
     }
 
@@ -38,26 +41,52 @@ class Database_CLI
 
     public function evaluate()
     {
-        if( count( $this->argv ) == 0 ) {
+        $router = new Router();
+
+        $router->add( '', function($args) {
+
+            $this->help_command();
+
             return;
-        }
 
-        switch( $this->argv[ 1 ] ) {
-            case 'drop':
-                $this->drop_command();
-                break;
+        });
 
-            case 'migrate':
-                $this->migrate_command();
-                break;
+        $router->add( 'drop [<environment>]', function($args) {
 
-            default:
-                throw new Haijin_Error( "Uknown command '{$this->argv[1]}'.\n" );
-                break;
-        }
+            if( isset( $args[ 'environment' ] ) ) {
+                $this->environment = $args[ 'environment' ];
+            }
+
+            $this->drop_command();
+
+            return;
+
+        });
+
+        $router->add( 'migrate [<environment>]', function($args) {
+
+            if( isset( $args[ 'environment' ] ) ) {
+                $this->environment = $args[ 'environment' ];
+            }
+
+            $this->migrate_command();
+
+            return;
+
+        });
+
+        $router->execArgv();
     }
 
     /// Commands
+
+    public function help_command()
+    {
+        echo "Usage:\n";
+        echo "\n";
+        echo "database drop | db drop [test|production]" . "\t" . "Drops all the tables in the environment databases specified in the migrations.php configuration file." . "\n";
+        echo "database migrate | db migrate [test|production]" . "\t" . "Runs the pending migrations from the folder specified in the environment migrations.php configuration file." . "\n";
+    }
 
     public function drop_command()
     {

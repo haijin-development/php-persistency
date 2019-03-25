@@ -33,9 +33,19 @@ class Migrations_Builder
         Migrations_Collection::do()->set_database( $this->migration_database );
     }
 
+    public function get_migration_database()
+    {
+        return $this->migration_database;
+    }
+
     public function set_migrated_databases($migrated_databases)
     {
         $this->migrated_databases = $migrated_databases;
+    }
+
+    public function get_migrated_databases()
+    {
+        return $this->migrated_databases;
     }
 
     public function set_table_name($table_name)
@@ -45,9 +55,19 @@ class Migrations_Builder
         Migrations_Collection::do()->set_collection_name( $this->table_name );
     }
 
+    public function get_table_name()
+    {
+        return $this->table_name;
+    }
+
     public function set_migrations_folder($migrations_folder)
     {
         $this->migrations_folder = $migrations_folder;
+    }
+
+    public function get_migrations_folder()
+    {
+        return $this->migrations_folder;
     }
 
     /// Configuring

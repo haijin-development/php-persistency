@@ -131,14 +131,6 @@ class Sql_Common_Expression_Builder_Base extends Sql_Expression_Builder
     }
 
     /**
-     * Accepts a Alias_Expression.
-     */
-    public function accept_alias_expression($alias_expression)
-    {
-        return $alias_expression->get_alias();
-    }
-
-    /**
      * Accepts an Ignore_Expression.
      */
     public function accept_ignore_expression($ignore_expression)

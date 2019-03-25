@@ -2,6 +2,7 @@
 
 use Haijin\Persistency\Migrations\Database_CLI;
 use Haijin\Errors\Haijin_Error;
+use Haijin\Persistency\Errors\Connections\Database_Query_Error;
 
 $spec->describe( "When running migrations in sqlite", function() {
 
@@ -30,47 +31,32 @@ $spec->describe( "When running migrations in sqlite", function() {
 
     $this->it( "runs the migrations the first time", function() {
 
-        $argv = [ '', 'migrate' ];
-
-        $cli = new Database_CLI( $argv );
+        $cli = new Database_CLI();
 
         $migrations = $cli->get_migrations_builder();
 
         require  "tests/samples/migrations/sqlite/one-sqlite-migration-config.php";
 
-        $cli->evaluate();
+        $cli->migrate_command();
 
     });
 
     $this->it( "runs the migrations the second time", function() {
 
-        $argv = [ '', 'migrate' ];
-
-        $cli = new Database_CLI( $argv );
+        $cli = new Database_CLI();
 
         $migrations = $cli->get_migrations_builder();
 
         require  "tests/samples/migrations/sqlite/one-sqlite-migration-config.php";
 
-        $cli->evaluate();
+        $cli->migrate_command();
 
-
-        $argv = [ '', 'migrate' ];
-
-        $cli = new Database_CLI( $argv );
-
-        $migrations = $cli->get_migrations_builder();
-
-        require  "tests/samples/migrations/sqlite/many-sqlite-migrations-config.php";
-
-        $cli->evaluate();
+        $cli->migrate_command();
     });
 
     $this->it( "raises an error if a migration id is repeated", function() {
 
-        $argv = [ '', 'migrate' ];
-
-        $cli = new Database_CLI( $argv );
+        $cli = new Database_CLI();
 
         $migrations = $cli->get_migrations_builder();
 
@@ -78,13 +64,37 @@ $spec->describe( "When running migrations in sqlite", function() {
 
         $this->expect( function() use($cli) {
 
-            $cli->evaluate();
+            $cli->migrate_command();
 
         }) ->to() ->raise(
             Haijin_Error::class,
             function($error) {
                 $this->expect( $error->getMessage() ) ->to() ->match(
                     "/^The migration in file ['].+[\/]migrations[\/]sqlite[\/]repeated[-]migration[-]ids[-]config[\/]02[-]create[-]products[.]php['] has a repeated unique id[:] [']1['][.]$/"
+                );
+            }
+
+        );
+
+    });
+
+    $this->it( "raises an error with an invalid migration", function() {
+
+        $cli = new Database_CLI();
+
+        $migrations = $cli->get_migrations_builder();
+
+        require  "tests/samples/migrations/mysql/invalid-migration-config.php";
+
+        $this->expect( function() use($cli) {
+
+            $cli->migrate_command();
+
+        }) ->to() ->raise(
+            Database_Query_Error::class,
+            function($error) {
+                $this->expect( $error->getMessage() ) ->to() ->equal(
+                    "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'invalid script' at line 1"
                 );
             }
 

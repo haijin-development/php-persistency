@@ -137,6 +137,10 @@ abstract class Migrations_Evaluator
 
             $migration = $this->get_migration_from_file( $migration_file );
 
+            if( empty( $migration->get_id() ) ) {
+                $this->raise_missing_id_error( $migration );
+            }
+
             if( in_array( $migration->get_id(), $migration_ids ) ) {
                 $this->raise_duplicated_migration_id_error( $migration );
             }
@@ -163,6 +167,13 @@ abstract class Migrations_Evaluator
         $migration->define_in_file( $filename );
 
         return $migration;
+    }
+
+    protected function raise_missing_id_error($migration)
+    {
+        throw new Haijin_Error(
+            "The migration in file '{$migration->get_source_filename()}' is missing its id."
+        );
     }
 
     protected function raise_duplicated_migration_id_error($migration)

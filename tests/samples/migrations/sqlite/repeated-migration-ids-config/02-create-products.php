@@ -7,7 +7,7 @@ $migration->definition( function() {
 
     $this->name = "Create products tables";
 
-    $this->describe( "Create the products Mysql table", function($mysql_database) {
+    $this->describe( "Create the products Sqlite table", function($mysql_database) {
 
         $mysql_database->evaluate_sql_string(
             "CREATE TABLE IF NOT EXISTS `products` (
