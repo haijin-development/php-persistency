@@ -1,9 +1,10 @@
 <?php
 
-namespace Haijin\Persistency\Migrations;
+namespace Haijin\Persistency\CLI;
 
 use Haijin\Instantiator\Create;
 use Clue\Commander\Router;
+use Haijin\Persistency\Migrations\Migrations_Builder;
 
 class Database_CLI
 {
@@ -75,6 +76,18 @@ class Database_CLI
 
         });
 
+        $router->add( 'populate [<environment>]', function($args) {
+
+            if( isset( $args[ 'environment' ] ) ) {
+                $this->environment = $args[ 'environment' ];
+            }
+
+            $this->populate_command();
+
+            return;
+
+        });
+
         $router->execArgv();
     }
 
@@ -86,6 +99,7 @@ class Database_CLI
         echo "\n";
         echo "database drop | db drop [test|production]" . "\t" . "Drops all the tables in the environment databases specified in the migrations.php configuration file." . "\n";
         echo "database migrate | db migrate [test|production]" . "\t" . "Runs the pending migrations from the folder specified in the environment migrations.php configuration file." . "\n";
+        echo "database populate | db populate [test|production]" . "\t" . "Runs the population scripts from the folder specified in the environment migrations.php configuration file." . "\n";
     }
 
     public function drop_command()
@@ -106,6 +120,13 @@ class Database_CLI
         }
 
         $migrations_evaluator->run_pending_migrations();
+    }
+
+    public function populate_command()
+    {
+        $populations_evaluator = new Populations_Evaluator();
+
+        $populations_evaluator->run_populations();
     }
 
     public function initialize_migrations_tables($migrations_evaluator)

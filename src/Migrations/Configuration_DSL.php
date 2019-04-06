@@ -2,7 +2,7 @@
 
 namespace Haijin\Persistency\Migrations;
 
-class Migrations_Configuration_DSL
+class Configuration_DSL
 {
     protected $migrations_builder;
 

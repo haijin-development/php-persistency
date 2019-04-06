@@ -1,6 +1,6 @@
 <?php
 
-use Haijin\Persistency\Migrations\Database_CLI;
+use Haijin\Persistency\CLI\Database_CLI;
 
 $spec->describe( "When dropping migrations", function() {
 

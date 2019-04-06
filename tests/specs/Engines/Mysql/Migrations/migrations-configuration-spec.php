@@ -1,6 +1,6 @@
 <?php
 
-use Haijin\Persistency\Migrations\Database_CLI;
+use Haijin\Persistency\CLI\Database_CLI;
 use Haijin\Persistency\Migrations\Migrations_Builder;
 
 $spec->describe( "When configuring the migrations", function() {

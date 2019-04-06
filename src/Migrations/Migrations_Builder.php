@@ -74,7 +74,7 @@ class Migrations_Builder
 
     public function configure($configuration_callable)
     {
-        $dsl = new Migrations_Configuration_DSL( $this );
+        $dsl = new Configuration_DSL( $this );
 
         $configuration_callable( $dsl );
 

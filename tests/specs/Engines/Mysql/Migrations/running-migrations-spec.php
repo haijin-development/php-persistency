@@ -1,6 +1,6 @@
 <?php
 
-use Haijin\Persistency\Migrations\Database_CLI;
+use Haijin\Persistency\CLI\Database_CLI;
 use Haijin\Errors\Haijin_Error;
 use Haijin\Persistency\Errors\Connections\Database_Query_Error;
 use Haijin\Errors\File_Not_Found_Error;
