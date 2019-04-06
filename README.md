@@ -2768,7 +2768,7 @@ class Users_Persistent_Collection extends Persistent_Collection
 {
     public function definition($collection)
     {
-        $collection->database = Sample_App::instance()->get_database( 'mysql' );
+        $collection->database = App::instance()->get_database( 'mysql' );
 
         $collection->collection_name = "users";
 
@@ -3254,7 +3254,7 @@ class Users_Persistent_Collection extends Persistent_Collection
 {
     public function definition($collection)
     {
-        $collection->database = Sample_App::instance()->get_database( 'mysql' );
+        $collection->database = App::instance()->get_database( 'mysql' );
 
         $collection->collection_name = "users";
 
