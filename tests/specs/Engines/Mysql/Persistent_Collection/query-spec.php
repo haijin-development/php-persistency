@@ -1,7 +1,7 @@
 <?php
 
 use Haijin\Persistency\Engines\Mysql\Mysql_Database;
-use Haijin\Persistency\Persistent_Collection\Persistent_Collection;
+use Haijin\Persistency\Persistent_Collection\Sql_Persistent_Collection;
 
 $spec->describe( "When querying a Persistent_Collection stored in a MySql database", function() {
 

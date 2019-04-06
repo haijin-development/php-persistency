@@ -16,7 +16,7 @@ use Haijin\Persistency\Announcements\Object_Creation_Canceled;
 use Haijin\Persistency\Announcements\Object_Update_Canceled;
 use Haijin\Persistency\Announcements\Object_Deletion_Canceled;
 
-class Persistent_Collection
+class Sql_Persistent_Collection
 {
     use Announcer_Trait;
 

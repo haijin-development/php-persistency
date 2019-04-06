@@ -1,7 +1,7 @@
 <?php
 
 use Haijin\Persistency\Engines\Mysql\Mysql_Database;
-use Haijin\Persistency\Persistent_Collection\Persistent_Collection;
+use Haijin\Persistency\Persistent_Collection\Sql_Persistent_Collection;
 
 $spec->describe( "When instantiating objects from a MySql database", function() {
 
@@ -39,7 +39,7 @@ $spec->describe( "When instantiating objects from a MySql database", function() 
     });
 
     $this->let( "users_collection", function() {
-        return new Persistent_Collection();
+        return new Sql_Persistent_Collection();
     });
 
     $this->describe( "with a class name", function() {

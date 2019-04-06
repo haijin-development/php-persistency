@@ -5,20 +5,23 @@ namespace Haijin\Persistency\CLI;
 use Haijin\Instantiator\Create;
 use Clue\Commander\Router;
 use Haijin\Persistency\Migrations\Migrations_Builder;
+use Haijin\Persistency\Populate_Scripts\Populate_Scripts_Evaluator;
 
 class Database_CLI
 {
     protected $migrations_builder;
     protected $mitrations_evaluator;
     protected $environment;
+    protected $populate_scripts_evaluator;
 
     /// Initializing
 
-    public function __construct()
+    public function __construct($migrations_builder, $populate_scripts_evaluator)
     {
-        $this->migrations_builder = new Migrations_Builder();
+        $this->migrations_builder = $migrations_builder;
         $this->migrations_evaluator = null;
         $this->environment = $this->get_default_env();
+        $this->populate_scripts_evaluator = $populate_scripts_evaluator;
     }
 
     /// Accessing
@@ -124,9 +127,7 @@ class Database_CLI
 
     public function populate_command()
     {
-        $populations_evaluator = new Populations_Evaluator();
-
-        $populations_evaluator->run_populations();
+        $this->populate_scripts_evaluator->run_populate_scripts();
     }
 
     public function initialize_migrations_tables($migrations_evaluator)

@@ -1,8 +1,8 @@
 <?php
 
-use Haijin\Persistency\Persistent_Collection\Persistent_Collection;
+use Haijin\Persistency\Persistent_Collection\Sql_Persistent_Collection;
 
-class Addresses_Persistent_Collection extends Persistent_Collection
+class Addresses_Persistent_Collection extends Sql_Persistent_Collection
 {
     public function definition($collection)
     {

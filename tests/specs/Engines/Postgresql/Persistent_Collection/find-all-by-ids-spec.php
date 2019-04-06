@@ -1,7 +1,7 @@
 <?php
 
 use Haijin\Persistency\Engines\Postgresql\Postgresql_Database;
-use Haijin\Persistency\Persistent_Collection\Persistent_Collection;
+use Haijin\Persistency\Persistent_Collection\Sql_Persistent_Collection;
 
 $spec->describe( "When searching ids in Persistent_Collection stored in a Postgresql database", function() {
 

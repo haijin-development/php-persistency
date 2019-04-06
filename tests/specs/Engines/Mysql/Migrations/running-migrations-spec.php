@@ -1,6 +1,7 @@
 <?php
 
 use Haijin\Persistency\CLI\Database_CLI;
+use Haijin\Persistency\Migrations\Migrations_Builder;
 use Haijin\Errors\Haijin_Error;
 use Haijin\Persistency\Errors\Connections\Database_Query_Error;
 use Haijin\Errors\File_Not_Found_Error;
@@ -32,7 +33,7 @@ $spec->describe( "When running migrations in mysql", function() {
 
     $this->it( "runs the migrations the first time", function() {
 
-        $cli = new Database_CLI();
+        $cli = new Database_CLI( new Migrations_Builder(), null );
 
         $migrations = $cli->get_migrations_builder();
 
@@ -44,7 +45,7 @@ $spec->describe( "When running migrations in mysql", function() {
 
     $this->it( "runs the migrations the second time", function() {
 
-        $cli = new Database_CLI();
+        $cli = new Database_CLI( new Migrations_Builder(), null );
 
         $migrations = $cli->get_migrations_builder();
 
@@ -57,7 +58,7 @@ $spec->describe( "When running migrations in mysql", function() {
 
     $this->it( "raises an error if the migration folder is missing", function() {
 
-        $cli = new Database_CLI();
+        $cli = new Database_CLI( new Migrations_Builder(), null );
 
         $migrations = $cli->get_migrations_builder();
 
@@ -81,7 +82,7 @@ $spec->describe( "When running migrations in mysql", function() {
 
     $this->it( "raises an error if the migration id is missing", function() {
 
-        $cli = new Database_CLI();
+        $cli = new Database_CLI( new Migrations_Builder(), null );
 
         $migrations = $cli->get_migrations_builder();
 
@@ -105,7 +106,7 @@ $spec->describe( "When running migrations in mysql", function() {
 
     $this->it( "raises an error if the migration name is missing", function() {
 
-        $cli = new Database_CLI();
+        $cli = new Database_CLI( new Migrations_Builder(), null );
 
         $migrations = $cli->get_migrations_builder();
 
@@ -129,7 +130,7 @@ $spec->describe( "When running migrations in mysql", function() {
 
     $this->it( "raises an error if the migration script is missing", function() {
 
-        $cli = new Database_CLI();
+        $cli = new Database_CLI( new Migrations_Builder(), null );
 
         $migrations = $cli->get_migrations_builder();
 
@@ -153,7 +154,7 @@ $spec->describe( "When running migrations in mysql", function() {
 
     $this->it( "raises an error if a migration id is repeated", function() {
 
-        $cli = new Database_CLI();
+        $cli = new Database_CLI( new Migrations_Builder(), null );
 
         $migrations = $cli->get_migrations_builder();
 
@@ -177,7 +178,7 @@ $spec->describe( "When running migrations in mysql", function() {
 
     $this->it( "raises an error with an invalid migration script", function() {
 
-        $cli = new Database_CLI();
+        $cli = new Database_CLI( new Migrations_Builder(), null );
 
         $migrations = $cli->get_migrations_builder();
 

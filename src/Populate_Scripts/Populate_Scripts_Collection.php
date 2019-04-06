@@ -1,14 +1,13 @@
 <?php
 
-namespace Haijin\Persistency\Migrations;
+namespace Haijin\Persistency\Populate_Scripts;
 
 use Haijin\Instantiator\Create;
 
-class Migration
+class Populate_Scripts_Collection
 {
     protected $id;
     protected $name;
-    protected $run_at;
     protected $scripts;
     protected $source_filename;
 
@@ -18,7 +17,6 @@ class Migration
     {
         $this->id = null;
         $this->name = null;
-        $this->run_at = null;
         $this->scripts = [];
         $this->source_filename = null;
     }
@@ -49,18 +47,6 @@ class Migration
         return $this;
     }
 
-    public function get_run_at()
-    {
-        return $this->run_at;
-    }
-
-    public function set_run_at($timestamp)
-    {
-        $this->run_at = $timestamp;
-
-        return $this;
-    }
-
     public function get_source_filename()
     {
         return $this->source_filename;
@@ -78,9 +64,9 @@ class Migration
         return $this->scripts;
     }
 
-    public function add_script($migration_script)
+    public function add_script($script)
     {
-        $this->scripts[] = $migration_script;
+        $this->scripts[] = $script;
 
         return $this;
     }
@@ -94,17 +80,17 @@ class Migration
 
     public function define_in_file($filename)
     {
-        $migration = $this;
+        $populate_scripts = $this;
 
         require( $filename );
 
-        $migration->set_source_filename( $filename->to_string() );
+        $populate_scripts->set_source_filename( $filename->to_string() );
     }
 
     public function describe($description, $script_callable)
     {
         $this->add_script(
-            new Migration_Script( $description, $script_callable )
+            new Populate_Script( $description, $script_callable )
         );
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 use Haijin\Persistency\Engines\Elasticsearch\Elasticsearch_Database;
-use Haijin\Persistency\Persistent_Collection\Persistent_Collection;
+use Haijin\Persistency\Persistent_Collection\Sql_Persistent_Collection;
 
 $spec->describe( "When accessing object values", function() {
 
@@ -30,7 +30,7 @@ $spec->describe( "When accessing object values", function() {
     });
 
     $this->let( "Elasticsearch_Users_Collection", function() {
-        return new Persistent_Collection();
+        return new Sql_Persistent_Collection();
     });
 
     $this->describe( "with functions", function() {

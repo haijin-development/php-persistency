@@ -2,9 +2,9 @@
 
 namespace Haijin\Persistency\Engines\Elasticsearch;
 
-use Haijin\Persistency\Persistent_Collection\Persistent_Collection;
+use Haijin\Persistency\Persistent_Collection\Sql_Persistent_Collection;
 
-class Elasticsearch_Persistent_Collection extends Persistent_Collection
+class Elasticsearch_Persistent_Collection extends Sql_Persistent_Collection
 {
     /// Querying
 

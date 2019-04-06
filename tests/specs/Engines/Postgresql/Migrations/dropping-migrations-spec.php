@@ -1,6 +1,7 @@
 <?php
 
 use Haijin\Persistency\CLI\Database_CLI;
+use Haijin\Persistency\Migrations\Migrations_Builder;
 
 $spec->describe( "When dropping migrations", function() {
 
@@ -19,7 +20,7 @@ $spec->describe( "When dropping migrations", function() {
         $this->drop_sqlite_tables();
         $this->drop_elasticsearch_indices();
 
-        $cli = new Database_CLI();
+        $cli = new Database_CLI( new Migrations_Builder(), null );
 
         $migrations = $cli->get_migrations_builder();
 
@@ -41,7 +42,7 @@ $spec->describe( "When dropping migrations", function() {
         $this->create_sqlite_tables();
         $this->create_elasticsearch_indices();
 
-        $cli = new Database_CLI();
+        $cli = new Database_CLI( new Migrations_Builder(), null );
 
         $migrations = $cli->get_migrations_builder();
 

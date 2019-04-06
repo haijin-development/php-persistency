@@ -1,7 +1,7 @@
 <?php
 
 use Haijin\Persistency\Engines\Sqlite\Sqlite_Database;
-use Haijin\Persistency\Persistent_Collection\Persistent_Collection;
+use Haijin\Persistency\Persistent_Collection\Sql_Persistent_Collection;
 use Haijin\Persistency\Announcements\About_To_Execute_Sql_Statement;
 
 $spec->describe( "When mapping fields to another collections in a Sqlite database", function() {

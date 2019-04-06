@@ -65,7 +65,7 @@ abstract class Migrations_Evaluator
     {
         echo "Migration #{$migration->get_id()} - {$migration->get_name()}\n";
 
-        foreach( $migration->get_migration_scripts() as $index => $script ) {
+        foreach( $migration->get_scripts() as $index => $script ) {
             echo "Running script #{$index}: {$script->get_description()} ...";
 
             try {
@@ -133,7 +133,7 @@ abstract class Migrations_Evaluator
         $all_migrations = [];
         $migration_ids = [];
 
-        foreach( $folder->get_folder_contents() as $migration_file ) {
+        foreach( $folder->get_folder_contents( '*.php' ) as $migration_file ) {
 
             $migration = $this->get_migration_from_file( $migration_file );
 
@@ -149,7 +149,7 @@ abstract class Migrations_Evaluator
                 $this->raise_missing_name_error( $migration );
             }
 
-            if( empty( $migration->get_migration_scripts() ) ) {
+            if( empty( $migration->get_scripts() ) ) {
                 $this->raise_missing_scripts_error( $migration );
             }
 

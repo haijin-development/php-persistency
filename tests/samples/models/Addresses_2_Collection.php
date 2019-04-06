@@ -1,10 +1,10 @@
 <?php
 
-use Haijin\Persistency\Persistent_Collection\Persistent_Collection;
+use Haijin\Persistency\Persistent_Collection\Sql_Persistent_Collection;
 
 require_once __DIR__ . '/Users_Collection.php';
 
-class Addresses_2_Persistent_Collection extends Persistent_Collection
+class Addresses_2_Persistent_Collection extends Sql_Persistent_Collection
 {
     public function definition($collection)
     {

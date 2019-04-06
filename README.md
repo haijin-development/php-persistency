@@ -35,7 +35,7 @@ In `haijin/persistency` almost any object can be persisted without requiring any
 /**
  * A Persistent_Collection to persist User objects.
  */
-class Users_Persistent_Collection extends Persistent_Collection
+class Users_Persistent_Collection extends Sql_Persistent_Collection
 {
     public function definition($collection)
     {
@@ -470,7 +470,7 @@ where `all_matching_full_name_and_address` is defined in the `Users_Persistent_C
 /**
  * A Persistent_Collection to persist User objects.
  */
-class Users_Persistent_Collection extends Persistent_Collection
+class Users_Persistent_Collection extends Sql_Persistent_Collection
 {
     public function definition($collection)
     {
@@ -1375,7 +1375,7 @@ It has a protocol to create, update, delete and query objects and a simple DSL t
 A simple mapping definition example:
 
 ```php
-class Users_Persistent_Collection extends Persistent_Collection
+class Users_Persistent_Collection extends Sql_Persistent_Collection
 {
     public function definition($collection)
     {
@@ -1429,7 +1429,7 @@ Here is an example:
 
 
 ```php
-class Users_Persistent_Collection extends Persistent_Collection
+class Users_Persistent_Collection extends Sql_Persistent_Collection
 {
     public function definition($collection)
     {
@@ -1495,7 +1495,7 @@ From now on this documentation will follow this pattern.
 Define each `Persistent_Collection` subclass in a method named `definition`:
 
 ```php
-class Users_Persistent_Collection extends Persistent_Collection
+class Users_Persistent_Collection extends Sql_Persistent_Collection
 {
     public function definition($collection)
     {
@@ -2764,7 +2764,7 @@ To avoid the `n+1 problem` the `Persistent_Collection` accepts an additional par
 To detect when a reference is lazily resolved its possible to make it to raise an error or a warning with an additional parameter:
 
 ```php
-class Users_Persistent_Collection extends Persistent_Collection
+class Users_Persistent_Collection extends Sql_Persistent_Collection
 {
     public function definition($collection)
     {
@@ -2843,7 +2843,7 @@ In file `Users_Collection.php`.
 ```php
 namespace App\Users_Collection;
 
-class Users_Persistent_Collection extends Persistent_Collection
+class Users_Persistent_Collection extends Sql_Persistent_Collection
 {
     public function definition($collection)
     {
@@ -2908,7 +2908,7 @@ Define each query on a `Persistent_Collection` subclass in its own method.
 This way all the queries will be in a single point in the source code, making it easier for developers to understand and debug the application.
 
 ```php
-class Users_Persistent_Collection extends Persistent_Collection
+class Users_Persistent_Collection extends Sql_Persistent_Collection
 {
     public function definition($collection)
     {
@@ -3017,7 +3017,7 @@ Override `create` and `update` to assign default values to the optional fields i
 
 
 ```php
-class Users_Persistent_Collection extends Persistent_Collection
+class Users_Persistent_Collection extends Sql_Persistent_Collection
 {
     public function definition($collection)
     {
@@ -3089,7 +3089,7 @@ The library makes no assumptions on the database. It might support cascade delet
 The library makes no assumptions nor conventions on an entity relation belonging to another one. Declarative cascade owneship tend to be confusing for developers.
 
 ```php
-class Users_Persistent_Collection extends Persistent_Collection
+class Users_Persistent_Collection extends Sql_Persistent_Collection
 {
     public function definition($collection)
     {
@@ -3164,7 +3164,7 @@ class Users_Collection
 Keep the index search engine in sync with the database overriding the write operations:
 
 ```php
-class Users_Persistent_Collection extends Persistent_Collection
+class Users_Persistent_Collection extends Sql_Persistent_Collection
 {
     public function definition($collection)
     {
@@ -3250,7 +3250,7 @@ class Users_Collection
 In each query in a `Persistent_Collection` accept an eager fetch specification and define a default one for the most common use cases if none is given:
 
 ```php
-class Users_Persistent_Collection extends Persistent_Collection
+class Users_Persistent_Collection extends Sql_Persistent_Collection
 {
     public function definition($collection)
     {

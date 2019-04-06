@@ -1,7 +1,7 @@
 <?php
 
 use Haijin\Persistency\Engines\Elasticsearch\Elasticsearch_Database;
-use Haijin\Persistency\Persistent_Collection\Persistent_Collection;
+use Haijin\Persistency\Persistent_Collection\Sql_Persistent_Collection;
 use Haijin\Errors\Haijin_Error;
 
 $spec->describe( "When creating an object in a Persistent_Collection in a Elasticsearch database", function() {

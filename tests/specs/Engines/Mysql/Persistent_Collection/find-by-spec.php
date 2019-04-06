@@ -1,7 +1,7 @@
 <?php
 
 use Haijin\Persistency\Engines\Mysql\Mysql_Database;
-use Haijin\Persistency\Persistent_Collection\Persistent_Collection;
+use Haijin\Persistency\Persistent_Collection\Sql_Persistent_Collection;
 use Haijin\Persistency\Errors\Persistency_Error;
 
 $spec->describe( "When searching an object in a Persistent_Collection in a MySql database", function() {
