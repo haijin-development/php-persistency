@@ -16,7 +16,7 @@ use Haijin\Persistency\Announcements\Object_Creation_Canceled;
 use Haijin\Persistency\Announcements\Object_Update_Canceled;
 use Haijin\Persistency\Announcements\Object_Deletion_Canceled;
 
-class Persistent_Collection
+abstract class Persistent_Collection
 {
     use Announcer_Trait;
 
@@ -150,22 +150,15 @@ class Persistent_Collection
 
     /// Searching
 
-    public function exists_with($field_values)
-    {
-        return $this->count( function($query) use($field_values) {
-
-            $conditions = $query->ignore();
-
-            foreach( $field_values as $field_name => $value ) {
-                $conditions = $conditions ->and() ->brackets(
-                    $query->field( $field_name, '=', $value )
-                );
-            }
-
-            $query->filter( $conditions );
-
-        });
+    public function exists_with_id($id) {
+        return $this->exists_with(
+            [ $this->get_id_field() => $id ]
+        );
     }
+
+    abstract public function exists_with($field_values);
+
+    abstract public function exists($filter_callable);
 
     public function find_by_id($id, $named_parameters = [], $eager_fetch = [])
     {
@@ -180,22 +173,9 @@ class Persistent_Collection
         );
     }
 
-    public function find_all_by_ids(
-            $ids_collection, $named_parameters = [], $eager_fetch = []
-        )
-    {
-        $this->validate_named_parameters( $named_parameters );
-
-        $id_field = $this->get_id_field();
-
-        return $this->all( function($query) use($id_field, $ids_collection) {
-
-            $query->filter(
-                $query->field( $id_field ) ->in( $ids_collection )
-            );
-
-        }, $named_parameters, $eager_fetch );
-    }
+    abstract public function find_all_by_ids(
+        $ids_collection, $named_parameters = [], $eager_fetch = []
+    );
 
     public function find_by_id_if_absent(
             $id, $absent_callable, $named_parameters = [], $eager_fetch = []
@@ -212,50 +192,9 @@ class Persistent_Collection
         return $absent_callable( $id );
     }
 
-    public function find_by($field_values, $named_parameters = [], $eager_fetch = [])
-    {
-        $this->validate_named_parameters( $named_parameters );
-
-        $found_objects = $this->all( function($query) use($field_values) {
-
-            $first_expression = true;
-            $expression = null;
-
-            foreach( $field_values as $field_name => $value ) {
-
-                if( $first_expression === true ) {
-
-                    $expression = $query ->brackets(
-                        $query ->field( $field_name, '=', $value )
-                    );
-
-                    $first_expression = false;
-
-                } else {
-
-                    $expression = $expression ->and() ->brackets(
-                        $query ->field( $field_name, '=', $value )
-                    );
-
-                }
-            }
-
-            $query->filter( $expression );
-
-        }, $named_parameters, $eager_fetch );
-
-        $found_count = count( $found_objects );
-
-        if( $found_count == 0 ) {
-            return null;
-        }
-
-        if( $found_count == 1 ) {
-            return $found_objects[ 0 ];
-        }
-
-        $this->raise_more_than_one_record_found_error($found_count);
-    }
+    abstract public function find_by(
+        $field_values, $named_parameters = [], $eager_fetch = []
+    );
 
     public function find_by_if_absent(
             $field_values, $absent_callable, $named_parameters = [], $eager_fetch = []
@@ -288,26 +227,23 @@ class Persistent_Collection
 
         if( $filter_callable === null ) {
 
-            $id_field = $this->get_id_field();
+            $filter_callable = function($query) {
 
-            $filter_callable = function($query) use($id_field) {
+                $id_field = $this->get_id_field();
 
                 $query->order_by(
-                    $query ->field( 'id' )
+                    $query ->field( $id_field )
                 );
 
             };
 
         }
 
-        $collection_name = $this->collection_name;
-
-        $records = $this->get_database()->query( function($query)
-                                            use($collection_name, $filter_callable) {
+        $records = $this->get_database()->query( function($query) use($filter_callable) {
 
             $query->set_meta_model( $this );
 
-            $query->collection( $collection_name );
+            $query->collection( $this->collection_name );
 
             $filter_callable( $query );
 
@@ -333,12 +269,10 @@ class Persistent_Collection
 
         if( $filter_callable === null ) {
 
-            $id_field = $this->get_id_field();
-
-            $filter_callable = function($query) use($id_field) {
+            $filter_callable = function($query) {
 
                 $query->order_by(
-                    $query ->field( $id_field )
+                    $query ->field( $this->get_id_field() )
                 );
 
             };
@@ -371,18 +305,14 @@ class Persistent_Collection
      */
     public function last($eager_fetch = [])
     {
-        $collection_name = $this->collection_name;
-
-        $id_field = $this->get_id_field();
-
-        return $this->first( function($query) use($collection_name, $id_field) {
+        return $this->first( function($query) {
 
             $query->set_meta_model( $this );
 
-            $query->collection( $collection_name );
+            $query->collection( $this->collection_name );
 
             $query->order_by(
-                $query ->field( $id_field ) ->desc()
+                $query ->field($this->get_id_field() ) ->desc()
             );
 
             $query->pagination(
@@ -402,14 +332,11 @@ class Persistent_Collection
     {
         $this->validate_named_parameters( $named_parameters );
 
-        $collection_name = $this->collection_name;
-
-        return $this->get_database()->count( function($query)
-                                            use($collection_name, $filter_callable) {
+        return $this->get_database()->count( function($query) use($filter_callable) {
 
             $query->set_meta_model( $this );
 
-            $query->collection( $collection_name );
+            $query->collection( $this->collection_name );
 
             if( $filter_callable !== null ) {
                 $filter_callable( $query );
@@ -494,14 +421,11 @@ class Persistent_Collection
             );
         }
 
-        $collection_name = $this->collection_name;
-
-        $this->get_database()->create( function($query)
-                                    use($collection_name, $record_values) {
+        $this->get_database()->create( function($query) use($record_values) {
 
             $query->set_meta_model( $this );
 
-            $query->collection( $collection_name );
+            $query->collection( $this->collection_name );
 
             $expressions = [];
             foreach( $record_values as $field => $value ) {
@@ -555,62 +479,17 @@ class Persistent_Collection
         return $this->update( $object );
     }
 
-    public function update($object)
-    {
-        $update_announcement = $this->announce_about_to_update_object( $object );
-
-        if( $update_announcement->was_canceled() ) {
-
-            $this->announce_object_update_canceled(
-                $object, $update_announcement->get_cancelation_reasons()
-            );
-
-            return;
-        }
-
-        $id_field = $this->get_id_field();
-        $id = $this->get_id_of( $object );
-        $record_values = $this->get_record_values_from( $object );
-
-        $collection_name = $this->collection_name;
-
-        $this->get_database()->update( function($query)
-                                    use($collection_name, $id_field, $id, $record_values) {
-
-            $query->set_meta_model( $this );
-
-            $query->collection( $collection_name );
-
-            $expressions = [];
-            foreach( $record_values as $field => $value ) {
-                $expressions[] = $query->set( $field, $query->value( $value ) );
-            }
-
-            $query->record( ...$expressions );
-
-            $query->filter(
-                $query ->field( $id_field ) ->op( "=" ) ->value( $id )
-            );
-
-        });
-
-        $this->announce_object_updated( $object );
-
-        return $object;
-    }
+    abstract public function update($object);
 
     public function update_all($filter_callable, $named_parameters = [])
     {
         $this->validate_named_parameters( $named_parameters );
 
-        $collection_name = $this->collection_name;
-
-        $records = $this->get_database()->update( function($query)
-                                            use($collection_name, $filter_callable) {
+        $records = $this->get_database()->update( function($query) use($filter_callable) {
 
             $query->set_meta_model( $this );
 
-            $query->collection( $collection_name );
+            $query->collection( $this->collection_name );
 
             $filter_callable( $query );
 
@@ -626,55 +505,17 @@ class Persistent_Collection
         $this->get_database()->clear_all( $this->collection_name );
     }
 
-    public function delete($object)
-    {
-        $deletion_announcement = $this->announce_about_to_delete_object( $object );
-
-        if( $deletion_announcement->was_canceled() ) {
-
-            $this->announce_object_deletion_canceled(
-                $object, $deletion_announcement->get_cancelation_reasons()
-            );
-
-            return;
-        }
-
-        $id_field = $this->get_id_field();
-
-        $id = $this->get_id_of( $object );
-
-        $collection_name = $this->collection_name;
-
-        $this->get_database()->delete( function($query)
-                                    use($collection_name, $id_field, $id) {
-
-            $query->set_meta_model( $this );
-
-            $query->collection( $collection_name );
-
-            $query->filter(
-                $query ->field( $id_field ) ->op( "=" ) ->value( $id )
-            );
-
-        }, [] );
-
-        $this->announce_object_deleted( $object );
-
-        return $object;
-    }
+    abstract public function delete($object);
 
     public function delete_all($filter_callable, $named_parameters = [])
     {
         $this->validate_named_parameters( $named_parameters );
 
-        $collection_name = $this->collection_name;
-
-        $records = $this->get_database()->delete( function($query)
-                                            use($collection_name, $filter_callable) {
+        $records = $this->get_database()->delete( function($query) use($filter_callable) {
 
             $query->set_meta_model( $this );
 
-            $query->collection( $collection_name );
+            $query->collection( $this->collection_name );
 
             $filter_callable( $query );
 
