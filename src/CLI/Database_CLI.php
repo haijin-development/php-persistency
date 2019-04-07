@@ -31,6 +31,11 @@ class Database_CLI
         return $this->migrations_builder;
     }
 
+    public function get_populate_scripts_evaluator()
+    {
+        return $this->populate_scripts_evaluator;
+    }
+
     public function get_running_env()
     {
         return $this->environment;

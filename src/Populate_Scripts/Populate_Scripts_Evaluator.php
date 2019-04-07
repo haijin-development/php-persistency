@@ -100,10 +100,6 @@ class Populate_Scripts_Evaluator
                 $this->raise_missing_name_error( $populate_scripts );
             }
 
-            if( empty( $populate_scripts->get_scripts() ) ) {
-                $this->raise_missing_scripts_error( $populate_scripts );
-            }
-
             $all_populate_scripts[] = $populate_scripts;
             $populate_scripts_ids[] = $populate_scripts->get_id();
         }
@@ -130,28 +126,21 @@ class Populate_Scripts_Evaluator
     protected function raise_missing_id_error($populate_scripts)
     {
         throw new Haijin_Error(
-            "The populate_scripts in file '{$populate_scripts->get_source_filename()}' is missing its id."
+            "The populate script in file '{$populate_scripts->get_source_filename()}' is missing its id."
         );
     }
 
     protected function raise_duplicated_populate_scripts_id_error($populate_scripts)
     {
         throw new Haijin_Error(
-            "The populate_scripts in file '{$populate_scripts->get_source_filename()}' has a repeated unique id: '{$populate_scripts->get_id()}'."
+            "The populate script in file '{$populate_scripts->get_source_filename()}' has a repeated unique id: '{$populate_scripts->get_id()}'."
         );
     }
 
     protected function raise_missing_name_error($populate_scripts)
     {
         throw new Haijin_Error(
-            "The populate_scripts in file '{$populate_scripts->get_source_filename()}' is missing its name."
-        );
-    }
-
-    protected function raise_missing_scripts_error($populate_scripts)
-    {
-        throw new Haijin_Error(
-            "The populate_scripts in file '{$populate_scripts->get_source_filename()}' has no scripts defined."
+            "The populate script in file '{$populate_scripts->get_source_filename()}' is missing its name."
         );
     }
 }
